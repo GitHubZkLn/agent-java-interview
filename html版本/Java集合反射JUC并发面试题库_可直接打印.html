@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Java集合、反射、JUC并发面试题库</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm 2.5cm;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'SimSun', serif;
+      font-size: 12pt;
+      line-height: 1.8;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 22pt;
+      text-align: center;
+      color: #fff;
+      background: #2c5aa0;
+      padding: 16pt 12pt;
+      border-radius: 4pt;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+
+    h2 {
+      font-size: 16pt;
+      color: #2c5aa0;
+      border-bottom: 2pt solid #2c5aa0;
+      padding-bottom: 4pt;
+      margin-top: 20pt;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 13pt;
+      color: #333;
+      margin-top: 14pt;
+      page-break-after: avoid;
+    }
+
+    q {
+      font-style: normal;
+      color: #444;
+      background: #f5f8ff;
+      border-left: 4pt solid #2c5aa0;
+      padding: 10pt 14pt;
+      margin: 8pt 0;
+      display: block;
+    }
+
+    blockquote {
+      margin: 8pt 0;
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10pt 0;
+      font-size: 11pt;
+    }
+
+    th {
+      background: #2c5aa0;
+      color: #fff;
+      padding: 7pt 10pt;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    td {
+      padding: 6pt 10pt;
+      border: 0.5pt solid #c0c8e0;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: #f0f4fb;
+    }
+
+    hr {
+      border: none;
+      border-top: 1pt solid #c0c8e0;
+      margin: 16pt 0;
+    }
+
+    .final-tips {
+      background: #eaf3ff;
+      border: 1pt solid #2c5aa0;
+      padding: 14pt 18pt;
+      border-radius: 4pt;
+      margin-top: 20pt;
+    }
+
+    .final-tips h2 {
+      border: none;
+      color: #2c5aa0;
+      margin-top: 0;
+    }
+
+    .toc-item {
+      padding: 3pt 0;
+      color: #2c5aa0;
+    }
+
+    .toc-item.sub {
+      padding-left: 18pt;
+      font-size: 11pt;
+      color: #555;
+    }
+
+    .print-only {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+
+
+  <h2>第一部分：Java 集合框架</h2>
+
+  <h3>Q1：ArrayList 和 LinkedList 的核心区别是什么？各自适用什么场景？</h3>
+
+  <q>ArrayList 和 LinkedList 的核心区别在于底层数据结构的取舍不同。<br><br>
+    ArrayList 用的是动态数组。优点是随机访问快——因为数组是连续内存，直接通过索引就能算出地址，时间复杂度 O(1)。缺点是插入删除慢——往中间插一个元素，需要把后面的元素全部往后搬移，最坏 O(n)。<br><br>
+    LinkedList 用的是双向链表。优点是插入删除快——已知位置的情况下，只需要修改前后两个指针，时间复杂度 O(1)。缺点是随机访问慢——每次访问都要从头或从尾遍历，O(n)。<br><br>
+    大多数业务场景用 ArrayList，因为实际业务中随机访问远比中间插入删除更常见。而且 ArrayList 有 CPU 缓存友好的优势——连续内存，预读取机制让访问更快。LinkedList
+    适合做队列（头尾操作频繁）或者需要大量中间插入删除的场景。<br><br>
+    补充一点：LinkedList 同时实现了 Queue 和 Deque 接口，可以直接当双端队列用。在 JDK 1.8 之后，LinkedList 作为队列使用时，底层是通过 Node 节点组成双向链表实现的。</q>
+
+  <h3>Q2：HashMap 的底层数据结构是什么？JDK 1.7 和 JDK 1.8 有什么区别？</h3>
+
+  <q>HashMap 是 Java 面试的必考题，我分两个版本来讲。<br><br>
+    JDK 1.7 的实现：底层是数组 + 链表，使用头插法。头插法有个严重问题——并发下 resize 时，链表节点会被反转，形成环形链表。多线程遍历时会死循环，CPU 打满。这就是 HashMap
+    线程安全问题的根源。<br><br>
+    JDK 1.8 的改进：底层变成数组 + 链表 + 红黑树。当链表长度超过 8 且数组长度超过 64 时，链表转成红黑树，查询效率从 O(n) 降到 O(log n)。同时改用尾插法，避免了环形链表问题。<br><br>
+    扰动函数的变化：JDK 1.7 用 4 次位运算 + 5 次异或，JDK 1.8 简化成 1 次位运算 + 1 次异或。原因是 JDK 1.8 引入了红黑树，长链表的查询效率已经大幅提升，不需要过度依赖扰动函数来分散
+    hash。<br><br>
+    面试加分点：可以提到 JDK 1.7 头插法还有另一个问题——resize 时可能导致数据丢失（两个线程同时插入，某个节点的 next 指针被覆盖）。并发场景下统一推荐使用 ConcurrentHashMap。</q>
+
+  <h3>Q3：HashMap 线程不安全体现在哪些方面？ConcurrentHashMap 是如何解决的？</h3>
+
+  <q>HashMap 线程不安全主要体现在三个场景。<br><br>
+    第一，数据丢失。并发 put 时，两个线程同时写入同一个桶，后一个线程的插入会覆盖前一个线程的插入。<br><br>
+    第二，环形链表死循环。JDK 1.7 的头插法 + resize 并发执行时，链表可能形成环形。这个问题是面试中最常被追问的。<br><br>
+    第三，扩容时数据覆盖。扩容过程中，数组迁移时节点顺序被打乱，并发下可能丢失数据。<br><br>
+    ConcurrentHashMap 的解决方案：<br><br>
+    JDK 1.7 用的是分段锁——把整个 HashMap 分成 16 个 Segment，每个 Segment 各自加锁，并发度是 16。优点是锁粒度细了；缺点是锁粒度还是太粗，而且占内存。<br><br>
+    JDK 1.8 放弃了分段锁，改用 CAS + synchronized。CAS 处理空桶的插入，synchronized 处理哈希冲突（链表/红黑树）的插入。这样锁粒度细化到每个桶，并发度大大提高。<br><br>
+    核心区别：JDK 1.7 是"给整个 HashMap 分段"，JDK 1.8 是"给每个桶加锁"。JDK 1.8 的方案锁粒度更细，内存占用更少。</q>
+
+  <h3>Q4：HashMap 的容量为什么必须是 2 的幂次？HashMap 的扩容机制是什么？</h3>
+
+  <q>HashMap 要求容量是 2 的幂次，核心原因是为了让哈希分散更均匀，从而减少哈希冲突。<br><br>
+    HashMap 计算索引用的是 (n - 1) & hash，其中 n 是容量。当 n 是 2 的幂次时，n - 1 的二进制形式是全 1（比如 16 - 1 = 15 = 0b1111）。& 运算相当于取 hash
+    的低几位，和取模运算效果相同，但 & 比 % 快得多。<br><br>
+    如果 n 不是 2 的幂次，比如 n = 15，则 n - 1 = 14 = 0b1110，这时候 & 运算的分布就不均匀了——某些低位永远为 0，会导致大量哈希冲突。<br><br>
+    扩容机制：HashMap 负载因子默认是 0.75。当元素数量超过 capacity × 0.75 时，触发扩容，容量翻倍。扩容时需要重新计算每个元素的索引位置（rehash），这是 HashMap 扩容性能开销大的原因。JDK
+    1.8 对 rehash 做了优化——如果 hash & oldCap == 0，则新索引等于旧索引；否则新索引 = 旧索引 + oldCap。这样可以避免完整的 rehash。<br><br>
+    面试加分点：提到 JDK 1.8 的扩容优化——元素低位是 0 还是 1，决定了扩容后留在原位还是移动到"原位置 + 旧容量"的位置。这大大减少了 rehash 的计算量。</q>
+
+  <h3>Q5：HashMap 和 Hashtable 的区别是什么？为什么推荐用 HashMap？</h3>
+
+  <q>HashMap 和 Hashtable 的核心区别有三个。<br><br>
+    第一，线程安全。Hashtable 所有方法都加了 synchronized，是线程安全的；HashMap 不是线程安全的，需要外部同步。<br><br>
+    第二，性能。Hashtable 由于每个操作都要竞争同一把锁，高并发下性能很差。HashMap 虽然不是线程安全的，但可以通过 Collections.synchronizedMap() 转成线程安全的，或者直接用
+    ConcurrentHashMap。<br><br>
+    第三，null 支持。HashMap 允许 key 和 value 为 null；Hashtable 不允许任何 null 值，否则抛 NullPointerException。<br><br>
+    为什么推荐 HashMap？因为 Hashtable 的同步开销太大了，在高并发场景下性能极差。而且 Hashtable 是遗留类，设计比较陈旧。实际生产环境推荐用 ConcurrentHashMap。<br><br>
+    补充一点：Hashtable 的初始容量是 11，负载因子是 0.75；HashMap 的初始容量是 16，负载因子也是 0.75。HashMap 的设计更合理。</q>
+
+  <h3>Q6：HashMap 的 key 有什么要求？为什么 String 和 Integer 适合做 key？</h3>
+
+  <q>HashMap 的 key 需要满足两个要求。<br><br>
+    第一，key 必须实现 equals 和 hashCode 方法。因为 HashMap 通过 hashCode() 计算索引位置，通过 equals() 判断 key
+    是否相等。如果这两个方法实现不合理，会导致哈希冲突加剧，甚至找不到已存在的 key。<br><br>
+    第二，key 最好是不可变的。因为 key 的 hashCode 在 put 时计算并缓存，如果放入 Map 后 key 的属性变了，hashCode 就变了，下次 get 的时候就会找不到。<br><br>
+    String 和 Integer 为什么适合做 key？<br><br>
+    String 是最常用的 key 类型，因为 String 是不可变的——创建后内容不能改变，hashCode 不会变化。Integer 同理，也是不可变的。这两种类型作为 key 既安全又高效。<br><br>
+    实际项目中的坑：如果用自定义对象做 key，一定要保证对象是不可变的——要么用 final class，要么把需要参与 equals 和 hashCode 计算的字段都设成 final。否则就会出现"明明 Map
+    里有这个元素，但就是 get 不到"的奇怪问题。</q>
+
+  <h3>Q7：ConcurrentHashMap 的 get 操作不需要加锁是如何实现的？</h3>
+
+  <q>这是 ConcurrentHashMap 设计的一个精妙之处。get 操作不需要加锁，靠的是 volatile 的可见性保证。<br><br>
+    JDK 1.8 的 ConcurrentHashMap，Node 数组（table）是用 volatile 修饰的。这意味着对 table 的所有读写都是对主内存的操作，每次读取都能看到最新的值。get
+    操作只需要按索引找到桶，然后遍历链表或红黑树，找到对应的 key 即可，不需要任何锁。<br><br>
+    但有一个边界情况需要考虑：如果 get 正在遍历链表时，另一个线程正在 resize 并往链表头部插入节点，会不会看到不完整的数据？答案是不会。因为 JDK 1.8
+    的插入用的是尾插法——新节点插在链表尾部，不影响正在遍历的链表尾部。<br><br>
+    和 JDK 1.7 的区别：JDK 1.7 的 Segment 分段锁实现中，get 操作也不需要加锁，同样靠 volatile 的可见性保证。但因为每个 Segment 各自独立，所以并发度比 JDK 1.8
+    低很多。<br><br>
+    面试加分点：可以提到，ConcurrentHashMap 的 get 体现了"读多写少"场景下的高性能设计哲学——不需要所有操作都加锁，volatile 的可见性保证可以让读操作完全无锁化。</q>
+
+
+  <hr>
+
+  <h2>第二部分：Java 反射机制</h2>
+
+  <h3>Q9：什么是 Java 反射？它的工作原理是什么？</h3>
+
+  <q>反射是 Java 在运行状态中动态获取类的信息并操作对象的能力。<br><br>
+    工作原理：Java 程序编译后会生成 .class 文件，类加载器（ClassLoader）将这些 .class 文件加载到内存的方法区，在堆中生成一个唯一的 Class 对象。这个 Class
+    对象包含了类的完整结构信息——有哪些字段、哪些方法、哪些构造器、继承了什么接口等。通过这个 Class 对象，我们就能在程序运行时"反射"出类的信息，并且动态调用它的方法、访问它的字段。<br><br>
+    常见的反射使用场景：<br>
+    · Spring 的依赖注入（@Autowired）：通过反射找到 set 方法并注入<br>
+    · MyBatis 的 ORM 映射：通过反射将 ResultSet 映射到 Java 对象<br>
+    · 序列化框架（Jackson/Gson）：通过反射读取和写入对象的字段<br>
+    · 注解处理器：通过反射读取类、方法、字段上的注解<br><br>
+    面试加分点：可以提到，反射的核心是 Class 对象，它是理解反射的起点。Class 对象是反射的大门，所有反射操作都从获取 Class 对象开始。</q>
+
+  <h3>Q10：Class 对象的获取方式有哪几种？它们有什么区别？</h3>
+
+  <q>获取 Class 对象有三种方式。<br><br>
+    第一种：类名.class。比如 String.class。这种方式最简单直接，不触发类的静态初始化块，编译时就确定。<br><br>
+    第二种：对象.getClass()。比如 "hello".getClass()。需要先有一个实例，适用于已有对象的情况下获取其类型。<br><br>
+    第三种：Class.forName("全限定名")。比如 Class.forName("java.util.ArrayList")。这种方式最灵活，可以动态传入字符串，适合配置文件和框架。最常用于 JDBC
+    驱动的加载——Class.forName("com.mysql.cj.jdbc.Driver")。<br><br>
+    三者的区别：<br>
+    · 类名.class：编译时确定，最安全，不会有拼写错误<br>
+    · 对象.getClass()：需要对象，不灵活<br>
+    · forName()：运行时动态确定，可以传变量，但有 ClassNotFoundException 风险<br><br>
+    框架中的应用：JDBC 中用 forName() 是因为驱动类名是从配置文件读取的，不是硬编码的。Spring 的组件扫描也大量使用 forName() 动态加载 Bean 类型。</q>
+
+
+  <h3>Q12：反射为什么慢？有哪些优化手段？</h3>
+
+  <q>反射的性能开销主要来自四个方面。<br><br>
+    第一，JIT 优化失效。正常的方法调用，JIT 编译器在运行时会做内联、常量折叠等优化。但反射调用的方法在编译时无法确定，JIT 无法优化，只能解释执行，性能差 2~3 倍。<br><br>
+    第二，访问权限检查。每次反射调用都要检查访问权限，即使我们已经调用了 setAccessible(true)，JVM 内部仍然有安全检查的开销。<br><br>
+    第三，装箱和拆箱。反射调用方法时，基本类型参数必须装箱成包装类（Integer、Long 等），返回值也经常需要拆箱，这有额外的对象创建开销。<br><br>
+    第四，字节码指令复杂。反射调用的字节码生成比直接调用复杂得多，涉及 MethodAccessor 的 Native 调用或 Java 方式的动态生成。<br><br>
+    优化手段：<br>
+    第一种：缓存 Method/Field 对象。不要每次调用都重新获取，一次获取，多次使用。<br>
+    第二种：setAccessible(true)。在有把握的情况下关闭访问检查，减少 JVM 的安全检查开销。<br>
+    第三种：高频调用切换。JDK 的 ReflectASM 会在反射调用超过 15 次后，从 Native 方式切换到 Java 方式（字节码生成），减少 JNI 开销。<br>
+    第四种：用其他方案替代反射：注解处理代替反射调用、动态代理、代码生成工具（MapStruct 在编译期生成映射代码）。<br><br>
+    面试加分点：可以提到，实际项目中如果对性能要求极高（比如高频交易系统），会尽量避免反射，用预编译生成的代码替代。但大多数业务系统，反射的性能影响是可以接受的。</q>
+
+
+  <hr>
+
+  <h2>第三部分：synchronized 底层原理</h2>
+
+  <h3>Q14：synchronized 的底层原理是什么？它是如何加锁的？</h3>
+
+  <q>synchronized 的底层原理，面试官可以分两层来理解。<br><br>
+    第一层：编译层面。Java 编译器会在 synchronized 修饰的代码块前后分别插入 monitorenter 和 monitorexit 字节码指令。同步方法则是通过方法表中的 ACC_SYNCHRONIZED
+    标志隐式实现的。<br><br>
+    第二层：JVM 层面。monitorenter 指令在执行时，会尝试获取对象的 monitor（监视器锁）。每个 Java 对象在内存中都关联了一个 Monitor，Monitor 内部维护了一个计数器——计数器为 0
+    表示未被占用，线程获取后计数器加 1；重入时计数器再加 1；退出同步块时计数器减 1，减到 0 则释放锁。<br><br>
+    Monitor 是什么？Monitor 是基于 C++ 实现的 ObjectMonitor，包含了三个核心字段：_owner（指向持有锁的线程）、_WaitSet（等待队列，调用 wait()
+    的线程在这里排队）、_EntryList（阻塞队列，未抢到锁的线程在这里等待）。<br><br>
+    线程竞争 Monitor 的流程：线程执行到 synchronized 代码块时，先去 _EntryList 排队抢锁；抢到的线程成为 _owner；如果线程调用 wait() 就进入 _WaitSet 等待，被 notify
+    唤醒后重新进入 _EntryList 排队。<br><br>
+    面试加分点：可以提到，synchronized 的锁是对象级别的，不是方法级别的。一个 synchronized 实例方法，锁的是 this 对象；一个 synchronized static 方法，锁的是 Class
+    对象。</q>
+
+  <h3>Q15：synchronized 的锁升级机制是什么？为什么说是不可逆的？</h3>
+
+  <q>synchronized 在 JDK 1.6 之后引入了锁升级机制，从轻到重一共四级，不可逆。<br><br>
+    第一级：无锁状态。对象没有任何线程持有，Mark Word 后三位是 001。<br><br>
+    第二级：偏向锁。当第一个线程进入同步块时，用 CAS 将自己的线程 ID 写入 Mark Word。之后这个线程再进入同步块，只需要比较线程 ID
+    是否匹配，不需要任何原子操作。偏向锁解决的是单线程重复加锁的性能损耗。<br><br>
+    第三级：轻量级锁。有其他线程来竞争时，偏向锁升级为轻量级锁。线程在栈帧中创建锁记录（Lock Record），包含 Mark Word 副本和对象指针，然后用 CAS 将对象头的 Mark Word 替换为指向锁记录的指针。如果
+    CAS 失败，就自旋重试（默认自旋 10 次左右）。<br><br>
+    第四级：重量级锁。自旋超过阈值，或者竞争加剧时，轻量级锁膨胀为重量级锁。重量级锁依赖操作系统的 Mutex（互斥量），未获取锁的线程被直接阻塞，不再消耗 CPU。不再像轻量级锁那样空转自旋浪费 CPU。<br><br>
+    为什么不可逆？因为 Mark Word 的空间是有限的（64 bit），锁状态信息存放在 Mark Word 中。一旦膨胀到重量级锁，Mark Word 中存的是指向 Monitor 的指针，无法反向降级。<br><br>
+    面试加分点：可以提到 JDK 15 之后移除了偏向锁，原因是偏向锁在多线程竞争场景下撤销开销大，现代应用基本没有单线程重复加锁的场景了。</q>
+
+
+  <h3>Q17：synchronized 和 ReentrantLock 有什么区别？</h3>
+
+  <q>synchronized 和 ReentrantLock 本质上都是锁，但设计思路和使用方式完全不同。<br><br>
+    加锁方式：synchronized 是隐式锁——编译器自动在代码前后插入 monitorenter/monitorexit，程序员不需要关心锁的获取和释放，出了同步块自动释放。ReentrantLock 是显式锁——必须手动调用
+    lock() 获取锁，finally 中调用 unlock() 释放，不释放就会死锁。<br><br>
+    灵活性：synchronized 功能单一，无法中断等待中的线程，无法设置超时，无法绑定多个条件（Condition）。ReentrantLock 可以 lockInterruptibly() 中断等待，可以 tryLock()
+    设置超时，可以 newCondition() 创建多个条件队列。<br><br>
+    公平性：synchronized 只能是非公平锁。ReentrantLock 可以创建公平锁或非公平锁。公平锁按等待顺序排队，非公平锁允许插队（刚释放的线程立刻重新获取锁）。<br><br>
+    底层实现：synchronized 依赖对象头的 Mark Word 和 Monitor。ReentrantLock 依赖 AQS（队列同步器），AQS 维护了一个 volatile 的 state 和一个 FIFO
+    队列。<br><br>
+    实际选择：大多数场景用 synchronized 就够了——语法简洁，不容易出错。如果需要可中断、可超时、多条件等高级特性，才用 ReentrantLock。<br><br>
+    面试加分点：可以提到 ReentrantLock 的可重入实现——同一个线程再次获取锁时，state 加 1，释放时减 1，减到 0 才真正释放锁。</q>
+
+  <hr>
+
+  <h2>第四部分：CAS（Compare-And-Swap）</h2>
+
+  <h3>Q18：什么是 CAS？它的底层原理是什么？</h3>
+
+  <q>CAS 是 Compare-And-Swap 的缩写，是 CPU 提供的硬件级别原子指令。<br><br>
+    底层原理：CAS 包含三个参数——内存位置（M）、期望值（E）、新值（N）。CPU 执行时，原子地比较 M 的当前值和 E，如果相等，就把 M 更新为 N，返回 true；如果不等，说明其他线程已经修改了 M，则什么都不做，返回
+    false。整个比较和交换是一个不可打断的原子操作。<br><br>
+    在 Java 中：CAS 操作由 sun.misc.Unsafe 类提供，JVM 会将其编译成对应的 CPU 指令。在 x86 架构上是 CMPXCHG 指令，在 ARM 架构上是 LDREX/STREX 指令。<br><br>
+    Java 的 CAS 封装：JDK 的 atomic 包下所有原子类（AtomicInteger、AtomicLong、AtomicReference 等）都基于 CAS 实现。例如
+    AtomicInteger.getAndIncrement() 底层就是调用 Unsafe 的 CAS。<br><br>
+    面试加分点：可以提到，CAS 是一种乐观锁——假设没有线程冲突，直接尝试更新；如果发现冲突（其他线程修改了），就重试，直到成功。这和 synchronized 的悲观锁思路正好相反。</q>
+
+  <h3>Q19：CAS 有哪些缺点？ABA 问题是什么？</h3>
+
+  <q>CAS 有三大缺点，ABA 问题是最常被追问的。<br><br>
+    缺点一：ABA 问题。线程 A 读取 M = 1，线程 B 将 M 改成 2 再改回 1，线程 A 继续 CAS 操作时发现 M = 1（期望值），以为没变化就成功了。但实际上 M 已经被其他线程修改过又改回来了。ABA
+    问题的危害在于：某些场景下，变化过程本身是有意义的，但 CAS 只关心结果、不关心过程。<br><br>
+    ABA 问题的解决方案：使用 AtomicStampedReference（带时间戳/版本号的引用），每次修改都附带一个递增的版本号，CAS 时不仅比较值，还比较版本号。<br><br>
+    缺点二：自旋开销。竞争激烈时，多个线程同时 CAS 失败，然后都空循环重试，浪费 CPU 资源。这就是 LongAdder 要解决的问题。<br><br>
+    缺点三：只能保证一个变量。CAS 只能原子地操作一个变量。如果需要同时保证多个变量的原子性，CAS 就无能为力了。解决方案是用 AtomicReference 把多个变量打包成一个对象，然后 CAS 这个对象。<br><br>
+    ABA 问题的实际场景：常见的应用是栈的出栈入栈——线程 A 读取栈顶是 A，准备出栈；线程 B 把 A 出栈了，又压入了 B 和 C；线程 A 继续 CAS 栈顶的 A（期望值），发现匹配就成功了，但此时栈顶已经不是原来的 A
+    了。解决方法是给每个栈节点加版本号。</q>
+
+
+
+  <hr>
+
+  <h2>第五部分：AQS（AbstractQueuedSynchronizer）</h2>
+
+  <h3>Q22：AQS 的核心原理是什么？它的三大核心组件是什么？</h3>
+
+  <q>AQS 是 Java 并发包的基石，ReentrantLock、Semaphore、CountDownLatch、CyclicBarrier 的底层都依赖它。<br><br>
+    核心思想：AQS 维护了一个 volatile 的 state（同步状态）和一个 FIFO 等待队列。加锁时用 CAS 尝试修改 state——成功就拿到锁，失败就加入等待队列排队。<br><br>
+    三大核心组件：<br><br>
+    第一，state（同步状态）。是一个 volatile int 类型的变量，默认为 0。state = 0 表示锁未被占用；state > 0 表示锁被占用，数值等于重入次数。子类通过 tryAcquire 和 tryRelease
+    自定义 state 的含义。<br><br>
+    第二，FIFO 等待队列。当线程获取锁失败后，会被封装成 Node 加入队列尾部。队列是一个双向链表，由 head 和 tail 两个指针维护。队列中的线程通过自旋 + LockSupport.park() 等待。<br><br>
+    第三，CAS 操作。AQS 大量使用 CAS 来原子地修改 state 和队列操作，是实现无锁算法的关键。<br><br>
+    acquire 的流程：先 tryAcquire 尝试获取（子类实现），失败就 addWaiter 把线程封装成 Node 加入队列尾部，然后 acquireQueued 在队列中自旋等待——每次自旋前检查自己是不是 head
+    的下一个节点，如果是就再 tryAcquire 一次。如果自旋超过阈值，就用 LockSupport.park() 真正阻塞线程。<br><br>
+    面试加分点：可以提到，AQS 的等待队列是 CLH 队列的变体。CLH 队列的优势是：无锁、无阻塞、FIFO、公平。</q>
+
+  <h3>Q23：AQS 的独占模式和共享模式有什么区别？</h3>
+
+  <q>AQS 支持两种工作模式——独占模式和共享模式。<br><br>
+    独占模式：同时只有一个线程能获得锁。其他线程都在队列中排队，等待锁释放后再竞争。ReentrantLock 就是独占模式的典型实现。<br>
+    · 获取锁：acquire() → tryAcquire() → addWaiter() → acquireQueued()<br>
+    · 释放锁：release() → tryRelease()<br><br>
+    共享模式：多个线程可以同时获得锁。比如 Semaphore 允许多个线程同时持有许可证，CountDownLatch 允许多个线程同时通过。<br>
+    · 获取锁：acquireShared() → tryAcquireShared() → doAcquireShared()<br>
+    · 释放锁：releaseShared() → tryReleaseShared()<br><br>
+    两者的核心区别：独占模式中，tryAcquire 返回 true 表示成功，false 表示失败。共享模式中，tryAcquireShared 返回一个整数值——正数表示成功（还有剩余资源），0
+    表示成功但没有剩余资源，负数表示失败。<br><br>
+    共享模式下，锁释放时需要唤醒所有后继节点（因为可能有多个线程等待）。独占模式只需要唤醒 head 的下一个节点。<br><br>
+    Node 节点的区别：Node.EXCLUSIVE 表示独占模式，Node.SHARED 表示共享模式。队列中，独占节点的后继节点不会自动尝试获取锁，但共享节点的后继节点会自动传播（PROPAGATE 状态）。<br><br>
+    面试加分点：可以提到，ReentrantReadWriteLock 中，读锁是共享模式（多个线程同时读），写锁是独占模式（只能一个线程写，写的时候不能读）。</q>
+
+
+
+  <hr>
+
+  <h2>第六部分：ConcurrentHashMap</h2>
+
+  <h3>Q26：ConcurrentHashMap JDK 7 的分段锁是如何实现的？</h3>
+
+  <q>JDK 7 的 ConcurrentHashMap 使用的是 Segment 分段锁机制。<br><br>
+    数据结构：整个 HashMap 被分成 16 个 Segment，每个 Segment 各自维护一个 HashEntry 数组，和一个独立的可重入锁。Segment 数组在 ConcurrentHashMap
+    构造时就已经初始化好了。<br><br>
+    并发度：理论上最大并发度是 16——同一时间最多 16 个线程同时操作不同的 Segment，互相之间不冲突。<br><br>
+    get 操作：完全不需要加锁。因为 HashEntry 的 value 和 next 都是 volatile 的，读取总是看到最新的值。<br><br>
+    put 操作：先定位到属于哪个 Segment（通过 hash & (Segment数量 - 1)），然后对这个 Segment 加锁，执行类似 HashMap 的 put 操作。<br><br>
+    size 操作：这是最复杂的部分。ConcurrentHashMap 的 size 不是简单的把所有 Segment 的 count 加起来——因为统计 size 的过程中，可能有其他线程正在往 Segment 里写数据。JDK 7
+    的实现是：先尝试无锁计算（最多重试 3 次），每次计算前记录所有 Segment 的 modCount（修改次数），计算后对比；如果 3 次无锁计算过程中有 Segment 被修改过，就对所有 Segment
+    加锁再计算。<br><br>
+    为什么 JDK 8 放弃了分段锁？因为 16 个 Segment 锁粒度还是太粗，而且每个 Segment 本身是一个独立的 ReentrantLock，占用额外内存。并发度固定为 16，无法动态调整。</q>
+
+  <h3>Q27：ConcurrentHashMap JDK 8 的 CAS + synchronized 是如何实现的？</h3>
+
+  <q>JDK 8 放弃了 Segment 分段锁，改用 CAS + synchronized，锁粒度细化到每个桶。<br><br>
+    数据结构：和 HashMap 一样，是 Node 数组 + 链表 + 红黑树。Node 数组（table）用 volatile 修饰，保证可见性。<br><br>
+    put 流程：<br>
+    第一步，定位桶。通过 (n - 1) & hash 计算桶位置。<br>
+    第二步，CAS 插入。如果桶为空，用 CAS 尝试插入新节点。如果 CAS 成功，说明没有竞争，直接插入完成。<br>
+    第三步，synchronized 加锁。如果桶不为空（已有节点），说明发生了 hash 冲突。此时对这个桶（桶的第一个节点）加 synchronized 锁，然后按链表或红黑树的逻辑插入或更新节点。<br><br>
+    为什么桶不为空时用 synchronized 而不是 CAS？因为多个线程可能同时往同一个桶插入节点，CAS 只能保证一个成功。如果用 CAS 自旋重试，竞争激烈时会退化成大量自旋，浪费 CPU。synchronized
+    锁住桶的第一个节点，串行化写入，是更高效的选择。<br><br>
+    get 操作：全程无锁。只需要按索引找到桶，然后遍历链表或红黑树即可，不需要任何锁。<br><br>
+    和 JDK 7 的对比：JDK 7 是给整个 Segment 加锁（粗粒度），JDK 8 是给每个桶加锁（细粒度）。JDK 8 的并发度等于桶的数量，理论上比 JDK 7 的固定 16 高很多。<br><br>
+    面试加分点：可以提到 JDK 1.8 还引入了 ForwardingNode——在扩容过程中，旧的桶数组中的节点会被替换成 ForwardingNode，hash = -1，表示这些桶已经迁移到新数组了。get 操作遇到
+    ForwardingNode 时，会跳到新数组继续查找。</q>
+
+  <h3>Q28：ConcurrentHashMap 的扩容机制是什么？多线程是如何协同扩容的？</h3>
+
+  <q>ConcurrentHashMap 的扩容是多线程协同的，所有正在执行 put 的线程都有义务帮助扩容。<br><br>
+    触发条件：当元素数量超过 capacity × loadFactor（负载因子，默认 0.75）时触发。<br><br>
+    JDK 1.8 扩容流程：<br>
+    第一步，创建新数组。新数组容量是旧数组的两倍。<br>
+    第二步，分配迁移任务。每个线程认领一段桶区间（步长 stride，默认是 16），从旧数组的高位往低位迁移。<br>
+    第三步，迁移单个桶。对旧数组的某个桶加 synchronized 锁，将桶中的节点分成两类：hash & oldCap == 0 的节点留在原位置（低位），hash & oldCap != 0 的节点移动到"原位置 +
+    oldCap"的位置（高位）。这个分配方式和 HashMap JDK 1.8 的 rehash 优化完全一致。<br>
+    第四步，替换桶。迁移完成后，在旧桶中插入 ForwardingNode 标记，指向新数组。<br><br>
+    帮助扩容（ConcurrentHashMap 的特色）：当某个线程 put 时，发现桶的第一个节点的 hash = -1（ForwardingNode），说明正在扩容。这个线程不是等待，而是跳转到
+    nextTable（新数组）帮忙迁移。<br><br>
+    扩容完成的标志：transferIndex <= 0。transferIndex 是剩余未分配的任务索引，减到 0 表示所有桶都迁移完成了。<br><br>
+      面试加分点：可以提到，JDK 1.8 的 ConcurrentHashMap 扩容有一个优化——在迁移过程中，如果 get
+      操作找不到元素，会主动去新数组查找（因为节点可能已经迁移走了）。这个细节体现了"用户线程帮忙干活"的设计哲学。</q>
+
+  <h2>第九部分：ThreadLocal</h2>
+
+  <h3>Q37：ThreadLocal 的核心原理是什么？它和普通变量有什么本质区别？</h3>
+
+  <q>ThreadLocal 不是存储在线程内部，而是每个线程都持有自己独立的变量副本——这就是它实现线程隔离的核心思想。<br><br>
+    常见的误解是认为 ThreadLocal 内部维护了一个 Map，key 是线程、value 是变量值。**这个理解是错的。** 真实情况是：ThreadLocal 对象本身是 key，变量值是 value，数据存储在 Thread 线程对象的 threadLocals 成员变量中。换句话说，数据结构的持有者是 Thread 而不是 ThreadLocal。<br><br>
+    具体来说：Thread 类中有一个 ThreadLocalMap 类型的成员变量 threadLocals，它是一个自定义的哈希表。当调用 threadLocal.set(value) 时，实际上是把 ThreadLocal 对象作为 key、value 作为值，存到当前线程的 threadLocals 这个 Map 里。当调用 threadLocal.get() 时，就从当前线程的 threadLocals 中，以 threadLocal 对象为 key 查找对应的 value。<br><br>
+    ThreadLocalMap 的结构值得深入了解：它的底层是数组（Entry[] table），使用**开放寻址法（线性探测）**解决哈希冲突，而不是 HashMap 的链表法。每个 Entry 继承 WeakReference，key（ThreadLocal 对象）是弱引用，value 是强引用。这个设计是有深意的——防止外部对 ThreadLocal 的强引用导致内存泄漏。<br><br>
+    ThreadLocal 和普通变量的根本区别：普通变量是共享的，多个线程访问同一个变量需要同步；ThreadLocal 变量是隔离的，每个线程看到的是自己的副本，线程之间互不干扰，不需要任何锁。</q>
+
+  <h3>Q38：ThreadLocal 内存泄漏是怎么发生的？正确用法是什么？</h3>
+
+  <q>ThreadLocal 内存泄漏是面试中的重难点，我分三步来讲：原因、官方补救、最佳实践。<br><br>
+    **内存泄漏的原因：**<br>
+    ThreadLocalMap 的 Entry 继承 WeakReference，key（ThreadLocal 对象）是弱引用。这意味着当外部代码不再持有 ThreadLocal 的强引用时，GC 会回收 ThreadLocal 对象，Map 中的 entry 就变成了 key = null、value = Object 的状态。value 是强引用，指向堆中的对象，且由于 Map 的存在，这个 value 无法被 GC 回收。<br><br>
+    最危险的是线程池场景。线程池中的核心线程是长期复用的，不会退出。如果 ThreadLocal 没有及时清理，value 对象会随着线程一直存活，导致这部分内存永远无法释放——这就是内存泄漏。<br><br>
+    **官方补救措施：**<br>
+    ThreadLocal 在 set()、get()、remove() 方法中都会进行探测式清理——遍历数组，清理 key = null 的过期 entry。但这是惰性清理，存在局限性：只有在调用这些方法时才会触发，如果业务代码只 set 不 remove、不 get，就会漏掉清理。<br><br>
+    **正确用法（必须记住）：**<br>
+    用 try-finally 包裹，确保 remove 一定执行：<br><br>
+    ThreadLocal&lt;Object&gt; tl = new ThreadLocal&lt;&gt;();<br>
+    try {<br>
+    &nbsp;&nbsp;tl.set(value);<br>
+    &nbsp;&nbsp;// 业务逻辑<br>
+    } finally {<br>
+    &nbsp;&nbsp;tl.remove(); // 防止内存泄漏，这是最佳实践<br>
+    }<br><br>
+    面试加分点：可以提到阿里巴巴开源的 TTL（TransmittableThreadLocal），解决了 InheritableThreadLocal 在线程池中失效的问题，是生产环境中传递线程上下文的推荐方案。</q>
+
+
+  <hr>
+
+  <h2>第十部分：JMM 内存模型</h2>
+
+  <h3>Q40：JMM 是什么？它解决了什么问题？三大特性分别是什么？</h3>
+
+  <q>JMM（Java Memory Model）是 Java 内存模型，是 Java 并发编程的基础规范。<br><br>
+    **为什么需要 JMM？**<br>
+    不同硬件和操作系统的内存访问方式不同——x86 和 ARM 的缓存一致性协议不一样，多核 CPU 的缓存模型也不一致。如果不定义一套统一规则，Java 程序在不同的硬件上可能产生不同的并发结果。JMM 的目标就是：屏蔽底层硬件差异，让 Java 程序在各种平台下都能得到一致性的并发效果。<br><br>
+    **JMM 的结构：**<br>
+    JMM 将内存分为主内存（Main Memory）和工作内存（Working Memory）。主内存是所有线程共享的，存放在堆中；每个线程有自己的工作内存，存放主内存中变量的副本。线程对变量的读写都在工作内存中进行，不直接操作主内存。线程之间通过主内存传递数据来通信。<br><br>
+    **JMM 的三大特性：** 原子性、可见性、有序性。<br><br>
+    原子性：操作不可分割、不可中断。比如 a = 1 是原子的，但 i++（读取-加1-写入三步）不是原子的。JMM 只保证基本类型的赋值操作是原子的，复合操作需要 synchronized 或 AtomicInteger 来保护。<br><br>
+    可见性：一个线程修改了共享变量，其他线程能立即看到。JMM 不保证可见性，所以 volatile、synchronized、final 是解决可见性的三种手段。<br><br>
+    有序性：程序代码的执行顺序和代码顺序一致。JMM 允许编译器和 CPU 做指令重排序优化，但 volatile 和 synchronized 可以禁止重排序，保证有序性。<br><br>
+    面试加分点：可以提到 JMM 的 happens-before 规则是理解可见性的唯一标准。</q>
+
+
+  <h3>Q42：volatile 的底层原理是什么？内存屏障是如何工作的？</h3>
+
+  <q>volatile 的底层依赖 CPU 的内存屏障（Memory Barrier）指令实现，分为读屏障和写屏障两种。<br><br>
+    **写屏障（Store Barrier）：**<br>
+    在 volatile 写操作之后插入，强制将数据写入主内存，并通知其他 CPU 核心的高速缓存失效。这样后续其他线程读这个变量时，必须从主内存读取，而不是从自己的 CPU 缓存读，从而保证了"写对读可见"。<br><br>
+    **读屏障（Load Barrier）：**<br>
+    在 volatile 读操作之前插入，强制从主内存读取最新数据，并清空本地缓存（让本地缓存中的旧数据失效）。这样每次读都是最新的值。<br><br>
+    **x86 架构的特殊性（面试加分点）：**<br>
+    在 x86 架构下，volatile 读是几乎免费的——x86 的缓存一致性（MESI 协议）本身就保证了读能看到最新值，不需要额外屏障。但 volatile 写需要 Store Barrier，开销较大。这是为什么 volatile 适合"读多写少"场景的原因。<br><br>
+    **volatile 的两个特性：** 可见性和有序性。<br><br>
+    可见性：volatile 写 + 读屏障保证了任何线程都能读到最新值。<br><br>
+    有序性：内存屏障禁止了屏障前后的指令重排序。编译器在生成字节码时会在 volatile 写前插入 StoreStore Barrier，在 volatile 写后插入 StoreLoad Barrier；在 volatile 读前插入 LoadLoad Barrier，在 volatile 读后插入 LoadStore Barrier。<br><br>
+    **重要澄清：volatile 不保证原子性。**<br>
+    比如 volatile int i = 0; i++; 这个操作，volatile 保证 i 的值变化对所有线程可见，但 i++ 本身包含三步（读取、加1、写入），不是原子操作，仍然需要 synchronized 或 CAS 来保护。</q>
+
+  <hr>
+
+  <h2>第十一部分：ReentrantLock</h2>
+
+  <h3>Q43：ReentrantLock 的加锁和释放锁的完整流程是什么？请结合 AQS 源码描述。</h3>
+
+  <q>ReentrantLock 的加锁流程可以分为非公平锁（默认）和公平锁两种，我先讲非公平锁的完整流程。<br><br>
+    **非公平锁加锁流程：** 非公平锁上来就直接用 CAS 尝试把 state 从 0 改成 1，这是"快速抢锁"。如果 CAS 成功，说明没有竞争，线程直接拿到锁。如果 CAS 失败，进入 tryAcquire 再次尝试。<br><br>
+    **tryAcquire 的判断逻辑：**<br>
+    检查 state 是否为 0——如果是，用 CAS 再抢一次（这次也可能失败）。如果 state 不为 0，说明锁被占用了，检查是否是当前线程重入（current == getExclusiveOwnerThread()）。如果是重入，state 加 1，返回成功。这是可重入的体现——同一个线程多次获取锁，state 累加。<br><br>
+    **入队流程：**<br>
+    如果 tryAcquire 返回失败，说明锁被其他线程占用，调用 addWaiter 将当前线程封装成 Node，加入 AQS 队列尾部。addWriter 使用 CAS + 自旋的方式快速入队，如果队列还没初始化，先调用 enq 初始化队列。<br><br>
+    **acquireQueued 自旋等待：**<br>
+    入队后线程进入自旋等待。每次自旋先检查自己是否是 head 的下一个节点（head 是虚拟节点，指向持有锁的线程）。如果是，说明自己有机会再 tryAcquire 一次。如果不是或者再抢失败，调用 shouldParkAfterFailedAcquire 判断是否需要阻塞。如果需要阻塞，调用 parkAndCheckInterrupt，用 LockSupport.park() 真正阻塞线程。<br><br>
+    **释放锁流程：**<br>
+    调用 unlock() → release() → tryRelease()。tryRelease 检查当前线程是否是持有锁的线程，然后将 state 减 1。如果 state 减到 0，说明完全释放了，setExclusiveOwnerThread(null) 清空持有线程。释放成功后，unpark head 的下一个等待节点，让它重新竞争锁。<br><br>
+    面试加分点：可以提到 ReentrantLock 的 state 不止表示锁是否被占用（0/1），还记录了重入次数。这也是它叫"可重入锁"的原因。</q>
+
+  <h3>Q44：公平锁和非公平锁哪个性能更好？应该如何选择？</h3>
+
+  <q>从性能角度，非公平锁整体性能更好，因为有"插队"机制；公平锁因为要维护 FIFO 顺序，每次都要检查队列，有额外开销。<br><br>
+    **非公平锁的优势：**<br>
+    非公平锁有两次插队机会。第一次是线程刚启动时——如果有新线程来抢锁，可以直接 CAS 抢，不用排队。第二次是锁释放时——刚释放锁的线程如果再次来抢，可以直接从 head 位置抢到锁，不用回到队列尾部排队。这两次插队让非公平锁的吞吐率更高。<br><br>
+    **公平锁的开销：**<br>
+    公平锁的 lock() 直接调用 acquire(1)，不走快速抢锁的逻辑。它先调用 hasQueuedPredecessors() 检查队列中是否有比自己更早等待的线程——如果队列非空，必须老老实实去排队。这带来两个性能损耗：每次都要遍历链表检查队列；释放时刚用完锁的线程不能立即重新获取，必须重新排队。<br><br>
+    **hasQueuedPredecessors() 的实现：**<br>
+    检查三件事：h != t（队列是否为空）；s = h.next（head 的下一个节点是否为 null）；s.thread != Thread.currentThread()（下一个节点是否是自己）。只有队列为空或者自己是下一个节点，才允许尝试获取锁。<br><br>
+    **实际选择：** 99% 的场景用非公平锁。除非有严格公平性要求的场景（比如 FIFO 顺序不可破坏），否则不要用公平锁。ReentrantLock 默认是非公平的。<br><br>
+    面试加分点：可以提到，在高并发场景下，非公平锁的吞吐量比公平锁高 5~10 倍。但公平锁适合需要"先来后到"的场景，比如秒杀系统中，防止饥饿等待。</q>
+
+  <h3>Q45：ReentrantLock 的 Condition 是如何实现的？它比 Object 的 wait/notify 强大在哪里？</h3>
+
+  <q>Condition 是 ReentrantLock 的等待通知机制，每个 Condition 实例内部维护了一个独立的等待队列。<br><br>
+    **实现原理：**<br>
+    await() 调用时，当前线程首先释放锁（这是 wait/notify 的前提），然后创建一个 Node 加入 Condition 的等待队列。signal() 调用时，从 Condition 队列中取出一个 Node，转移到 AQS 的同步队列中，让它重新进入等待锁的状态。<br><br>
+    **为什么比 wait/notify 更强大？**<br>
+    第一，队列数量。Object 的 wait/notify 只有一个 Monitor，一个等待队列。所有调用 wait() 的线程都挤在一个队列里，无法区分"等空"和"等满"这样的不同条件。Condition 可以创建多个队列，每个队列对应一个条件。<br><br>
+    第二，精准唤醒。ReentrantLock 可以 new 多个 Condition，比如 notFull 和 notEmpty。生产者线程在 notFull 上等，消费者线程在 notEmpty 上等。signal 时只会唤醒对应的线程，避免无效唤醒。<br><br>
+    第三，超时和中断支持。Condition.awaitNanos()、awaitUntil() 支持超时，await(long, TimeUnit) 支持中断响应。Object 的 wait() 没有超时选项。<br><br>
+    第四，可中断等待。Condition.awaitUntil(deadline) 可以在指定时间点中断线程。Object.wait() 不支持可中断等待（只能被 interrupt() 中断但会抛 InterruptedException）。<br><br>
+    **典型应用——ArrayBlockingQueue 的实现：** ArrayBlockingQueue 内部用 ReentrantLock + 两个 Condition：notEmpty（消费者在此等待"队列不为空"）、notFull（生产者在此等待"队列不为满"）。put 线程在 notFull 上等，take 线程在 notEmpty 上等，精确唤醒，没有无效的线程竞争。<br><br>
+    面试加分点：可以提到，Condition 必须配合 ReentrantLock 使用，在 lock.newCondition() 创建。不能单独创建 Condition，必须先获取锁。</q>
+
+  <hr>
+
+  <div class="final-tips">
+    <h2>面试冲刺 · 核心要点速查表</h2>
+
+    <table>
+      <tr>
+        <th>模块</th>
+        <th>核心问题</th>
+        <th>关键答案</th>
+      </tr>
+      <tr>
+        <td rowspan="4">HashMap / ConcurrentHashMap</td>
+        <td>HashMap 线程不安全</td>
+        <td>并发 put 覆盖、resize 环形链表死循环（JDK 1.7 头插法）</td>
+      </tr>
+      <tr>
+        <td>JDK 7 分段锁</td>
+        <td>16 个 Segment，get 无锁，put 锁 Segment，并发度 16</td>
+      </tr>
+      <tr>
+        <td>JDK 8 CAS+synced</td>
+        <td>CAS 空桶，synced 锁冲突桶，锁粒度细化到桶，并发度=桶数</td>
+      </tr>
+      <tr>
+        <td>扩容优化</td>
+        <td>hash &amp; oldCap == 0 留原位，否则移 oldCap 位</td>
+      </tr>
+      <tr>
+        <td rowspan="4">synchronized 锁升级</td>
+        <td>四种状态</td>
+        <td>无锁→偏向锁→轻量级锁→重量级锁，不可逆</td>
+      </tr>
+      <tr>
+        <td>偏向锁</td>
+        <td>单线程重复加锁场景，Mark Word 存线程 ID，无需原子操作</td>
+      </tr>
+      <tr>
+        <td>轻量级锁</td>
+        <td>CAS 抢锁，自旋重试，失败超阈值膨胀为重量级锁</td>
+      </tr>
+      <tr>
+        <td>重量级锁</td>
+        <td>OS Mutex，线程阻塞，不消耗 CPU，涉及用户态到内核态切换</td>
+      </tr>
+      <tr>
+        <td rowspan="4">CAS 与 AQS</td>
+        <td>CAS 三大缺点</td>
+        <td>ABA 问题（AtomicStampedReference）、自旋开销（LongAdder）、单变量限制</td>
+      </tr>
+      <tr>
+        <td>LongAdder</td>
+        <td>分段计数思想，Cell 数组 hash 分散，多线程各 CAS 自己的 Cell</td>
+      </tr>
+      <tr>
+        <td>AQS 三大组件</td>
+        <td>state（volatile 同步状态）、FIFO 队列、CAS</td>
+      </tr>
+      <tr>
+        <td>独占 vs 共享</td>
+        <td>独占：单线程持锁，tryAcquire 返回 boolean；共享：多线程同时持锁，tryAcquireShared 返回剩余值</td>
+      </tr>
+      <tr>
+        <td rowspan="2">ThreadLocal</td>
+        <td>原理</td>
+        <td>数据存储在 Thread 线程对象内部 threadLocals，ThreadLocal 对象作 key，开放寻址法解决哈希冲突</td>
+      </tr>
+      <tr>
+        <td>内存泄漏</td>
+        <td>Entry 的 key 是弱引用、value 是强引用；线程池复用导致 value 永不释放；必须用 try-finally + remove()</td>
+      </tr>
+      <tr>
+        <td rowspan="2">JMM 内存模型</td>
+        <td>三大特性</td>
+        <td>原子性（基本类型赋值）、可见性（volatile/synchronized/final）、有序性（volatile禁止重排序）</td>
+      </tr>
+      <tr>
+        <td>volatile 底层</td>
+        <td>Store Barrier + Load Barrier；x86 读免费写需屏障；MESI 协议保证缓存一致性</td>
+      </tr>
+      <tr>
+        <td rowspan="3">ReentrantLock</td>
+        <td>加锁流程</td>
+        <td>非公平：CAS抢锁→tryAcquire→addWaiter入队→acquireQueued自旋→park阻塞</td>
+      </tr>
+      <tr>
+        <td>公平 vs 非公平</td>
+        <td>公平锁有 hasQueuedPredecessors 检查队列，非公平锁有两次插队机会，吞吐量高 5~10 倍</td>
+      </tr>
+      <tr>
+        <td>Condition</td>
+        <td>每个 Condition 独立等待队列，支持精确唤醒、超时、可中断，替代 Object wait/notify</td>
+      </tr>
+    </table>
+
+    <h2>面试冲刺建议</h2>
+
+    <p>1. <strong>HashMap / ConcurrentHashMap</strong> 是集合部分的重中之重，必须掌握 JDK 7 和 JDK 8 的差异。</p>
+    <p>2. <strong>synchronized</strong> 的锁升级机制是高频考点，要能画图描述四种状态的转换。</p>
+    <p>3. <strong>AQS</strong> 是 JUC 并发包的基石，理解了 AQS，ReentrantLock 的源码就通了。</p>
+    <p>4. <strong>ThreadLocal</strong> 的内存泄漏与 try-finally remove() 是必问的安全编程题。</p>
+    <p>5. <strong>JMM</strong> 的三大特性（可见性/有序性/原子性）和 volatile 底层是理解并发的理论基础。</p>
+    <p>6. <strong>ReentrantLock</strong> 对比 synchronized 的优势（可中断/可超时/多条件）是高频追问点。</p>
+    <p>7. 以上所有问题均配有 <strong>面试口述版</strong>，可以直接在面试中口头回答。</p>
+  </div>
+
+</body>
+
+</html>

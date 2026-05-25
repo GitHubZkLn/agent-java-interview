@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Java 高频场景面试题库 · 面试口述版</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.2cm 1.4cm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'SimSun', serif;
+      font-size: 10pt;
+      line-height: 1.7;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 10px 16px;
+      background: #fff;
+    }
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+      padding: 12pt 16pt;
+      border-radius: 6pt;
+      margin-bottom: 10pt;
+      page-break-after: avoid;
+      box-shadow: 0 2pt 8pt rgba(39,174,96,0.3);
+    }
+    .header-info {
+      text-align: center;
+      color: #666;
+      font-size: 9pt;
+      margin-bottom: 12pt;
+      padding: 6pt;
+      background: #f0faf1;
+      border-radius: 4pt;
+      border: 1pt dashed #27ae60;
+    }
+    .header-info span {
+      margin: 0 8pt;
+    }
+    h2 {
+      font-size: 12pt;
+      color: #fff;
+      background: linear-gradient(90deg, #27ae60 0%, #1e8449 100%);
+      padding: 6pt 12pt;
+      border-radius: 4pt;
+      margin-top: 14pt;
+      margin-bottom: 8pt;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 10.5pt;
+      color: #1e8449;
+      border-left: 4pt solid #27ae60;
+      padding-left: 8pt;
+      margin: 10pt 0 6pt 0;
+    }
+    .question {
+      background: #f8fff8;
+      border: 1pt solid #c5e8c5;
+      border-radius: 4pt;
+      padding: 8pt 12pt;
+      margin: 6pt 0;
+      position: relative;
+    }
+    .question::before {
+      content: "Q";
+      position: absolute;
+      left: -8pt;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #27ae60;
+      color: #fff;
+      width: 18pt;
+      height: 18pt;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9pt;
+      font-weight: bold;
+    }
+    .question-title {
+      font-weight: bold;
+      color: #1e8449;
+      margin-bottom: 4pt;
+    }
+    .answer {
+      background: #fffef5;
+      border-left: 3pt solid #f39c12;
+      padding: 6pt 10pt;
+      margin-top: 6pt;
+      border-radius: 0 4pt 4pt 0;
+      font-size: 9.5pt;
+    }
+    .answer-title {
+      font-weight: bold;
+      color: #c05a1a;
+      margin-bottom: 4pt;
+    }
+    .follow-up {
+      background: #f0fff4;
+      border-left: 3pt solid #52b788;
+      padding: 5pt 10pt;
+      margin-top: 6pt;
+      border-radius: 0 4pt 4pt 0;
+      font-size: 9pt;
+      color: #2d6a4f;
+    }
+    .follow-up::before {
+      content: "追问：";
+      font-weight: bold;
+    }
+    .highlight {
+      background: #fff3cd;
+      padding: 2pt 4pt;
+      border-radius: 2pt;
+      font-weight: bold;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 1pt 4pt;
+      border-radius: 3pt;
+      font-family: 'Courier New', monospace;
+      font-size: 8.5pt;
+      color: #c7254e;
+    }
+    strong {
+      color: #1e8449;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0;
+      font-size: 9pt;
+    }
+    th {
+      background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+      color: #fff;
+      padding: 5pt 8pt;
+      text-align: left;
+      font-weight: bold;
+    }
+    td {
+      padding: 4pt 8pt;
+      border: 0.5pt solid #c5e8c5;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #f0faf1;
+    }
+    .summary-box {
+      background: linear-gradient(135deg, #f8fff8 0%, #e8f8f0 100%);
+      border: 2pt solid #27ae60;
+      border-radius: 6pt;
+      padding: 10pt 14pt;
+      margin: 10pt 0;
+    }
+    .summary-box h4 {
+      color: #1e8449;
+      margin-bottom: 6pt;
+    }
+    .summary-box ul {
+      margin-left: 16pt;
+      color: #444;
+    }
+    .summary-box li {
+      margin: 3pt 0;
+    }
+    .footer {
+      text-align: center;
+      color: #888;
+      font-size: 8pt;
+      margin-top: 16pt;
+      padding-top: 8pt;
+      border-top: 1pt dashed #ddd;
+    }
+    .tag {
+      display: inline-block;
+      background: #27ae60;
+      color: #fff;
+      padding: 2pt 6pt;
+      border-radius: 3pt;
+      font-size: 8pt;
+      margin-right: 4pt;
+    }
+    .tag.high {
+      background: #e74c3c;
+    }
+    .tag.medium {
+      background: #f39c12;
+    }
+    
+    /* ========== 代码块样式优化 ========== */
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12pt;
+      border-radius: 6pt;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 9pt;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 8pt 0;
+      white-space: pre-wrap;
+      word-spacing: normal;
+      word-break: normal;
+      tab-size: 4;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* 代码注释 */
+    .code-block .comment {
+      color: #6a9955;
+    }
+    
+    /* 代码关键字 */
+    .code-block .keyword {
+      color: #569cd6;
+    }
+    
+    /* 代码字符串 */
+    .code-block .string {
+      color: #ce9178;
+    }
+    
+    /* 代码数字 */
+    .code-block .number {
+      color: #b5cea8;
+    }
+    
+    /* 代码类名 */
+    .code-block .class-name {
+      color: #4ec9b0;
+    }
+    
+    /* 代码方法名 */
+    .code-block .method {
+      color: #dcdcaa;
+    }
+    
+    /* 代码注解 */
+    .code-block .annotation {
+      color: #d7ba7d;
+    }
+    
+    /* 代码类型 */
+    .code-block .type {
+      color: #4ec9b0;
+    }
+    
+    /* 代码标题 */
+    .code-title {
+      background: #2d2d2d;
+      color: #fff;
+      padding: 6pt 12pt;
+      border-radius: 4pt 4pt 0 0;
+      font-size: 9pt;
+      font-weight: bold;
+      margin-top: 10pt;
+      border: 1pt solid #3d3d3d;
+      border-bottom: none;
+    }
+    
+    .code-title + .code-block {
+      margin-top: 0;
+      border-radius: 0 0 4pt 4pt;
+      border: 1pt solid #3d3d3d;
+    }
+    
+    .page-break {
+      page-break-after: always;
+    }
+    
+    /* 内联代码优化 */
+    .inline-code {
+      background: #f0f0f0;
+      padding: 2pt 6pt;
+      border-radius: 3pt;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 8.5pt;
+      color: #c7254e;
+      border: 1pt solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Java 高频场景面试题库</h1>
+
+<div class="header-info">
+  <span>🎯 场景题专项</span>
+  <span>|</span>
+  <span>📋 业务解决方案</span>
+  <span>|</span>
+  <span>🔧 技术原理深度</span>
+  <span>|</span>
+  <span>📅 2025-2026面试版</span>
+</div>
+
+<div class="summary-box">
+  <h4>📋 本文档涵盖的核心场景</h4>
+  <ul>
+    <li><strong>用户上下文传递</strong>：ThreadLocal → TransmittableThreadLocal（阿里方案）</li>
+    <li><strong>Spring启动初始化</strong>：@PostConstruct、InitializingBean、ApplicationRunner</li>
+    <li><strong>大文本存储检索</strong>：MySQL、Elasticsearch、MongoDB、OSS</li>
+    <li><strong>注入冲突解决</strong>：@Primary、@Qualifier、@Resource多方案对比</li>
+    <li><strong>过滤器与拦截器</strong>：Filter、Interceptor、AOP三层区别与协作</li>
+    <li><strong>微服务高频场景</strong>：分布式事务、服务治理、消息队列</li>
+  </ul>
+</div>
+
+<!-- ==================== 第一部分：用户上下文传递 ==================== -->
+<h2>一、用户上下文传递（ThreadLocal专题）</h2>
+
+<div class="question">
+  <div class="question-title">Q1: 用户登录后，根据Cookie解析出用户信息，如何让其他业务Service都能拿到这个信息，且在多线程情况下子线程也能拿到，要求对业务代码无入侵？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>核心方案：ThreadLocal + 请求上下文封装</strong><br><br>
+  <strong>一、基本实现（单线程/同步场景）：</strong>
+  
+  <div class="code-title">1. 创建用户上下文持有类</div>
+  <div class="code-block">// 创建全局上下文类
+public class UserContext {
+    private static final ThreadLocal&lt;User&gt; CURRENT_USER = new ThreadLocal&lt;&gt;();
+    
+    public static void setUser(User user) {
+        CURRENT_USER.set(user);
+    }
+    
+    public static User getUser() {
+        return CURRENT_USER.get();
+    }
+    
+    public static void clear() {
+        CURRENT_USER.remove(); // 重要！防止内存泄漏
+    }
+}</div>
+
+  <div class="code-title">2. 登录时解析Cookie并设置</div>
+  <div class="code-block">// 登录服务中设置用户上下文
+public class LoginService {
+    public void login(String cookie) {
+        User user = parseCookieAndGetUser(cookie);
+        UserContext.setUser(user); // 设置到ThreadLocal
+    }
+}</div>
+
+  <div class="code-title">3. 业务代码直接获取，无需传参</div>
+  <div class="code-block">// 业务代码直接获取
+public class OrderService {
+    public void createOrder() {
+        User user = UserContext.getUser(); // 直接获取，无需参数传递
+        // 业务逻辑...
+    }
+}</div>
+
+  <strong>二、异步场景解决方案（阿里TransmittableThreadLocal）：</strong>
+  
+  <div class="code-title">1. 引入依赖，使用TTL替代ThreadLocal</div>
+  <div class="code-block">&lt;!-- Maven依赖 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;transmittable-thread-local&lt;/artifactId&gt;
+    &lt;version&gt;2.14.5&lt;/version&gt;
+&lt;/dependency&gt;</div>
+
+  <div class="code-title">2. 使用TTL封装上下文</div>
+  <div class="code-block">// 使用TransmittableThreadLocal替代ThreadLocal
+public class UserContext {
+    private static final TransmittableThreadLocal&lt;User&gt; CURRENT_USER = 
+        new TransmittableThreadLocal&lt;&gt;();
+    
+    public static void setUser(User user) {
+        CURRENT_USER.set(user);
+    }
+    
+    public static User getUser() {
+        return CURRENT_USER.get();
+    }
+    
+    public static void clear() {
+        CURRENT_USER.remove();
+    }
+}</div>
+
+  <div class="code-title">3. 包装线程池（推荐方式）</div>
+  <div class="code-block">// 方式一：包装线程池
+@Configuration
+public class TtlConfig {
+    @Bean
+    public ExecutorService executorService() {
+        return TtlExecutors.getTtlExecutorService(
+            Executors.newFixedThreadPool(10)
+        );
+    }
+}
+
+// 方式二：包装单个任务
+@Test
+public void testAsync() {
+    Runnable task = TtlRunnable.get(() -&gt; {
+        User user = UserContext.getUser(); // 自动继承父线程的值
+        // 业务逻辑...
+    });
+    executor.submit(task);
+}</div>
+</div>
+
+<div class="follow-up">追问：为什么ThreadLocal.remove()必须在请求结束时调用？</div>
+<div class="answer">
+  <strong>原因分析：</strong>
+  <ul>
+    <li>ThreadLocalMap的Entry继承WeakReference&lt;ThreadLocal&gt;，但value是强引用</li>
+    <li>如果Thread使用线程池，线程会被复用</li>
+    <li>请求结束后如果没调用remove()，该线程再次被复用时仍持有旧数据</li>
+    <li>可能造成<strong>数据串台</strong>（A用户数据泄露给B用户）</li>
+  </ul>
+  
+  <div class="code-title">最佳实践：Filter中统一清理</div>
+  <div class="code-block">@WebFilter(urlPatterns = "/*")
+public class UserContextFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) 
+            throws IOException, ServletException {
+        try {
+            chain.doFilter(req, resp);
+        } finally {
+            UserContext.clear(); // 必须finally中清理
+        }
+    }
+}</div>
+</div>
+
+<div class="follow-up">追问：InheritableThreadLocal和TransmittableThreadLocal有什么区别？</div>
+<div class="answer">
+  <table>
+    <tr><th>特性</th><th>InheritableThreadLocal</th><th>TransmittableThreadLocal</th></tr>
+    <tr><td>父子线程传递</td><td>支持</td><td>支持</td></tr>
+    <tr><td>线程池传递</td><td>❌ 不支持</td><td>✅ 支持</td></tr>
+    <tr><td>线程复用</td><td>数据错乱</td><td>数据正确传递</td></tr>
+    <tr><td>使用方式</td><td>直接使用</td><td>需包装线程池或任务</td></tr>
+    <tr><td>来源</td><td>JDK内置</td><td>阿里开源</td></tr>
+  </table>
+  <strong>关键区别：</strong>InheritableThreadLocal只在创建子线程时传递一次值，但线程池中的线程是复用的，不存在真正的父子关系，所以InheritableThreadLocal无效。
+</div>
+
+<div class="question">
+  <div class="question-title">Q2: ThreadLocal底层原理是什么？为什么能实现线程隔离？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>ThreadLocal底层结构：</strong>
+  <ul>
+    <li>每个Thread对象内部有一个<code>ThreadLocalMap</code>（本质是Entry数组）</li>
+    <li>ThreadLocal作为Key（弱引用），Value作为值</li>
+    <li>ThreadLocalMap使用线性探测法解决哈希冲突</li>
+  </ul>
+  
+  <div class="code-title">ThreadLocal核心源码结构</div>
+  <div class="code-block">// 核心get方法
+public T get() {
+    Thread t = Thread.currentThread();
+    ThreadLocalMap map = getMap(t);  // 获取当前线程的ThreadLocalMap
+    if (map != null) {
+        ThreadLocalMap.Entry e = map.getEntry(this);
+        if (e != null) return (T)e.value;
+    }
+    return initialValue(); // 首次调用返回初始值
+}
+
+// ThreadLocalMap的Entry实现
+static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; {
+    Object value;
+    Entry(ThreadLocal&lt;?&gt; k, Object v) {
+        super(k);
+        value = v;
+    }
+}</div>
+
+  <strong>为什么线程隔离：</strong>每个线程有独立的ThreadLocalMap实例，ThreadLocal对象作为Key存入各自线程的Map中，所以互不影响。
+</div>
+
+<!-- ==================== 第二部分：Spring启动初始化 ==================== -->
+<h2>二、Spring Boot 启动后初始化代码的方式</h2>
+
+<div class="question">
+  <div class="question-title">Q3: SpringBoot启动后，还想直接初始化自动执行某个代码，Spring提供了哪些方式？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>Spring提供了5种主要方式，按执行时机排序：</strong>
+  <table>
+    <tr><th>方式</th><th>执行时机</th><th>优先级</th><th>特点</th></tr>
+    <tr><td>@PostConstruct</td><td>Bean创建后，依赖注入完成时</td><td>⭐⭐⭐ 最先</td><td>Java EE标准注解</td></tr>
+    <tr><td>InitializingBean.afterPropertiesSet()</td><td>@PostConstruct之后</td><td>⭐⭐</td><td>Spring接口，紧耦合</td></tr>
+    <tr><td>@Bean(initMethod="...")</td><td>InitializingBean之后</td><td>⭐</td><td>配置解耦，适合第三方Bean</td></tr>
+    <tr><td>ApplicationRunner</td><td>容器完全启动后</td><td>按@Order顺序</td><td>可解析启动参数</td></tr>
+    <tr><td>CommandLineRunner</td><td>ApplicationRunner之后</td><td>按@Order顺序</td><td>获取原始命令行参数</td></tr>
+  </table>
+  
+  <div class="code-title">方式1：@PostConstruct</div>
+  <div class="code-block">@Component
+public class DataInitializer {
+    @PostConstruct
+    public void init() {
+        System.out.println("@PostConstruct 执行：初始化数据");
+    }
+}</div>
+
+  <div class="code-title">方式2：InitializingBean</div>
+  <div class="code-block">@Component
+public class ConfigInitializer implements InitializingBean {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("InitializingBean 执行：配置加载");
+    }
+}</div>
+
+  <div class="code-title">方式3：@Bean initMethod</div>
+  <div class="code-block">@Configuration
+public class BeanConfig {
+    @Bean(initMethod = "init")
+    public MyBean myBean() {
+        return new MyBean();
+    }
+}</div>
+
+  <div class="code-title">方式4：ApplicationRunner（推荐）</div>
+  <div class="code-block">@Component
+@Order(1) // 数字越小优先级越高
+public class MyApplicationRunner implements ApplicationRunner {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println("ApplicationRunner 执行");
+        // args可以解析 --key=value 格式参数
+        System.out.println("非选项参数: " + args.getNonOptionArgs());
+        System.out.println("选项参数: " + args.getOptionNames());
+    }
+}</div>
+
+  <div class="code-title">方式5：CommandLineRunner</div>
+  <div class="code-block">@Component
+@Order(2)
+public class MyCommandLineRunner implements CommandLineRunner {
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("CommandLineRunner 执行");
+        System.out.println("原始参数: " + Arrays.toString(args));
+    }
+}</div>
+</div>
+
+<div class="follow-up">追问：为什么@PostConstruct比InitializingBean先执行？</div>
+<div class="answer">
+  <strong>根本原因：BeanPostProcessor的执行顺序</strong><br><br>
+  <strong>Spring Bean初始化流程：</strong>
+  <ol>
+    <li>构造器执行</li>
+    <li><strong>BeanPostProcessor.postProcessBeforeInitialization</strong></li>
+    <li>@PostConstruct处理（由CommonAnnotationBeanPostProcessor执行）</li>
+    <li>InitializingBean.afterPropertiesSet()</li>
+    <li>@Bean(initMethod)</li>
+    <li><strong>BeanPostProcessor.postProcessAfterInitialization</strong></li>
+  </ol>
+  @PostConstruct由<code>CommonAnnotationBeanPostProcessor</code>在postProcessBeforeInitialization中处理，而InitializingBean的调用在更后面。
+</div>
+
+<div class="follow-up">追问：ApplicationRunner和CommandLineRunner有什么区别？</div>
+<div class="answer">
+  <table>
+    <tr><th>对比</th><th>ApplicationRunner</th><th>CommandLineRunner</th></tr>
+    <tr><td>参数类型</td><td>ApplicationArguments（封装对象）</td><td>String[]（原始数组）</td></tr>
+    <tr><td>参数解析</td><td>✅ 支持解析 --name=value</td><td>❌ 只能拿到原始字符串</td></tr>
+    <tr><td>获取值方式</td><td>args.getOptionNames()</td><td>Arrays.toString(args)</td></tr>
+    <tr><td>使用场景</td><td>需要解析启动参数时</td><td>简单场景或不需要参数时</td></tr>
+  </table>
+  <strong>执行顺序：</strong>ApplicationRunner先执行 → CommandLineRunner后执行
+</div>
+
+<!-- ==================== 第三部分：大文本存储与检索 ==================== -->
+<h2>三、大文本内容存储与检索方案</h2>
+
+<div class="question">
+  <div class="question-title">Q4: 在业务工具中出现了很多大文本内容，我们一般怎么存储？存储在哪里？如何实现高效检索？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>一、存储方案选择（根据数据规模和业务需求）：</strong>
+  <table>
+    <tr><th>存储方案</th><th>适用场景</th><th>优点</th><th>缺点</th></tr>
+    <tr><td>MySQL TEXT</td><td>中等规模（&lt;1MB/条）</td><td>事务支持、简单SQL查询</td><td>大文本检索效率低</td></tr>
+    <tr><td>MySQL + 全文索引</td><td>小规模全文检索</td><td>无需额外组件</td><td>性能有限，不适合海量</td></tr>
+    <tr><td>MongoDB</td><td>非结构化文档存储</td><td>Schema灵活、文档存储</td><td>不支持复杂关联查询</td></tr>
+    <tr><td>Elasticsearch</td><td>海量全文检索</td><td>倒排索引、高性能</td><td>需要额外组件</td></tr>
+    <tr><td>OSS/OSS + 数据库索引</td><td>超大文件存储</td><td>成本低、CDN加速</td><td>不支持直接检索</td></tr>
+  </table>
+  
+  <div class="code-title">MySQL存储方案</div>
+  <div class="code-block">-- TEXT类型选择
+CREATE TABLE article (
+    id BIGINT PRIMARY KEY,
+    title VARCHAR(255),
+    content LONGTEXT,  -- 最多4GB
+    create_time DATETIME
+);
+
+-- 添加全文索引（MySQL 5.6+ InnoDB支持）
+ALTER TABLE article ADD FULLTEXT INDEX ft_content (title, content);
+
+-- 查询语法
+SELECT * FROM article 
+WHERE MATCH(title, content) AGAINST('关键词' IN NATURAL LANGUAGE MODE);</div>
+
+  <div class="code-title">Elasticsearch存储+检索（推荐方案）</div>
+  <div class="code-block">// 1. 定义Document
+@Document(indexName = "articles")
+public class ArticleDocument {
+    @Id
+    private String id;
+    
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
+    private String title;
+    
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
+    private String content;
+}
+
+// 2. 存储文档
+@Autowired
+private ElasticsearchRestTemplate template;
+
+public void saveArticle(Article article) {
+    ArticleDocument doc = convertToDocument(article);
+    template.save(doc);
+}
+
+// 3. 全文检索
+public List&lt;ArticleDocument&gt; search(String keyword) {
+    NativeSearchQuery query = new NativeSearchQueryBuilder()
+        .withQuery(QueryBuilders.matchQuery("content", keyword))
+        .build();
+    return template.search(query, ArticleDocument.class)
+        .getSearchHits().stream()
+        .map(SearchHit::getContent)
+        .collect(Collectors.toList());
+}</div>
+</div>
+
+<div class="follow-up">追问：MySQL的LIKE模糊查询和ES的全文检索有什么区别？</div>
+<div class="answer">
+  <table>
+    <tr><th>对比维度</th><th>MySQL LIKE</th><th>Elasticsearch全文检索</th></tr>
+    <tr><td>原理</td><td>逐行匹配，无法利用索引</td><td>倒排索引，提前分词建索引</td></tr>
+    <tr><td>性能</td><td>全表扫描，数据量越大越慢</td><td>毫秒级响应，支持海量数据</td></tr>
+    <tr><td>分词</td><td>不支持中文分词</td><td>IK等中文分词器支持</td></tr>
+    <tr><td>相关性排序</td><td>不支持</td><td>TF-IDF、BM25相关性评分</td></tr>
+    <tr><td>并发能力</td><td>受数据库连接限制</td><td>分布式架构，高并发</td></tr>
+  </table>
+  <strong>结论：</strong>数据量&lt;100万条可用MySQL全文索引，&gt;100万条推荐ES。
+</div>
+
+<div class="follow-up">追问：OSS存储大文本如何实现元数据检索？</div>
+<div class="answer">
+  <div class="code-title">OSS + 数据库元数据方案</div>
+  <div class="code-block">// 1. 文本存OSS，元数据存MySQL
+CREATE TABLE file_metadata (
+    id BIGINT PRIMARY KEY,
+    file_name VARCHAR(255),
+    oss_url VARCHAR(512),      -- OSS存储路径
+    file_size BIGINT,           -- 文件大小
+    content_hash VARCHAR(64),   -- 内容哈希（去重用）
+    create_time DATETIME
+);
+
+// 2. 上传文件到OSS
+public String uploadToOss(String content) {
+    String key = "docs/" + UUID.randomUUID() + ".txt";
+    ossClient.putObject(bucketName, key, 
+        new ByteArrayInputStream(content.getBytes()));
+    return key;
+}
+
+// 3. 元数据检索（通过MySQL）
+public List&lt;FileMetadata&gt; searchByName(String keyword) {
+    return jdbcTemplate.query(
+        "SELECT * FROM file_metadata WHERE file_name LIKE ?",
+        "%" + keyword + "%"
+    );
+}
+
+// 4. 需要全文时从OSS下载
+public String getContent(String ossKey) {
+    OSSObject obj = ossClient.getObject(bucketName, ossKey);
+    return new String(obj.getObjectContent().readAllBytes());
+}</div>
+</div>
+
+<!-- ==================== 第四部分：Spring注入冲突 ==================== -->
+<h2>四、Spring 注入方式冲突解决方案</h2>
+
+<div class="question">
+  <div class="question-title">Q5: Spring中有个UserService接口，有多个实现类，注入时该选哪一个？怎么解决注入冲突？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>问题背景：</strong>当一个接口有多个实现类时，Spring无法确定使用哪个Bean，会报错：<br>
+  <code>NoUniqueBeanDefinitionException</code>
+  
+  <div class="code-title">场景：UserService有多个实现</div>
+  <div class="code-block">public interface UserService {
+    User getUserById(Long id);
+}
+
+@Service
+public class UserServiceImplA implements UserService { }
+
+@Service
+public class UserServiceImplB implements UserService { }</div>
+
+  <div class="code-title">方案1：@Primary指定默认实现</div>
+  <div class="code-block">@Service
+@Primary  // 标记为首选Bean
+public class UserServiceImplA implements UserService { }
+
+// 注入点无需改动，Spring会自动选择A
+@Autowired
+private UserService userService; // 注入的是A</div>
+
+  <div class="code-title">方案2：@Qualifier指定Bean名称</div>
+  <div class="code-block">@Autowired
+@Qualifier("userServiceImplB")  // 指定Bean名称
+private UserService userService; // 注入的是B</div>
+
+  <div class="code-title">方案3：@Resource按名称注入</div>
+  <div class="code-block">@Resource(name = "userServiceImplB")
+private UserService userService;</div>
+
+  <div class="code-title">方案4：自定义Bean名称</div>
+  <div class="code-block">@Service("vipUserService")
+public class UserServiceImplVip implements UserService { }
+
+@Autowired
+@Qualifier("vipUserService")
+private UserService userService;</div>
+
+  <div class="code-title">方案5：注入所有实现类到集合</div>
+  <div class="code-block">// 如果业务需要遍历所有实现
+@Autowired
+private List&lt;UserService&gt; allUserServices; // 注入所有实现
+
+@Autowired
+private Map&lt;String, UserService&gt; userServiceMap; // key是Bean名称</div>
+</div>
+
+<div class="follow-up">追问：@Primary和@Qualifier同时使用，谁的优先级更高？</div>
+<div class="answer">
+  <strong>@Qualifier优先级更高，会覆盖@Primary的选择。</strong>
+  
+  <div class="code-block">@Service
+@Primary
+public class UserServiceImplA implements UserService { }
+
+@Service
+public class UserServiceImplB implements UserService { }
+
+// 使用@Qualifier明确指定，会忽略@Primary
+@Autowired
+@Qualifier("userServiceImplB")  // 实际注入B，而非@Primary的A
+private UserService userService;</div>
+</div>
+
+<div class="follow-up">追问：@Autowired和@Resource有什么区别？</div>
+<div class="answer">
+  <table>
+    <tr><th>对比维度</th><th>@Autowired</th><th>@Resource</th></tr>
+    <tr><td>来源</td><td>Spring注解</td><td>JSR-250标准注解（Java提供）</td></tr>
+    <tr><td>默认注入方式</td><td>byType</td><td>byName</td></tr>
+    <tr><td>required属性</td><td>支持（默认true）</td><td>不支持</td></tr>
+    <tr><td>构造函数注入</td><td>支持</td><td>部分支持</td></tr>
+    <tr><td>参数名匹配</td><td>需要额外配置</td><td>自动按参数名匹配</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 第五部分：过滤器与拦截器 ==================== -->
+<h2>五、过滤器、拦截器与AOP的区别</h2>
+
+<div class="question">
+  <div class="question-title">Q6: 在Spring中，过滤器(Filter)、拦截器(Interceptor)、AOP有什么区别？各自用在什么场景？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>一、执行层次与顺序：</strong>
+  
+  <div class="code-block">请求到达 → Filter链 → DispatcherServlet → Interceptor.preHandle() 
+      → Controller → Interceptor.postHandle() → 视图渲染 
+      → Interceptor.afterCompletion() → 响应客户端</div>
+
+  <strong>二、核心区别对比：</strong>
+  <table>
+    <tr><th>对比维度</th><th>Filter（过滤器）</th><th>Interceptor（拦截器）</th><th>AOP（切面）</th></tr>
+    <tr><td>规范归属</td><td>Servlet/Jakarta EE</td><td>Spring Framework</td><td>Spring Framework</td></tr>
+    <tr><td>执行位置</td><td>Web容器层</td><td>Spring MVC层</td><td>Spring Bean层</td></tr>
+    <tr><td>触发时机</td><td>进入容器后，Servlet前</td><td>DispatcherServlet后</td><td>方法调用前后</td></tr>
+    <tr><td>拦截范围</td><td>所有请求（含静态资源）</td><td>仅Controller接口</td><td>方法级别</td></tr>
+    <tr><td>Bean访问</td><td>需FilterChain传递</td><td>可注入任意Bean</td><td>可注入任意Bean</td></tr>
+  </table>
+
+  <div class="code-title">Filter：适合"全局外围"处理</div>
+  <div class="code-block">@WebFilter(urlPatterns = "/*")
+public class CharacterEncodingFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) {
+        req.setCharacterEncoding("UTF-8");
+        chain.doFilter(req, resp);
+    }
+}
+
+// 典型场景：
+// - 字符编码设置
+// - CORS跨域处理
+// - XSS/CSRF防护
+// - 全链路日志追踪</div>
+
+  <div class="code-title">Interceptor：适合"业务入口"校验</div>
+  <div class="code-block">@Component
+public class LoginInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, 
+                             Object handler) {
+        String token = req.getHeader("token");
+        if (token == null) {
+            resp.setStatus(401);
+            return false;
+        }
+        return true;
+    }
+}
+
+// 注册方式
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoginInterceptor())
+            .addPathPatterns("/api/**")
+            .excludePathPatterns("/api/login");
+    }
+}
+
+// 典型场景：
+// - 登录验证
+// - 权限校验
+// - 请求日志</div>
+
+  <div class="code-title">AOP：适合"业务方法"增强</div>
+  <div class="code-block">@Aspect
+@Component
+@Slf4j
+public class PerformanceAspect {
+    @Around("execution(* com.example..*Service.*(..))")
+    public Object logTime(ProceedingJoinPoint point) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object result = point.proceed();
+        log.info("{} 耗时: {}ms", 
+            point.getSignature(), 
+            System.currentTimeMillis() - start);
+        return result;
+    }
+}
+
+// 典型场景：
+// - 方法性能监控
+// - 事务管理
+// - 日志记录
+// - 重试机制</div>
+</div>
+
+<div class="follow-up">追问：Filter和Interceptor的异常处理有什么区别？</div>
+<div class="answer">
+  <table>
+    <tr><th>场景</th><th>Filter</th><th>Interceptor</th></tr>
+    <tr><td>异常捕获</td><td>需在Filter中try-catch</td><td>异常会被DispatcherServlet统一处理</td></tr>
+    <tr><td>返回错误响应</td><td>必须手动编写</td><td>可配合@ControllerAdvice统一处理</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 第六部分：补充高频面试题 ==================== -->
+<h2>六、补充高频面试题</h2>
+
+<h3>6.1 微服务相关</h3>
+
+<div class="question">
+  <div class="question-title">Q7: 如何设计一个不停机迁移数据库的方案？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>核心方案：双写 + 灰度切换</strong>
+  <ol>
+    <li><strong>阶段1：旧库写入</strong>
+      <ul>
+        <li>代码改造：新旧库双写，写入失败记录日志</li>
+        <li>灰度流量：先切1%流量到新库</li>
+      </ul>
+    </li>
+    <li><strong>阶段2：数据同步</strong>
+      <ul>
+        <li>Canal伪装成MySQL从库，监听binlog同步到新库</li>
+        <li>或使用DataX、Maxwell等工具全量+增量同步</li>
+      </ul>
+    </li>
+    <li><strong>阶段3：切读验证</strong>
+      <ul>
+        <li>新库数据校验：对比新旧库关键数据</li>
+        <li>灰度读流量到新库</li>
+      </ul>
+    </li>
+    <li><strong>阶段4：全量切换</strong>
+      <ul>
+        <li>新库全量读</li>
+        <li>旧库下线</li>
+      </ul>
+    </li>
+  </ol>
+  <strong>关键点：</strong>数据校验工具、开关控制秒级切回、缓存预热方案
+</div>
+
+<div class="question">
+  <div class="question-title">Q8: 分布式事务如何保证一致性？Seata的AT模式原理是什么？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>常见分布式事务解决方案：</strong>
+  <table>
+    <tr><th>方案</th><th>原理</th><th>优点</th><th>缺点</th></tr>
+    <tr><td>2PC</td><td>协调者先prepare再commit</td><td>强一致</td><td>阻塞长，存在数据不一致风险</td></tr>
+    <tr><td>TCC</td><td>Try-Confirm-Cancel三阶段</td><td>性能好</td><td>业务侵入大</td></tr>
+    <tr><td>Saga</td><td>正向编排+补偿操作</td><td>长事务支持</td><td>补偿逻辑复杂</td></tr>
+    <tr><td>AT（Seata）</td><td>自动补偿，无代码侵入</td><td>低侵入</td><td>需要undo_log表</td></tr>
+  </table>
+  <br>
+  <strong>Seata AT模式原理：</strong>
+  <ol>
+    <li>TM（事务发起者）开启全局事务，获取XID</li>
+    <li>RM（分支事务）执行业务SQL</li>
+    <li>RM注册分支事务，记录undo_log</li>
+    <li>TM提交/回滚全局事务</li>
+    <li>Seata Server通知所有RM：提交则删除undo_log，回滚则执行undo_sql恢复数据</li>
+  </ol>
+</div>
+
+<h3>6.2 Redis进阶</h3>
+
+<div class="question">
+  <div class="question-title">Q9: Redis的BigKey问题是什么？如何发现和解决？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>BigKey定义：</strong>单个String类型value > 10KB，或Hash/List/Set/ZSet元素数量过多。
+  <br><br>
+  <strong>问题影响：</strong>内存不均匀、阻塞主线程、网络带宽占用大、集群迁移困难
+  
+  <div class="code-title">发现BigKey</div>
+  <div class="code-block"># 命令行发现
+redis-cli --bigkeys           # 扫描大Key
+redis-cli -h host -p 6379 --scan | head -10000 | \
+  xargs -L 1 redis-cli -h host -p 6379 DEBUG OBJECT KEYNAME</div>
+
+  <strong>解决方案：</strong>
+  <ul>
+    <li><strong>拆分：</strong>大Hash拆分为多个小Hash</li>
+    <li><strong>压缩：</strong>String类型用压缩算法（zlib）</li>
+    <li><strong>异步删除：</strong>UNLINK代替DEL（非阻塞删除）</li>
+    <li><strong>数据归档：</strong>历史数据迁移到MySQL</li>
+  </ul>
+</div>
+
+<div class="question">
+  <div class="question-title">Q10: Redis主从同步原理？全量同步和增量同步分别什么时候触发？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>同步流程：</strong>
+  <ol>
+    <li><strong>全量同步（RDB快照）：</strong>
+      <ul>
+        <li>触发条件：slave首次连接 / slave数据太旧（repl_backlog不足）</li>
+        <li>master生成RDB文件，发送给slave</li>
+        <li>slave清空本地数据，加载RDB</li>
+      </ul>
+    </li>
+    <li><strong>增量同步（命令传播）：</strong>
+      <ul>
+        <li>全量同步后，master实时发送写命令</li>
+        <li>通过repl_backlog环形缓冲区记录增量命令</li>
+        <li>slave持续同步offset</li>
+      </ul>
+    </li>
+  </ol>
+</div>
+
+<h3>6.3 JDK新特性（2025高频）</h3>
+
+<div class="question">
+  <div class="question-title">Q11: JDK 21虚拟线程相比传统线程有什么优势？原理是什么？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>虚拟线程（Virtual Threads）核心优势：</strong>
+  <table>
+    <tr><th>对比</th><th>传统线程</th><th>虚拟线程</th></tr>
+    <tr><td>内存开销</td><td>1MB栈空间/线程</td><td>几百字节~几KB</td></tr>
+    <tr><td>创建成本</td><td>重（需OS调度）</td><td>轻（纯Java对象）</td></tr>
+    <tr><td>并发数量</td><td>几千个</td><td>数百万个</td></tr>
+    <tr><td>调度方式</td><td>OS内核调度</td><td>ForkJoinPool（用户态）</td></tr>
+  </table>
+  
+  <div class="code-title">使用示例</div>
+  <div class="code-block">// 创建虚拟线程
+Thread vt = Thread.startVirtualThread(() -&gt; {
+    System.out.println("虚拟线程执行");
+});
+
+// 使用线程池（推荐）
+ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+executor.submit(() -&gt; {
+    // 业务逻辑
+});
+
+// 对比传统线程池
+ExecutorService old = Executors.newFixedThreadPool(100);    // 最多100并发
+ExecutorService vt = Executors.newVirtualThreadPerTaskExecutor(); // 可支撑百万并发</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q12: JDK 21 Scoped Values是什么？和ThreadLocal有什么区别？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>Scoped Values（JEP 446）：</strong>JDK 21正式特性，用于替代ThreadLocal的更安全方案。
+  
+  <div class="code-title">使用示例</div>
+  <div class="code-block">public class Server {
+    // 不可变绑定，只能写入一次
+    private static final ScopedValue&lt;User&gt; CURRENT_USER = ScopedValue.newInstance();
+    
+    public static User currentUser() {
+        return CURRENT_USER.get();
+    }
+    
+    public void handle(Request req) {
+        // 在这个lambda中可以通过CURRENT_USER.get()获取值
+        ScopedValue.runWhere(CURRENT_USER, authenticate(req), () -&gt; {
+            processRequest();
+        });
+    }
+}</div>
+  
+  <strong>Scoped Values优势：</strong>
+  <ul>
+    <li>值不可继承（更安全）</li>
+    <li>作用域结束时值自动失效（无需手动清理）</li>
+    <li>不可变绑定，防止意外修改</li>
+  </ul>
+</div>
+
+<!-- ==================== 第七部分：综合场景设计题 ==================== -->
+<h2>七、综合场景设计题</h2>
+
+<div class="question">
+  <div class="question-title">Q13: 如何设计一个接口调用链追踪系统？要求记录每个调用的耗时和调用关系。</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>设计方案：TraceID串联 + Filter/Interceptor记录</strong>
+  
+  <div class="code-title">1. Trace上下文</div>
+  <div class="code-block">public class TraceContext {
+    private static final ThreadLocal&lt;TraceInfo&gt; CONTEXT = new ThreadLocal&lt;&gt;();
+    
+    public static void set(String traceId) {
+        CONTEXT.set(new TraceInfo(traceId, System.currentTimeMillis()));
+    }
+    
+    public static TraceInfo get() { return CONTEXT.get(); }
+    
+    public static void clear() { CONTEXT.remove(); }
+}</div>
+
+  <div class="code-title">2. TraceFilter（生成/获取TraceID）</div>
+  <div class="code-block">@WebFilter("/*")
+public class TraceFilter {
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) {
+        HttpServletRequest httpReq = (HttpServletRequest) req;
+        String traceId = httpReq.getHeader("X-Trace-ID");
+        if (traceId == null) {
+            traceId = UUID.randomUUID().toString().replace("-", "");
+        }
+        TraceContext.set(traceId);
+        
+        HttpServletResponse httpResp = (HttpServletResponse) resp;
+        httpResp.setHeader("X-Trace-ID", traceId);
+        
+        try {
+            chain.doFilter(req, resp);
+        } finally {
+            TraceContext.clear();
+        }
+    }
+}</div>
+
+  <div class="code-title">3. TraceInterceptor（记录方法耗时）</div>
+  <div class="code-block">@Aspect
+@Component
+public class TraceInterceptor {
+    @Around("execution(* com.example..*.*(..))")
+    public Object trace(ProceedingJoinPoint pjp) throws Throwable {
+        TraceInfo parent = TraceContext.get();
+        String spanId = parent.genSpanId(); // 生成子spanID
+        
+        long start = System.currentTimeMillis();
+        try {
+            Object result = pjp.proceed();
+            log.info("[{}][{}] {}.{} 耗时: {}ms", 
+                parent.traceId, spanId, 
+                pjp.getTarget().getClass().getSimpleName(),
+                pjp.getSignature().getName(),
+                System.currentTimeMillis() - start);
+            return result;
+        } catch (Exception e) {
+            log.error("[{}][{}] 异常", parent.traceId, spanId, e);
+            throw e;
+        }
+    }
+}</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q14: 如何实现接口的幂等性？防止重复提交？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>常见幂等方案：</strong>
+  <table>
+    <tr><th>方案</th><th>原理</th><th>适用场景</th></tr>
+    <tr><td>唯一Token</td><td>前端获取token，后端验证并删除</td><td>表单提交</td></tr>
+    <tr><td>Redis防重</td><td>SETNX + 过期时间</td><td>所有接口</td></tr>
+    <tr><td>数据库唯一索引</td><td>重复插入报异常</td><td>新增操作</td></tr>
+    <tr><td>状态机</td><td>订单状态流转校验</td><td>订单/支付</td></tr>
+    <tr><td>分布式锁</td><td>同一请求只能执行一次</td><td>并发场景</td></tr>
+  </table>
+  
+  <div class="code-title">Redis + Token方案实现</div>
+  <div class="code-block">// 1. 生成Token接口
+public String createToken() {
+    String token = UUID.randomUUID().toString();
+    redisTemplate.opsForValue().set("token:" + token, "1", 5, TimeUnit.MINUTES);
+    return token;
+}
+
+// 2. 验证Token
+public boolean validateToken(String token) {
+    String key = "token:" + token;
+    // 删除并返回是否成功（原子操作）
+    Boolean result = redisTemplate.delete(key);
+    return Boolean.TRUE.equals(result);
+}
+
+// 3. 使用示例
+@PostMapping("/submit")
+public Result submit(@RequestParam String token, @RequestBody FormData data) {
+    if (!validateToken(token)) {
+        return Result.error("重复提交");
+    }
+    return orderService.createOrder(data);
+}</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q15: 如何设计一个通用缓存框架？支持过期策略、容量限制、自动刷新？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>设计方案：三级缓存 + 多策略</strong>
+  
+  <div class="code-title">三级缓存实现</div>
+  <div class="code-block">public class ThreeLevelCache&lt;K, V&gt; implements Cache&lt;K, V&gt; {
+    // L1: 本地缓存（Caffeine）
+    private Cache&lt;K, V&gt; l1Cache;
+    // L2: Redis分布式缓存
+    private RedisTemplate&lt;K, V&gt; redisTemplate;
+    // L3: 数据库
+    private DataLoader&lt;K, V&gt; dataLoader;
+    
+    @Override
+    public V get(K key) {
+        // 1. 查L1
+        V v = l1Cache.get(key);
+        if (v != null) return v;
+        
+        // 2. 查L2
+        v = redisTemplate.opsForValue().get(key);
+        if (v != null) {
+            l1Cache.put(key, v); // 回填L1
+            return v;
+        }
+        
+        // 3. 查L3并回填
+        v = dataLoader.load(key);
+        if (v != null) {
+            redisTemplate.opsForValue().set(key, v, 1, TimeUnit.HOURS);
+            l1Cache.put(key, v);
+        }
+        return v;
+    }
+}</div>
+
+  <div class="code-title">Caffeine本地缓存配置</div>
+  <div class="code-block">@Configuration
+public class CacheConfig {
+    @Bean
+    public Cache&lt;String, Object&gt; localCache() {
+        return Caffeine.newBuilder()
+            .maximumSize(10000)        // 最大容量
+            .expireAfterWrite(5, TimeUnit.MINUTES)  // 写入后过期
+            .recordStats()             // 记录统计
+            .build();
+    }
+}</div>
+</div>
+
+<!-- ==================== 第八部分：Spring Boot 高级特性 ==================== -->
+<h2>八、Spring Boot 高级特性</h2>
+
+<h3>8.1 自动配置原理</h3>
+
+<div class="question">
+  <div class="question-title">Q16: Spring Boot自动配置是如何实现的？为什么引入starter就能自动配置？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>自动配置核心原理：</strong>
+  <ol>
+    <li><strong>加载阶段：</strong><code>AutoConfigurationImportSelector</code>从<code>META-INF/spring.factories</code>读取自动配置类清单</li>
+    <li><strong>过滤阶段：</strong>通过<code>@Conditional</code>系列注解评估条件</li>
+    <li><strong>生效阶段：</strong>通过<code>@Bean</code>方法创建实例</li>
+  </ol>
+  
+  <div class="code-title">Spring Boot自动配置示例</div>
+  <div class="code-block">// RedisAutoConfiguration示例
+@Configuration
+@ConditionalOnClass(RedisOperations.class)  // 存在Redis依赖才生效
+@EnableConfigurationProperties(RedisProperties.class)
+public class RedisAutoConfiguration {
+    
+    @Bean
+    @ConditionalOnMissingBean(RedisConnectionFactory.class)
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new JedisConnectionFactory();
+    }
+}
+
+// application.properties 中的配置会自动绑定到 RedisProperties
+// 比如 spring.redis.host -&gt; RedisProperties.host</div>
+
+  <strong>为什么starter能自动配置：</strong>spring-boot-starter-web包含Web相关依赖，自动配置类中的@ConditionalOnClass条件满足，配置生效。
+</div>
+
+<div class="follow-up">追问：如何排除不需要的自动配置类？</div>
+<div class="answer">
+  <div class="code-block">// 方式1：@SpringBootApplication排除
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+
+// 方式2：application.yml配置排除
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.redis.RedisAutoConfiguration
+
+// 方式3：全局关闭
+spring.boot.enableautoconfiguration=false</div>
+</div>
+
+<h3>8.2 Spring事务</h3>
+
+<div class="question">
+  <div class="question-title">Q17: Spring事务有哪些传播行为？REQUIRED和REQUIRES_NEW有什么区别？事务失效的场景有哪些？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>七种传播行为：</strong>
+  <table>
+    <tr><th>传播行为</th><th>说明</th><th>常见场景</th></tr>
+    <tr><td>REQUIRED（默认）</td><td>有事务则加入，无则新建</td><td>普通业务方法</td></tr>
+    <tr><td>REQUIRES_NEW</td><td>挂起当前事务，创建新事务</td><td>日志记录（独立提交）</td></tr>
+    <tr><td>NESTED</td><td>基于savepoint嵌套事务</td><td>子任务独立回滚</td></tr>
+    <tr><td>SUPPORTS</td><td>有则加入，无则非事务</td><td>查询方法</td></tr>
+    <tr><td>MANDATORY</td><td>必须在事务中，否则抛异常</td><td>核心校验</td></tr>
+    <tr><td>NOT_SUPPORTED</td><td>非事务执行</td><td>发送MQ等异步操作</td></tr>
+    <tr><td>NEVER</td><td>不能有事务，否则抛异常</td><td>特殊场景</td></tr>
+  </table>
+  
+  <strong>REQUIRED vs REQUIRES_NEW：</strong>
+  <ul>
+    <li><strong>REQUIRED：</strong>共用同一个事务，一个方法回滚全部回滚</li>
+    <li><strong>REQUIRES_NEW：</strong>创建独立事务，互不影响</li>
+  </ul>
+</div>
+
+<div class="follow-up">追问：事务失效的场景有哪些？</div>
+<div class="answer">
+  <strong>10种事务失效场景：</strong>
+  <table>
+    <tr><th>场景</th><th>原因</th><th>解决方案</th></tr>
+    <tr><td>方法非public</td><td>代理无法拦截非public方法</td><td>改为public方法</td></tr>
+    <tr><td>同类内部调用</td><td>绕过代理，直接调用同类方法</td><td>注入自身Bean调用，或拆分Service</td></tr>
+    <tr><td>异常被catch吞掉</td><td>Spring认为正常完成，提交事务</td><td>重新抛出异常或手动回滚</td></tr>
+    <tr><td>异常类型不匹配</td><td>默认只回滚RuntimeException</td><td>配置rollbackFor=Exception.class</td></tr>
+    <tr><td>方法用final修饰</td><td>无法被代理重写</td><td>去掉final</td></tr>
+    <tr><td>类未被Spring管理</td><td>不是Bean，无法创建代理</td><td>确保@Component等注解</td></tr>
+    <tr><td>多数据源未指定</td><td>无法确定使用哪个事务管理器</td><td>@Transactional(transactionManager="xxx")</td></tr>
+  </table>
+</div>
+
+<!-- ==================== 第九部分：MySQL深入专题 ==================== -->
+<h2>九、MySQL 深入专题</h2>
+
+<h3>9.1 索引失效与SQL优化</h3>
+
+<div class="question">
+  <div class="question-title">Q18: MySQL索引失效有哪些场景？如何分析和优化慢SQL？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>8大索引失效场景：</strong>
+  <table>
+    <tr><th>场景</th><th>示例</th><th>原因</th></tr>
+    <tr><td>对索引列使用函数</td><td>WHERE YEAR(create_time)=2024</td><td>破坏索引有序性</td></tr>
+    <tr><td>隐式类型转换</td><td>phone字段varchar，传数字</td><td>类型不匹配</td></tr>
+    <tr><td>LIKE以%开头</td><td>WHERE name LIKE '%abc'</td><td>无法利用索引顺序</td></tr>
+    <tr><td>违背最左前缀</td><td>联合索引(a,b,c)，查WHERE b=1</td><td>跳过最左列</td></tr>
+    <tr><td>OR连接无索引列</td><td>WHERE a=1 OR b=1（b无索引）</td><td>全表扫描</td></tr>
+    <tr><td>NOT/!=/&lt;&gt;</td><td>WHERE status != 1</td><td>通常索引失效</td></tr>
+    <tr><td>范围查询后列</td><td>索引(a,b,c)，WHERE a=1 AND b&gt;1 AND c=1</td><td>c无法使用索引</td></tr>
+    <tr><td>数据量过小</td><td>全表几十条数据</td><td>优化器认为全表更快</td></tr>
+  </table>
+  
+  <div class="code-title">慢SQL优化步骤</div>
+  <div class="code-block">-- 1. 使用EXPLAIN分析执行计划
+EXPLAIN SELECT * FROM orders WHERE status = 1;
+
+-- 关键字段：
+-- type: ALL(全表) &lt; index &lt; range &lt; ref &lt; eq_ref &lt; const
+-- key: 实际使用的索引
+-- Extra: Using index(覆盖索引) / Using where / Using filesort(需优化)
+
+-- 2. SQL优化技巧
+-- ✅ 正确写法
+SELECT id, name FROM users WHERE status = 1;  -- 只查需要的列
+SELECT * FROM users WHERE name LIKE 'abc%';   -- 前缀匹配
+
+-- ❌ 错误写法
+SELECT * FROM users WHERE YEAR(create_time) = 2024;  -- 函数
+SELECT * FROM users WHERE name LIKE '%abc';          -- %开头
+
+-- 3. 覆盖索引优化
+CREATE INDEX idx_status_name ON users(status, name);
+SELECT name FROM users WHERE status = 1;  -- 直接从索引返回</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q19: MVCC是如何实现的？ReadView是什么？RR和RC隔离级别下ReadView有什么区别？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>MVCC核心三要素：</strong>
+  <ul>
+    <li><strong>隐藏列：</strong>每行数据有DB_TRX_ID和DB_ROLL_PTR</li>
+    <li><strong>Undo Log版本链：</strong>通过回滚指针串联数据的历史版本</li>
+    <li><strong>ReadView：</strong>事务快照，包含活跃事务ID集合</li>
+  </ul>
+  <br>
+  <strong>ReadView判断可见性规则：</strong>
+  <ul>
+    <li>如果数据的trx_id &lt; min_trx_id：可见</li>
+    <li>如果数据的trx_id在活跃列表中：不可见，需沿回滚指针找更早版本</li>
+    <li>如果数据的trx_id &gt;= max_trx_id：可见</li>
+  </ul>
+  <br>
+  <strong>RR vs RC的关键区别：</strong>
+  <table>
+    <tr><th>隔离级别</th><th>ReadView创建时机</th><th>效果</th></tr>
+    <tr><td>REPEATABLE READ（MySQL默认）</td><td>事务启动时创建一次</td><td>同一事务内多次读取结果一致</td></tr>
+    <tr><td>READ COMMITTED</td><td>每次读取时创建</td><td>每次读取可能看到新提交的数据</td></tr>
+  </table>
+</div>
+
+<div class="question">
+  <div class="question-title">Q20: MySQL主从同步原理是什么？如何解决主从延迟问题？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>主从复制原理：</strong>
+  <ol>
+    <li><strong>Binlog记录：</strong>主库将写操作记录到Binlog</li>
+    <li><strong>Dump线程：</strong>从库IO线程连接主库，请求Binlog</li>
+    <li><strong>传输Binlog：</strong>主库Binlog Dump线程发送Binlog给从库</li>
+    <li><strong>Relay Log：</strong>从库IO线程写入中继日志</li>
+    <li><strong>SQL线程：</strong>从库SQL线程读取Relay Log执行</li>
+  </ol>
+  <strong>三种复制方式：</strong>
+  <table>
+    <tr><th>方式</th><th>安全性</th><th>性能</th></tr>
+    <tr><td>异步复制</td><td>低（可能丢失事务）</td><td>高</td></tr>
+    <tr><td>半同步复制</td><td>中（至少一个从库确认）</td><td>中</td></tr>
+    <tr><td>全同步复制</td><td>高（所有从库确认）</td><td>低</td></tr>
+  </table>
+  <br>
+  <strong>主从延迟解决方案：</strong>读从库、强制走主库、并行复制、缩短Binlog、业务优化。
+</div>
+
+<!-- ==================== 第十部分：Redis深入专题 ==================== -->
+<h2>十、Redis 深入专题</h2>
+
+<h3>10.1 数据结构与持久化</h3>
+
+<div class="question">
+  <div class="question-title">Q21: Redis有哪些数据结构？ZSet的底层实现是什么？为什么选择跳表而不是红黑树？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>Redis 8种数据结构：</strong>
+  <table>
+    <tr><th>类型</th><th>底层实现</th><th>应用场景</th></tr>
+    <tr><td>String</td><td>SDS（简单动态字符串）</td><td>缓存、计数、分布式锁</td></tr>
+    <tr><td>Hash</td><td>压缩列表/哈希表</td><td>对象存储、购物车</td></tr>
+    <tr><td>List</td><td>压缩列表/双向链表</td><td>消息队列、栈/队列</td></tr>
+    <tr><td>Set</td><td>整数集合/哈希表</td><td>标签、去重、好友关系</td></tr>
+    <tr><td>ZSet</td><td>压缩列表/跳表+字典</td><td>排行榜、延迟队列</td></tr>
+    <tr><td>Bitmap</td><td>String类型</td><td>签到、统计</td></tr>
+    <tr><td>HyperLogLog</td><td>String类型</td><td>基数统计（UV）</td></tr>
+    <tr><td>Stream</td><td>RadixTree</td><td>消息队列</td></tr>
+  </table>
+  <br>
+  <strong>为什么用跳表而不是红黑树：</strong>
+  <ul>
+    <li><strong>范围查询：</strong>跳表天然有序，范围查询O(log n)；红黑树需要中序遍历</li>
+    <li><strong>实现简单：</strong>跳表比红黑树代码量少很多</li>
+    <li><strong>并发友好：</strong>跳表插入只需修改局部节点，无需旋转平衡</li>
+  </ul>
+</div>
+
+<div class="question">
+  <div class="question-title">Q22: Redis的持久化方式有哪些？RDB和AOF各有什么优缺点？如何选择？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>两种持久化方式对比：</strong>
+  <table>
+    <tr><th>方式</th><th>原理</th><th>优点</th><th>缺点</th></tr>
+    <tr><td>RDB</td><td>定时生成内存快照</td><td>恢复快、文件紧凑</td><td>可能丢失最后快照后的数据</td></tr>
+    <tr><td>AOF</td><td>追加写命令到文件</td><td>数据安全性高</td><td>文件大、恢复慢</td></tr>
+  </table>
+  
+  <div class="code-title">推荐配置（混合持久化）</div>
+  <div class="code-block"># 开启RDB
+save 900 1
+save 300 10
+save 60 10000
+
+# 开启AOF
+appendonly yes
+appendfsync everysec
+
+# 开启混合持久化（Redis 4.0+）
+aof-use-rdb-preamble yes</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q23: Redis的内存淘汰策略有哪些？缓存满了怎么办？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>8种内存淘汰策略：</strong>
+  <table>
+    <tr><th>策略</th><th>说明</th><th>适用场景</th></tr>
+    <tr><td>noeviction</td><td>不淘汰，写入报错</td><td>禁止数据丢失</td></tr>
+    <tr><td>allkeys-lru</td><td>所有key中淘汰最久未使用的</td><td>热点数据缓存</td></tr>
+    <tr><td>allkeys-random</td><td>所有key随机淘汰</td><td>无明显热点</td></tr>
+    <tr><td>volatile-lru</td><td>设置过期的key中淘汰最久未使用的</td><td>有过期时间的数据</td></tr>
+    <tr><td>volatile-random</td><td>设置过期的key中随机淘汰</td><td>无明显热点</td></tr>
+    <tr><td>volatile-ttl</td><td>设置过期的key中淘汰TTL最短的</td><td>临时数据</td></tr>
+    <tr><td>allkeys-lfu</td><td>所有key中淘汰最少使用的</td><td>更精准的热点</td></tr>
+    <tr><td>volatile-lfu</td><td>设置过期的key中淘汰最少使用的</td><td>临时热点数据</td></tr>
+  </table>
+  
+  <div class="code-block"># 内存上限
+maxmemory 2gb
+
+# 淘汰策略
+maxmemory-policy allkeys-lru</div>
+</div>
+
+<!-- ==================== 第十一部分：Kafka深入专题 ==================== -->
+<h2>十一、Kafka 深入专题</h2>
+
+<div class="question">
+  <div class="question-title">Q24: Kafka如何保证消息顺序？消息丢失和重复消费如何解决？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>消息顺序保证：</strong>
+  <ul>
+    <li>Kafka只保证<strong>单分区有序</strong></li>
+    <li>发送时指定相同的Key，相同Key的消息会发送到同一分区</li>
+    <li>消费者端：单分区单消费者消费</li>
+  </ul>
+  
+  <div class="code-title">解决消息丢失</div>
+  <div class="code-block">// 生产者端
+properties.put("acks", "all");  // 等待所有副本确认
+properties.put("retries", Integer.MAX_VALUE);  // 重试次数
+properties.put("enable.idempotence", true);  // 幂等发送
+
+// Broker端
+min.insync.replicas = 2  // 至少2个副本确认
+replication.factor = 3   // 3副本
+
+// 消费者端
+properties.put("enable.auto.commit", false);  // 手动提交offset</div>
+
+  <strong>解决重复消费：</strong>幂等消费者（唯一索引、Redis去重、布隆过滤器）、数据库唯一约束
+</div>
+
+<div class="follow-up">追问：Kafka为什么这么快？高性能原因是什么？</div>
+<div class="answer">
+  <strong>Kafka高性能六大秘诀：</strong>
+  <table>
+    <tr><th>优化点</th><th>说明</th></tr>
+    <tr><td>顺序读写磁盘</td><td>磁盘顺序写速度接近内存</td></tr>
+    <tr><td>零拷贝技术</td><td>使用sendfile系统调用，避免用户态/内核态切换</td></tr>
+    <tr><td>页缓存（Page Cache）</td><td>利用OS内存缓存，热数据无需读磁盘</td></tr>
+    <tr><td>批量压缩</td><td>消息批量发送和压缩（支持GZIP、Snappy、LZ4、ZSTD）</td></tr>
+    <tr><td>批量发送</td><td>积累多条消息一起发送，减少网络往返</td></tr>
+    <tr><td>多副本+ISR</td><td>异步复制，不阻塞主流程</td></tr>
+  </table>
+</div>
+
+<div class="question">
+  <div class="question-title">Q25: Kafka的ISR是什么？消费者Rebalance是什么？如何优化？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>ISR（In-Sync Replicas）：</strong>与Leader保持同步的Follower副本集合。
+  <ul>
+    <li>Follower在10秒内未同步会被踢出ISR</li>
+    <li>Leader故障时，只从ISR中选举新Leader</li>
+  </ul>
+  <br>
+  <strong>消费者Rebalance：</strong>消费者组内成员变化时，重新分配分区的过程。
+  <br><br>
+  <strong>Rebalance优化：</strong>
+  <ul>
+    <li><strong>减少分区变化：</strong>避免频繁创建/删除Topic</li>
+    <li><strong>调整心跳参数：</strong>session.timeout.ms、heartbeat.interval.ms</li>
+    <li><strong>使用静态成员：</strong>Consumer配置group.instance.id，消费者重启不触发Rebalance</li>
+  </ul>
+</div>
+
+<!-- ==================== 第十二部分：大文件与大数据存储 ==================== -->
+<h2>十二，大文件与大数据存储方案</h2>
+
+<div class="question">
+  <div class="question-title">Q26: 如何实现大文件分片上传和断点续传？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>核心实现方案：</strong>
+  <ol>
+    <li><strong>分片切割：</strong>前端按固定大小（通常2MB）切割文件</li>
+    <li><strong>计算Hash：</strong>计算整个文件的MD5，用于秒传和去重</li>
+    <li><strong>分片上传：</strong>并发上传多个分片片段</li>
+    <li><strong>断点记录：</strong>记录已上传的分片索引到Redis/数据库</li>
+    <li><strong>服务端合并：</strong>所有分片上传完成后，合并成完整文件</li>
+  </ol>
+  
+  <div class="code-title">前端分片上传</div>
+  <div class="code-block">// 前端：分片切割
+function uploadFile(file) {
+    const chunkSize = 2 * 1024 * 1024;  // 2MB
+    const chunks = Math.ceil(file.size / chunkSize);
+    const fileHash = await calculateMD5(file);  // 秒传验证用
+    
+    // 查询已上传的分片
+    const uploadedChunks = await api.getUploadedChunks(fileHash);
+    
+    // 并发上传未上传的分片
+    const tasks = [];
+    for (let i = 0; i &lt; chunks; i++) {
+        if (!uploadedChunks.includes(i)) {
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const chunk = file.slice(start, end);
+            tasks.push(uploadChunk(chunk, i, fileHash));
+        }
+    }
+    await Promise.all(tasks);
+    
+    // 通知服务端合并
+    await api.mergeChunks(fileHash, chunks);
+}</div>
+
+  <div class="code-title">后端合并分片</div>
+  <div class="code-block">// 后端：合并分片
+public void mergeChunks(String fileHash, int chunks) {
+    String tempDir = "/tmp/uploads/" + fileHash;
+    File mergedFile = new File("/data/files/" + fileHash);
+    
+    try (FileOutputStream fos = new FileOutputStream(mergedFile)) {
+        for (int i = 0; i &lt; chunks; i++) {
+            File chunk = new File(tempDir, i + ".part");
+            Files.copy(chunk.toPath(), fos);
+            chunk.delete();
+        }
+    }
+}</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q27: 海量数据如何高效存储和查询？ClickHouse和Doris有什么区别？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>海量数据查询优化方案：</strong>
+  <table>
+    <tr><th>方案</th><th>适用场景</th><th>特点</th></tr>
+    <tr><td>分库分表</td><td>业务数据（订单、用户）</td><td>水平拆分，路由查询</td></tr>
+    <tr><td>Elasticsearch</td><td>全文检索、日志分析</td><td>倒排索引，聚合查询</td></tr>
+    <tr><td>ClickHouse</td><td>OLAP分析、实时报表</td><td>列式存储，向量化执行</td></tr>
+    <tr><td>Apache Doris</td><td>实时分析、BI报表</td><td>向量化、MQE、湖仓一体</td></tr>
+    <tr><td>TiDB</td><td>HTAP、兼容MySQL</td><td>水平扩展、ACID事务</td></tr>
+  </table>
+  <br>
+  <strong>ClickHouse vs Doris对比：</strong>
+  <table>
+    <tr><th>对比维度</th><th>ClickHouse</th><th>Apache Doris</th></tr>
+    <tr><td>架构</td><td>MPP架构，依赖ZooKeeper</td><td>FE+BE架构，无外部依赖</td></tr>
+    <tr><td>物化视图</td><td>单表，不支持CBO</td><td>支持透明改写，CBO优化</td></tr>
+    <tr><td>事务支持</td><td>无事务，需外部保证</td><td>支持ACID事务</td></tr>
+    <tr><td>高并发</td><td>较弱</td><td>支持500+并发</td></tr>
+    <tr><td>运维复杂度</td><td>较高</td><td>较低</td></tr>
+  </table>
+</div>
+
+<div class="question">
+  <div class="question-title">Q28: 分库分表后如何实现跨表查询？有哪些解决方案？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>分库分表后跨表查询方案：</strong>
+  <ol>
+    <li><strong>多数据源路由：</strong>ShardingSphere/Jdbc分片中间件</li>
+    <li><strong>异构索引表：</strong>按不同维度建路由表</li>
+    <li><strong>ES辅助查询：</strong>数据同步到ES，ES负责复杂查询</li>
+    <li><strong>宽表冗余：</strong>将常用字段冗余到一张表</li>
+    <li><strong>离线数仓：</strong>定期同步数据到Hive/Spark</li>
+  </ol>
+  
+  <div class="code-title">ShardingSphere分片配置示例</div>
+  <div class="code-block">@Configuration
+public class ShardingConfig {
+    @Bean
+    public DataSource dataSource() {
+        ShardingRuleConfiguration src = new ShardingRuleConfiguration();
+        
+        // 配置分片规则
+        src.getTableRuleConfigs().add(getOrderTableRule());
+        src.setDefaultDatabaseShardingStrategy(
+            new StandardShardingStrategyConfiguration("user_id", 
+                new ModShardingAlgorithm()));
+        
+        return DataSourceFactory.getDataSource(src);
+    }
+}
+
+// 分片算法示例：取模分片
+public class ModShardingAlgorithm implements PreciseShardingAlgorithm&lt;Long&gt; {
+    @Override
+    public String doSharding(Collection&lt;String&gt; availableTargetNames,
+                             PreciseShardingValue&lt;Long&gt; shardingValue) {
+        long id = shardingValue.getValue();
+        int index = (int) (id % 4);  // 4个库
+        return "ds_" + index;
+    }
+}</div>
+</div>
+
+<!-- ==================== 第十三部分：综合场景设计 ==================== -->
+<h2>十三，综合场景设计补充</h2>
+
+<div class="question">
+  <div class="question-title">Q29: 如何设计一个接口限流系统？有哪些限流算法？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>四种限流算法对比：</strong>
+  <table>
+    <tr><th>算法</th><th>原理</th><th>优点</th><th>缺点</th></tr>
+    <tr><td>计数器</td><td>固定窗口内统计请求数</td><td>简单</td><td>有临界突刺问题</td></tr>
+    <tr><td>滑动窗口</td><td>基于时间窗口滑动</td><td>解决临界问题</td><td>实现复杂</td></tr>
+    <tr><td>漏桶</td><td>以固定速率漏出请求</td><td>流量平滑</td><td>突发请求被丢弃</td></tr>
+    <tr><td>令牌桶</td><td>按速率添加令牌，请求消耗令牌</td><td>允许突发</td><td>实现稍复杂</td></tr>
+  </table>
+  
+  <div class="code-title">令牌桶Redis+Lua实现</div>
+  <div class="code-block">-- Lua脚本：令牌桶限流
+local key = KEYS[1]
+local rate = tonumber(ARGV[1])      -- 每秒添加的令牌数
+local capacity = tonumber(ARGV[2])  -- 桶容量
+local now = tonumber(ARGV[3])
+local requested = tonumber(ARGV[4])  -- 请求的令牌数
+
+-- 获取当前数据
+local data = redis.call('HMGET', key, 'last_time', 'tokens')
+local last_time = tonumber(data[1]) or now
+local tokens = tonumber(data[2]) or capacity
+
+-- 计算应添加的令牌
+local elapsed = math.max(0, now - last_time)
+local add = elapsed * rate
+tokens = math.min(capacity, tokens + add)
+
+-- 检查是否足够
+if tokens &gt;= requested then
+    tokens = tokens - requested
+    redis.call('HMSET', key, 'last_time', now, 'tokens', tokens)
+    redis.call('EXPIRE', key, 60)
+    return 1  -- 通过
+else
+    return 0  -- 拒绝
+end</div>
+</div>
+
+<div class="question">
+  <div class="question-title">Q30: 如何设计一个延迟消息队列？有哪些实现方案？</div>
+</div>
+<div class="answer">
+  <div class="answer-title">参考答案：</div>
+  <strong>延迟队列应用场景：</strong>订单超时取消、定时任务调度、消息重试延迟
+  
+  <strong>四种实现方案：</strong>
+  <table>
+    <tr><th>方案</th><th>实现方式</th><th>适用场景</th><th>缺点</th></tr>
+    <tr><td>RocketMQ延迟消息</td><td>内置支持18个级别</td><td>通用延迟</td><td>延迟级别固定</td></tr>
+    <tr><td>RabbitMQ死信队列</td><td>TTL + 死信交换机</td><td>较短延迟</td><td>延迟时间不可控</td></tr>
+    <tr><td>Redis ZSet</td><td>定时扫描score</td><td>短延迟</td><td>需要定时轮询</td></tr>
+    <tr><td>时间轮算法</td><td>环形队列+指针</td><td>高性能延迟</td><td>实现复杂</td></tr>
+  </table>
+  
+  <div class="code-title">Redis ZSet实现延迟队列</div>
+  <div class="code-block">// 生产者：添加延迟消息
+public void addDelayMessage(String msg, long delayMs) {
+    long executeTime = System.currentTimeMillis() + delayMs;
+    redisTemplate.opsForZSet().add("delay:queue", msg, executeTime);
+}
+
+// 消费者：定时获取过期消息
+public void consumeDelayMessage() {
+    while (true) {
+        // 获取500ms内过期的消息
+        Set&lt;String&gt; messages = redisTemplate.opsForZSet()
+            .rangeByScore("delay:queue", 0, System.currentTimeMillis() + 500);
+        
+        for (String msg : messages) {
+            // 使用Lua脚本原子删除
+            Long removed = redisTemplate.opsForZSet().remove("delay:queue", msg);
+            
+            if (removed != null &amp;&amp; removed &gt; 0) {
+                // 消费消息
+                processMessage(msg);
+            }
+        }
+        
+        Thread.sleep(100);  // 避免CPU空转
+    }
+}</div>
+</div>
+
+<!-- ==================== 附录 ==================== -->
+<h2>附录：面试要点总结</h2>
+
+<div class="summary-box">
+  <h4>🌟 场景题回答技巧</h4>
+  <ul>
+    <li><strong>STAR法则：</strong>Situation（背景）→ Task（任务）→ Action（行动）→ Result（结果）</li>
+    <li><strong>技术选型理由：</strong>不仅说"用什么"，更要说"为什么选这个"</li>
+    <li><strong>权衡取舍：</strong>说明方案的优缺点，以及在不同场景下的取舍</li>
+    <li><strong>实战经验：</strong>如果有实际踩坑经验，一定要分享</li>
+  </ul>
+</div>
+
+<div class="summary-box">
+  <h4>📚 需要深入掌握的知识点</h4>
+  <ul>
+    <li>ThreadLocal源码和内存泄漏原因</li>
+    <li>Spring Bean生命周期完整流程</li>
+    <li>过滤器、拦截器、AOP的执行时机和区别</li>
+    <li>Elasticsearch倒排索引原理</li>
+    <li>JDK 21虚拟线程和Scoped Values</li>
+  </ul>
+</div>
+
+<div class="summary-box">
+  <h4>💡 面试反问环节建议</h4>
+  <ul>
+    <li>团队的技术栈和主要业务是什么？</li>
+    <li>入职后主要负责哪块业务？</li>
+    <li>对候选人的期望是什么？</li>
+    <li>可以问面试官对自己回答的评价</li>
+  </ul>
+</div>
+
+<div class="footer">
+  <p>本文档由AI整理 · 内容来源：牛客网、掘金、腾讯云开发者社区、阿里云等公开技术文章</p>
+  <p>Java高频场景面试题库 · 2025-2026面试版</p>
+</div>
+
+</body>
+</html>

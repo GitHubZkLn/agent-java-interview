@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字节 AI Lab 二面 · 面试口述版</title>
+  <style>
+    @page { size: A4; margin: 2cm 2.5cm; }
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'SimSun', sans-serif;
+      font-size: 12pt;
+      line-height: 1.8;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 22pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #7f0000 100%);
+      padding: 16pt 12pt;
+      border-radius: 4pt;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 16pt;
+      color: #fff;
+      background: linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%);
+      padding: 8pt 12pt;
+      border-radius: 4pt;
+      margin-top: 20pt;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 13pt;
+      color: #7f0000;
+      margin-top: 14pt;
+      margin-bottom: 6pt;
+      page-break-after: avoid;
+      border-left: 4pt solid #d32f2f;
+      padding-left: 10pt;
+    }
+    q {
+      font-style: normal;
+      color: #333;
+      background: linear-gradient(135deg, #fff5f5 0%, #ffebee 100%);
+      border-left: 4pt solid #d32f2f;
+      padding: 12pt 16pt;
+      margin: 4pt 0 10pt 0;
+      display: block;
+      border-radius: 0 4pt 4pt 0;
+      line-height: 1.9;
+    }
+    .meta {
+      font-size: 10pt;
+      color: #666;
+      text-align: center;
+      margin-bottom: 16pt;
+    }
+    .tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #d32f2f 0%, #e53935 100%);
+      color: #fff;
+      padding: 2pt 8pt;
+      border-radius: 10pt;
+      font-size: 9pt;
+      margin-left: 6pt;
+      vertical-align: middle;
+    }
+    .tag-green { background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%); }
+    .tag-blue { background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%); }
+    .tag-orange { background: linear-gradient(135deg, #e65100 0%, #fb8c00 100%); }
+    .tag-purple { background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%); }
+    .tag-teal { background: linear-gradient(135deg, #00695c 0%, #00897b 100%); }
+    .note {
+      background: #fff8e1;
+      border: 1pt solid #ffb300;
+      padding: 10pt 14pt;
+      border-radius: 4pt;
+      font-size: 11pt;
+      color: #5d4037;
+      margin: 12pt 0;
+    }
+    .review-box {
+      background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+      border: 1pt solid #7cb342;
+      padding: 10pt 14pt;
+      border-radius: 4pt;
+      font-size: 11pt;
+      color: #33691e;
+      margin: 10pt 0;
+      line-height: 1.9;
+    }
+    .review-box strong { color: #1b5e20; }
+    strong { color: #7f0000; font-weight: bold; }
+    em { color: #555; font-style: normal; background: #fff9e6; padding: 0 3pt; border-radius: 2pt; }
+    code {
+      background: #ffebee;
+      padding: 1pt 4pt;
+      border-radius: 2pt;
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 10pt;
+      color: #b71c1c;
+    }
+    .coderef {
+      background: #1a1a1a;
+      color: #a5d6a7;
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 10pt;
+      padding: 10pt 14pt;
+      border-radius: 4pt;
+      margin: 8pt 0;
+      line-height: 1.6;
+      display: block;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    hr { border: none; border-top: 1pt solid #d4d8e0; margin: 16pt 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 11pt; }
+    th {
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+      color: #fff;
+      padding: 7pt 10pt;
+      text-align: left;
+    }
+    td { padding: 6pt 10pt; border: 0.5pt solid #d4d8e0; vertical-align: top; }
+    tr:nth-child(even) td { background: #f8f9fc; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('q').forEach(function (q) {
+        var html = q.innerHTML;
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        html = html.replace(/``(.+?)``/g, '<code>$1</code>');
+        q.innerHTML = html;
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <h1>字节 AI Lab 二面 · 面试口述版</h1>
+  <p class="meta">来源：题目截图整理 · 答案综合公开技术资料与常见面试表述 · 仅供复习参考</p>
+
+  <div class="note"><strong>说明：</strong>字节二面（尤其是 AI Lab / Agent 方向）风格偏深，一半聊项目，一半挖底层原理。手撕 Hard 算法是常态，LCEL / LangChain 底层机制经常追问。右侧复盘提示：<strong>项目细节要提前梳理清楚、LangChain 要能讲出底层、Hard 算法二面常考。</strong></div>
+
+  <h2>目录（自我介绍 · 项目 · RAG · LangChain · 部署 · 向量库 · 知识库 · 训练 · 算法）</h2>
+  <p>Q1 自我介绍 · Q2 项目介绍 · Q3 RAG 场景踩坑 · Q4 LangChain 核心组件 · Q5 LCEL 原理 · Q6 模型部署推理加速 · Q7 向量数据库选型 · Q8 知识库与 chunk 策略 · Q9 百卡训练方案设计 · Q10 旋转数组 Hard · Q11 反问</p>
+
+  <hr>
+
+  <h3>Q1：简单自我介绍<span class="tag">开场</span></h3>
+  <q>**口述结构（建议 1 分半）：**<br><br>
+    **学历 / 背景一句话。**「我叫 X，X 年 X 专业毕业，目前在 X 公司做 X 方向。」<br><br>
+    **核心经历 2～3 句。**「校招/社招加入 X，参与/负责了 X 项目，主要做 Agent/RAG/模型服务相关工作。」<br><br>
+    **最近 1 年是重点。**「最近主要在做 X，具体是 Y，技术栈是 Z，取得了 M 结果（量化）。」<br><br>
+    **一句话收尾。**「我对 Agent 系统、大模型应用开发比较感兴趣，今天来字节也是希望深入这块。」<br><br>
+    **注意：** 不要念简历，字节面试官喜欢顺着自我介绍追问，所以挑一个你能展开的点放进去。</q>
+
+  <h3>Q2：介绍一下你做过的项目？<span class="tag">项目</span></h3>
+  <q>**STAR 结构（建议 2 分钟以内，挑最近最熟的一个重点说）：**<br><br>
+    **S（背景）：** 业务痛点、团队规模、你负责什么。<br>
+    **T（目标）：** 要解决什么问题，设定可量化的目标。<br>
+    **A（行动）：** 技术选型、架构设计、你具体负责哪段、踩过什么坑怎么修的。<br>
+    **R（结果）：** 量化指标（命中率、准确率、QPS、延迟提升）。<br><br>
+    **提前准备：** 字节二面必深挖项目细节（如 chunk 策略为什么这么选、LCEL 某个 operator 底层怎么实现的），**不要有答不上来的点**，每个环节都要提前想过为什么这样设计、有没有别的方案、权衡是什么。</q>
+
+  <div class="review-box">
+    <strong>右侧复盘提示：</strong>字节二面面试官喜欢顺着自我介绍/项目深挖，问到项目细节一定要提前梳理清楚。候选人复盘原话：「项目细节一定要提前梳理清楚，不要有回答不上的点。」
+  </div>
+
+  <h3>Q3：RAG 适合的场景？不适合的场景？项目中踩过的坑？<span class="tag">RAG</span></h3>
+  <q>**RAG 适合的场景（四类典型）：**<br><br>
+    ① **知识密集型问答**：FAQ、产品手册、技术文档，内部知识库，答案在文档里，RAG 把文档检索出来拼进 prompt。<br>
+    ② **需要实时性知识**：数据会更新（如最新政策、产品、价格），不能靠模型训练数据。<br>
+    ③ **多源异构数据**：文本、表格、代码、图片，需要混合检索的场景。<br>
+    ④ **合规与可溯源**：需要引用来源回答的场景（如法务、医疗、合规）。<br><br>
+    **RAG 不适合的场景（常见踩坑点）：**<br><br>
+    ① **结构化条件查询**：「查 X 用户 Y 月份的消费额」，纯向量相似度无法做条件过滤，需要**结构化数据查询**（SQL 或 API），RAG 只是补充。<br>
+    ② **语义差异极大的场景**：用户问法和知识库表述完全不同（如「Bob 金融欺诈」vs「3 月 14 日 XYZ 股票购买记录」），因果关联而非语义相似，RAG 召回天然差。<br>
+    ③ **需要精确数值**：精确数字、ID、代码片段，BM25 或 SQL 更稳，向量检索有误差。<br>
+    ④ **幻觉容忍度极低的场景**：金融、医疗强监管领域，RAG 生成仍有幻觉风险，需强约束或强拒答机制。<br><br>
+    **项目中踩过的坑（可套用）：**<br>
+    「第一版用了固定 chunk size，导致跨段落语义割裂，一个问题的答案被切到两个 chunk 里，召回率只有 40% 多。后来改成**语义分块 + 重叠**，并引入**混合检索 + Rerank**，提升到 80%+。」<br><br>
+    **核心结论：** RAG 效果差，**80% 问题出在检索环节**，不在模型。先保证召回，再保证排序。</q>
+
+  <h3>Q4：LangChain 核心组件有哪些？用过吗？底层用的什么？<span class="tag">LangChain</span></h3>
+  <q>**核心组件（按架构分层）：**<br><br>
+    **Model I/O：** Prompt 模板（PromptTemplate）、模型调用（LLM / ChatModel）、输出解析（OutputParser）。<br>
+    **Data Connection：** 文档加载器（DocumentLoader）、文本分割器（TextSplitter）、向量存储（VectorStore）+ Retriever、Embedding 模型封装。<br>
+    **Chain：** 各种 Chain（如 LLMChain、RetrievalQA）、以及通过 LCEL 组装自定义链。<br>
+    **Agent：** AgentExecutor、Tool、ToolKit、Memory（对话历史管理）。<br>
+    **Callbacks：** 事件回调系统，用于日志、Tracing、监控。<br><br>
+    **底层：** LangChain 底层核心是 **Runnable 协议**，所有组件（Model、Prompt、Retriever、Chain 等）都继承 Runnable 接口，实现 `invoke`、`batch`、`stream` 统一方法。组件之间通过 Pydantic Schema 做输入输出校验，数据以字典（Key-Value）在组件间流转。<br><br>
+    **用过说深度，没用过说理解：** 「自己项目里主要用 LCEL 组装 RAG 链，用过 `create_retrieval_chain`、`create_stuff_documents_chain`，但没有深度定制过 Agent。LCEL 底层我了解 `__or__` 运算符重载来实现管道拼接。」</q>
+
+  <div class="review-box">
+    <strong>右侧复盘提示：</strong>候选人复盘原话：「LangChain 还是要深入理解，要能说出底层实现的。」不要只背组件名称，面试会追问 LCEL 原理、Runnable 协议、某一步的异常处理等。
+  </div>
+
+  <h3>Q5：LangChain Expression Language (LCEL) 是什么？原理？<span class="tag">LangChain</span></h3>
+  <q>**定义：** LCEL 是一种**声明式管道语言**，通过 `|` 管道符把 Runnable 组件串联起来，描述 Chain 的结构和数据流，无需写 Python 代码层面手动写循环组装。<br><br>
+    **基本语法（最常见）：**<br>
+    <code>chain = prompt | model | output_parser</code><br><br>
+    **底层原理（三层）：**<br><br>
+    **① Runnable 协议：** LangChain 所有组件（Prompt、Model、Retriever、Parser）都继承 `Runnable` 基类，统一实现 `invoke`、`batch`、`stream`、`ainvoke` 等方法。`|` 操作符被 `__or__` 运算符重载：A | B 等价于 `A.__or__(B)`，返回一个新的 Runnable（Proxy 对象），内部记录 A→B 的调用关系。<br><br>
+    **② 数据流：** 数据以**字典（dict）** 在组件间流转，每个组件声明自己的输入输出 Key（如 `{"query": ...}` → `{"answer": ...}`），管道内部自动按 Key 路由。<br><br>
+    **③ 执行逻辑：** 调用 `chain.invoke(input_dict)` 时，LCEL 内部**从左到右**依次调用每步 `invoke`，上一步的输出自动作为下一步的输入。若上一步和下一步有可并行的路径（如多个 Retriever 同时召回），LCEL 会**自动并行执行以降低延迟**。<br><br>
+    **高级特性（面试加分）：**<br>
+    原生支持**流式输出**（`stream`，首个 token 时间最短）；内置**重试 / 回退**配置；支持**回退链**（主模型失败切备用模型）；支持**中间结果回调**（用于调试和 UI 反馈）。</q>
+
+  <h3>Q6：模型服务部署用的什么方案？推理加速优化过吗？<span class="tag">部署</span></h3>
+  <q>**常见部署方案（按实际项目说一到两种）：**<br><br>
+    ① **云厂商 API**：OpenAI / Anthropic / 通义 / 百度等，直接调 API，省运维，但延迟和数据合规要评估。<br>
+    ② **私有化 / vLLM**：用 **vLLM** 或 **TGI（Text Generation Inference）** 部署，支持 PagedAttention、Continuous Batching，吞吐高、延迟低。<br>
+    ③ **TensorRT-LLM**：NVIDIA 出品，对 A/H 系列 GPU 优化好，适合大模型推理。<br>
+    ④ **SGLang**：新一些的推理框架，支持 RadixAttention（KV Cache 复用），适合多并发场景。<br><br>
+    **推理加速优化（按实际情况说）：**<br>
+    - **量化**：FP16 / INT8 / INT4 量化降低显存和计算量，常用 AWQ、GPTQ。<br>
+    - **Batching**：连续批处理（Continuous Batching）提高 GPU 利用率，vLLM / TGI 原生支持。<br>
+    - **KV Cache**：PagedAttention 管理 KV Cache 显存，减少重复计算。<br>
+    - **投机解码（Speculative Decoding）**：用小模型猜 token，大模型验证，加速生成。<br>
+    - **前缀缓存**：相同 system prompt 的请求共享 KV Cache，降低首 token 延迟。<br><br>
+    **口述收口：** 「我们选 vLLM 主要是看重开箱即用的 PagedAttention + Continuous Batching，吞吐从 X 提升到 Y；如果对延迟更敏感，会考虑 TensorRT-LLM。」</q>
+
+  <h3>Q7：向量数据库用的什么？为什么选它？选型关注哪些维度？<span class="tag">向量库</span></h3>
+  <q>**常用选项（按项目实际说）：** Chroma（快速原型 / 轻量）、FAISS（离线 / 大规模）、Milvus（生产级 / 分布式）、Qdrant（高性能 / 复杂过滤）、Pinecone（云托管 / 零运维）。<br><br>
+    **选型维度（面试重点说 3～4 个）：**<br><br>
+    **① 数据规模与扩展性：** 万级以内 Chroma / FAISS 够用；百万级上 Milvus / Qdrant；十亿级选 Milvus 企业版 / Pinecone。<br>
+    **② 查询性能（延迟 & QPS）：** Pinecone < 2ms 最优，Qdrant 和 Milvus 也不错；高并发看连续批处理能力。<br>
+    **③ 过滤与混合查询：** 能否在向量检索时做 metadata 过滤（如时间、类别）；Milvus 和 Qdrant 标量字段过滤能力强。<br>
+    **④ 运维成本：** 全托管（Pinecone）零运维但贵；自部署（Milvus / Qdrant）省成本但要自己运维；Chroma 最轻量但生产功能少。<br>
+    **⑤ 索引类型：** HNSW（高精度高内存）、IVF（可压缩）、DiskANN（超大数据），不同场景选不同。<br>
+    **⑥ 框架集成：** 与 LangChain / LlamaIndex 的集成成熟度（Milvus / Qdrant 生态最全）。<br><br>
+    **口述：** 「我们选 Qdrant，主要看重**高性能 + 复杂 metadata 过滤**能力，HNSW 索引查询延迟低，且支持 Docker 一键部署切换测试和生产环境。」</q>
+
+  <h3>Q8：知识库怎么做的？chunk 策略怎么做的？<span class="tag">知识库</span></h3>
+  <q>**知识库构建流程（三步）：**<br><br>
+    **① 文档接入与清洗：** 接入原始文档（PDF/Word/HTML），提取文本与结构（表格、标题、列表），去 HTML 标签、过滤噪声（页眉页脚页码）。<br>
+    **② 分块（Chunking）：** 这是 RAG 效果最关键的一步。<br>
+    **③ 向量化入库：** Embedding 模型向量化，存入向量库，建 HNSW / IVF 索引。<br><br>
+    **Chunk 策略（按场景选）：**<br><br>
+    **固定字数 + 重叠（基础）：** 如 500 token 一块，50 token 重叠。简单但容易在句子中间截断。<br>
+    **语义分块（推荐）：** 按自然段落 / 标题 / QA 对切块，保证每块语义完整；用 `NLTK` / `spaCy` 做句子边界检测。<br>
+    **层级分块：** 先按段落，再按句子，允许召回时返回不同粒度的块。<br>
+    **特殊内容处理：** 表格用特殊格式（HTML Table → Markdown Table with header），保留表头与单元格的关联；代码块独立成块。<br><br>
+    **Chunk Size 怎么定：** 与 Embedding 模型 context 窗口和业务答案长度有关；实践中 300～500 token 是常见区间；答案粒度越细，chunk 可以越小，加上 Rerank 做二次选择。<br><br>
+    **口述：** 「我们第一版用固定 500 字，导致很多问答对被截断。后来改成**按段落 + 重叠 10%**，并把表格和代码块特殊处理，召回率从 60% 提升到 85%。」</q>
+
+  <h3>Q9：开放问题——给你 100 张卡，怎么设计训练方案？<span class="tag">系统设计</span></h3>
+  <q>**这是一道分布式训练系统设计题，考察深度和全局观，分层说：**<br><br>
+    **① 数据并行（Data Parallelism）：** 100 张卡，最基础是数据并行。每个 GPU 放模型副本，数据切分 100 份，每步后 AllReduce 同步梯度。通信是瓶颈，常用 **NCCL**。<br><br>
+    **② 模型并行（Model Parallelism）：**<br>
+    - **张量并行（Tensor Parallelism, TP）：** 单层横向切分（Attention 的 Q/K/V/O 分别放不同卡），需要 NVLink 高速互联，适合单机 8 卡。<br>
+    - **流水线并行（Pipeline Parallelism, PP）：** 按层纵向切分，不同阶段串行执行，通过 **micro-batch** 掩盖流水线气泡。<br>
+    - 常见组合：**3D Parallel = DP + TP + PP**，如 8 机 × 8 卡，每机内 NVLink 做 TP，跨机 Ethernet/InfiniBand 做 PP + DP。<br><br>
+    **③ 通信优化：** 梯度压缩（Gradient Compression）、通信与计算重叠（Overlap）、混合精度（FP16/BF16 减少通信量）。<br><br>
+    **④ 故障恢复与监控：** Checkpoint 保存周期（每 N 步）、分布式文件系统（Alluxio / HDFS）、GPU 故障自动重启、Prometheus + DCGM 监控。<br><br>
+    **⑤ 工程框架：** Megatron-LM（TP/PP）、DeepSpeed ZeRO（ZeRO-1/2/3 分阶段优化显存）、ColossalAI、Alpa。<br><br>
+    **口述收口：** 「100 张卡，我会用 **DeepSpeed ZeRO-3 + TP** 混合并行，结合 混合精度训练 和梯度检查点（Gradient Checkpointing）降低显存，卡间通信用 NVLink / InfiniBand，同时设计合理的 checkpoint 策略防止训练中断损失过大。」</q>
+
+  <h3>Q10：手撕算法——旋转排序数组中查找目标 II（Hard）<span class="tag">算法</span><span class="tag-orange">Hard</span></h3>
+  <q>**题目回顾：** 原升序数组在未知位置被旋转，**数组包含重复元素**，判断目标值是否存在（返回 true/false）。<br><br>
+    **旋转数组的核心性质：** 旋转后被分成两个有序区间，某一边一定有序，通过 `nums[mid]` 与边界比较可以判断哪边有序。<br><br>
+    **三分支判断（处理重复元素的关键）：**<br><br>
+    **情况①：`nums[left] == nums[mid] == nums[right]`**（三值相等，无法判断哪边有序）<br>
+    → `left++，right--`（去重，继续缩小范围）<br><br>
+    **情况②：`nums[left] <= nums[mid]`**（左半段有序）<br>
+    → 若 `target` 在 `[nums[left], nums[mid])` 内：`right = mid - 1`<br>
+    → 否则：`left = mid + 1`<br><br>
+    **情况③：`nums[left] > nums[mid]`**（右半段有序）<br>
+    → 若 `target` 在 `(nums[mid], nums[right]]` 内：`left = mid + 1`<br>
+    → 否则：`right = mid - 1`<br><br>
+    **复杂度：** 最好 O(log n)，最坏 O(n)（大量重复时退化为线性），空间 O(1)。</q>
+
+  <div class="coderef">public boolean search(int[] nums, int target) {
+    int l = 0, r = nums.length - 1;
+    while (l <= r) {
+        int mid = (l + r) >>> 1;   // 防止溢出
+        if (nums[mid] == target) return true;
+
+        // 关键：处理重复元素，三值相等时无法判断区间，去重
+        if (nums[l] == nums[mid] && nums[mid] == nums[r]) {
+            ++l;
+            --r;
+        } else if (nums[l] <= nums[mid]) {
+            // 左半段有序
+            if (nums[l] <= target && target < nums[mid]) {
+                r = mid - 1;       // 目标在左区间
+            } else {
+                l = mid + 1;       // 目标在右区间
+            }
+        } else {
+            // 右半段有序
+            if (nums[mid] < target && target <= nums[r]) {
+                l = mid + 1;       // 目标在右区间
+            } else {
+                r = mid - 1;       // 目标在左区间
+            }
+        }
+    }
+    return false;
+}</div>
+
+  <h3>Q11：反问环节<span class="tag">收尾</span></h3>
+  <q>**建议问 1～2 个有质量的，不要问百度能搜到的：** ① 「团队在 Agent 方向的技术栈和技术挑战是什么？」 ② 「这个岗位进来后会负责哪块业务？」 ③ 「入职后有 on boarding 的技术分享或文档吗？」<br><br>
+    **不要问：** 薪资（HR 会另外谈）、加班情况（除非真的很在意）、能不能远程（拿到 offer 再谈）。</q>
+
+  <div class="review-box">
+    <strong>右侧复盘自评（候选人原话）：</strong><br>
+    ① 第一次参加字节面试，非常紧张😰<br>
+    ② 项目细节一定要提前梳理清楚，不要有回答不上的点<br>
+    ③ 字节二面会考 Hard 算法<br>
+    ④ LangChain 还是要深入理解，要能说出底层实现的
+  </div>
+
+  <hr>
+
+  <h2>附：向量数据库选型对照表</h2>
+  <table>
+    <tr><th>数据库</th><th>适合规模</th><th>核心优势</th><th>运维成本</th><th>典型场景</th></tr>
+    <tr><td>Chroma</td><td>万级</td><td>轻量、上手快、LangChain 集成好</td><td>低</td><td>快速原型 POC</td></tr>
+    <tr><td>FAISS</td><td>百万～千万</td><td>Netflix 出品、多种索引、离线高速</td><td>中</td><td>离线批检索、推荐系统</td></tr>
+    <tr><td>Milvus</td><td>十亿级</td><td>11 种索引、分布式、微服务架构</td><td>高</td><td>大规模生产 RAG</td></tr>
+    <tr><td>Qdrant</td><td>亿级</td><td>高性能、metadata 过滤强、HNSW</td><td>中</td><td>生产 RAG、实时检索</td></tr>
+    <tr><td>Pinecone</td><td>任意</td><td>全托管、Serverless、免运维</td><td>零</td><td>不想管运维的团队</td></tr>
+  </table>
+
+  <hr>
+  <p class="meta">打印建议：浏览器打印 → 背景图形；页边距适中。祝面试顺利。</p>
+
+</body>
+</html>

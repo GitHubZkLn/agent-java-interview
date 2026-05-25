@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Spring全家桶深度面试题库</title>
+<style>
+@page {
+  size: A4;
+  margin: 2cm 2.5cm;
+}
+body {
+  font-family: 'Microsoft YaHei', 'SimSun', serif;
+  font-size: 12pt;
+  line-height: 1.8;
+  color: #222;
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 20px;
+}
+h1 {
+  font-size: 22pt;
+  text-align: center;
+  color: #fff;
+  background: #2c5aa0;
+  padding: 16pt 12pt;
+  border-radius: 4pt;
+  margin-top: 0;
+  page-break-after: avoid;
+}
+h2 {
+  font-size: 16pt;
+  color: #2c5aa0;
+  border-bottom: 2pt solid #2c5aa0;
+  padding-bottom: 4pt;
+  margin-top: 20pt;
+  page-break-after: avoid;
+}
+h3 {
+  font-size: 13pt;
+  color: #333;
+  margin-top: 14pt;
+  page-break-after: avoid;
+}
+h4 {
+  font-size: 12pt;
+  color: #555;
+  margin-top: 10pt;
+  border-left: 3pt solid #2c5aa0;
+  padding-left: 8pt;
+}
+q {
+  font-style: normal;
+  color: #444;
+  background: #f5f8ff;
+  border-left: 4pt solid #2c5aa0;
+  padding: 10pt 14pt;
+  margin: 8pt 0;
+  display: block;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10pt 0;
+  font-size: 11pt;
+}
+th {
+  background: #2c5aa0;
+  color: #fff;
+  padding: 7pt 10pt;
+  text-align: left;
+  font-weight: bold;
+}
+td {
+  padding: 6pt 10pt;
+  border: 0.5pt solid #c0c8e0;
+  vertical-align: top;
+}
+tr:nth-child(even) td {
+  background: #f0f4fb;
+}
+hr {
+  border: none;
+  border-top: 1pt solid #c0c8e0;
+  margin: 16pt 0;
+}
+table.qtable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10pt 0;
+  font-size: 10.5pt;
+}
+table.qtable th {
+  background: #2c5aa0;
+  color: #fff;
+  padding: 5pt 8pt;
+  text-align: left;
+}
+table.qtable td {
+  padding: 5pt 8pt;
+  border: 0.5pt solid #c0c8e0;
+  vertical-align: top;
+}
+table.qtable tr:nth-child(even) td {
+  background: #f0f4fb;
+}
+</style>
+</head>
+<body>
+
+<h2>第一部分：Spring IOC 与依赖注入</h2>
+Spring Boot 在 Spring Framework 基础上，通过 spring-boot-starter 机制进一步简化了依赖管理。Spring Boot 不是替代 Spring Framework，而是对 Spring 的封装和增强。</q>
+
+<h3>Q2：Spring IOC 原理：控制反转到底是什么？</h3>
+<q><strong>IOC = Inversion of Control，控制反转。</strong><br><br>
+传统开发中，对象的创建和依赖管理由程序员手动完成——A 需要用 B，程序员手动 new B()。对象之间的依赖关系是写死在代码里的。<br><br>
+<strong>IOC 的本质：</strong>把对象的创建和依赖关系的维护，从程序员手中"反转"交给 Spring 容器。<br><br>
+<strong>生活例子：</strong>传统方式是"自己做饭自己吃"。IOC 方式是"去餐厅点餐"——你只管点菜（声明依赖），厨师做好后端上来（容器注入）。你不知道厨师是谁、怎么做的，但菜就是到你手上了。<br><br>
+<strong>IOC 的两种实现方式：</strong><br>
+· <strong>依赖注入（DI）</strong>：运行时由容器通过构造函数、setter 或字段注入依赖。这是主流方式。<br>
+· <strong>依赖查找（DL）</strong>：对象主动向容器请求依赖。现在很少直接用。<br><br>
+<strong>IOC 的核心价值：</strong>解耦、可测试性、可复用性。Spring IOC 容器初始化时，会扫描所有标注了 @Component 等注解的类，解析类之间的依赖关系，构建一张"Bean 依赖图"。</q>
+
+<h3>Q3：依赖注入的三种方式对比</h3>
+<q>Spring 支持三种依赖注入方式：构造器注入、Setter 注入、字段注入。<br><br>
+<strong>构造器注入：</strong>通过构造函数注入，可声明为 final，确保线程安全，保证所有依赖就绪后对象才创建。<br><br>
+<strong>Setter 注入：</strong>通过 @Autowired 标注的 setter 方法注入，依赖可选。<br><br>
+<strong>字段注入：</strong>通过 @Autowired 直接标注字段，写起来最简单但不推荐。<br><br>
+<strong>为什么 Spring 官方推荐构造器注入？</strong><br>
+<strong>第一，依赖不可变性。</strong>构造器注入可以声明为 final；Setter 和字段注入无法声明 final。<br>
+<strong>第二，完全初始化保证。</strong>构造器注入保证对象创建时所有依赖都已就绪，不可能出现 NPE。<br>
+<strong>第三，强制依赖契约。</strong>明确表达"没有这个依赖，这个类就无法工作"。<br>
+<strong>第四，与容器解耦。</strong>构造器注入的对象无需 Spring 容器即可单元测试，可以直接 new 并传入 mock 对象。<br>
+<strong>第五，快速暴露循环依赖。</strong>构造器注入在启动时就暴露循环依赖；字段注入会隐藏问题。<br>
+<strong>第六，代码可读性。</strong>通过构造器参数，类的所有依赖一目了然。<br>
+<strong>第七，Spring 4.3+ 隐式构造器注入。</strong>当类只有一个构造器时，Spring 自动作为注入构造器，不需要 @Autowired。<br><br>
+字段注入虽然写起来最简单，但无法做单元测试，也违背了"依赖应当通过构造器表达"的原则。在 Spring 官方眼里，字段注入是"反模式"。</q>
+
+<h3>Q4：BeanFactory 和 ApplicationContext 的区别</h3>
+<q>BeanFactory 和 ApplicationContext 都是 Spring IOC 容器的接口，ApplicationContext 是 BeanFactory 的子接口。<br><br>
+<strong>BeanFactory 的特点：</strong><br>
+· 最底层的 IOC 容器接口<br>
+· <strong>懒加载</strong>——Bean 在第一次被请求时才创建<br>
+· 只提供基本的 Bean 创建和依赖注入功能<br>
+· 适合资源敏感的环境（内存受限的嵌入式设备）<br><br>
+<strong>ApplicationContext 的特点：</strong><br>
+· 继承自 BeanFactory，<strong>预加载</strong>——启动时就创建所有单例 Bean<br>
+· 除基本 IOC 功能外，还提供：国际化（MessageSource）、事件发布（ApplicationEventPublisher）、资源加载（ResourceLoader）、注解处理（@Autowired、@Value 等）、AOP 自动代理（BeanPostProcessor）<br><br>
+<strong>实际选择：</strong>企业级应用几乎全部使用 ApplicationContext。BeanFactory 几乎只在 Spring 测试框架和低资源嵌入式场景下使用。<br><br>
+Spring Boot 默认使用的是 AnnotationConfigServletWebServerApplicationContext，它是 ApplicationContext 的一种实现。</q>
+
+<h3>Q5：Bean 的作用域（scope）</h3>
+<q>Spring 为 Bean 提供了 5 种作用域，通过 @Scope 注解指定。<br><br>
+<table>
+<tr><th>作用域</th><th>说明</th><th>使用场景</th></tr>
+<tr><td><strong>singleton</strong>（默认）</td><td>整个容器中只有一个实例</td><td>绝大多数 Bean（Service、DAO、Config）</td></tr>
+<tr><td><strong>prototype</strong></td><td>每次请求都创建一个新实例</td><td>有状态的 Bean，状态不可共享</td></tr>
+<tr><td><strong>request</strong></td><td>每次 HTTP 请求创建一个新实例</td><td>HTTP 请求相关的 Bean</td></tr>
+<tr><td><strong>session</strong></td><td>同一个 HTTP Session 创建一个实例</td><td>用户会话相关数据</td></tr>
+<tr><td><strong>application</strong></td><td>整个 ServletContext 生命周期内只有一个实例</td><td>全局共享的应用级 Bean</td></tr>
+</table><br>
+<strong>singleton 是默认作用域的原因：</strong>大多数 Bean 是无状态的，可以安全地全局共享；Spring 认为除非明确需要，否则不应创建多个实例；单例减少了对象创建销毁的开销，性能最优。<br><br>
+<strong>prototype 作用域的坑：</strong>Spring 不会管理 prototype Bean 的完整生命周期——容器只负责创建，不负责销毁。如果 prototype Bean 持有数据库连接、线程等资源，不要用 prototype，应该手动管理。</q>
+
+<h3>Q6：Spring Bean 生命周期（14 个步骤）</h3>
+<q>Spring Bean 的生命周期分为实例化、属性填充、初始化、销毁四个阶段。<br><br>
+<strong>实例化阶段：</strong><br>
+1. 通过反射调用构造函数创建 Bean 实例<br><br>
+<strong>属性填充阶段：</strong><br>
+2. 通过构造器参数、Setter 方法或字段注入标记了 @Autowired / @Resource 的依赖<br><br>
+<strong>初始化阶段：</strong><br>
+3. <strong>Aware 接口回调</strong>：如果 Bean 实现了 BeanNameAware、BeanFactoryAware 或 ApplicationContextAware，Spring 会注入相应的容器资源<br>
+4. <strong>BeanPostProcessor 前置处理</strong>：postProcessBeforeInitialization() 被调用。<strong>@Autowired、@Value、@Inject 等注解的处理就在这一步完成</strong><br>
+5. <strong>@PostConstruct 方法</strong>：标注的方法执行<br>
+6. <strong>InitializingBean 接口</strong>：调用 afterPropertiesSet()<br>
+7. <strong>init-method</strong>：XML 或 Java 配置中指定的初始化方法<br>
+8. <strong>BeanPostProcessor 后置处理</strong>：postProcessAfterInitialization() 被调用。<strong>AOP 代理对象就是在这里生成的</strong>——原始 Bean 被替换成代理对象<br><br>
+<strong>使用阶段：</strong><br>
+9. Bean 就绪，正常使用<br><br>
+<strong>销毁阶段：</strong><br>
+10. <strong>@PreDestroy 方法</strong>：容器关闭前执行<br>
+11. <strong>DisposableBean 接口</strong>：调用 destroy()<br>
+12. <strong>destroy-method</strong>：执行自定义销毁方法<br><br>
+<strong>核心扩展点：</strong>BeanPostProcessor.postProcessBeforeInitialization() 是注解注入的处理点；BeanPostProcessor.postProcessAfterInitialization() 是 AOP 代理的生成点。理解这两个扩展点，就理解了 Spring 的核心扩展机制。</q>
+
+<h3>Q7：Spring 常用注解对比</h3>
+<q><strong>组件注册注解（@Component 系）：</strong><br>
+<table>
+<tr><th>注解</th><th>层级</th><th>特殊处理</th></tr>
+<tr><td>@Component</td><td>通用</td><td>无</td></tr>
+<tr><td>@Service</td><td>业务层</td><td>无（仅语义区分，与 @Component 等价）</td></tr>
+<tr><td>@Repository</td><td>持久层</td><td>有，Spring 会自动将 SQL 异常转换为 DataAccessException</td></tr>
+<tr><td>@Controller</td><td>控制层</td><td>有，配合 @RequestMapping 使用</td></tr>
+<tr><td>@Configuration</td><td>配置层</td><td>有，支持 @Bean 声明式创建 Bean</td></tr>
+</table><br>
+<strong>@Component vs @Bean：</strong>@Component 作用于类，Spring 扫描到类时自动创建 Bean；@Bean 作用于方法，通常用于引入第三方库（无法加 @Component 注解）。<br><br>
+<strong>@Autowired vs @Resource：</strong><br>
+<table>
+<tr><th>对比</th><th>@Autowired</th><th>@Resource</th></tr>
+<tr><td>来源</td><td>Spring 框架</td><td>JDK 标准注解（JSR-250）</td></tr>
+<tr><td>默认方式</td><td>按类型（Type）注入</td><td>按名称（Name）注入，找不到再按类型</td></tr>
+</table><br>
+@Autowired + @Qualifier = @Resource(name="xxx")——当一个接口有多个实现类时，两者配合使用可以精确指定注入哪个 Bean。</q>
+
+<hr>
+
+<h2>第二部分：Spring AOP 原理</h2>
+
+<h3>Q8：AOP 核心概念（切面/切点/通知/连接点/织入）</h3>
+<q><strong>AOP（Aspect Oriented Programming，面向切面编程）</strong>解决的是"横切关注点"问题。<br><br>
+比如日志记录、事务管理、安全校验、缓存处理——这些功能散落在业务代码的各个角落，在每个类里重复写，叫"代码侵入性"。AOP 的思想是把这些横切逻辑抽离出来，单独管理，按需织入。<br><br>
+<table>
+<tr><th>概念</th><th>说明</th><th>类比</th></tr>
+<tr><td><strong>Aspect（切面）</strong></td><td>横切关注点的模块化封装，包含通知和切点</td><td>一把瑞士军刀</td></tr>
+<tr><td><strong>Join Point（连接点）</strong></td><td>程序执行的某个可插入的点</td><td>可以插队的"时机"</td></tr>
+<tr><td><strong>Pointcut（切点）</strong></td><td>实际选择哪些连接点的表达式</td><td>"在哪些时机插队"的规则</td></tr>
+<tr><td><strong>Advice（通知）</strong></td><td>切面在连接点执行的具体动作</td><td>具体要做什么动作</td></tr>
+<tr><td><strong>Weaving（织入）</strong></td><td>把切面应用到目标对象的过程</td><td>把瑞士军刀装配到生产线上</td></tr>
+</table><br>
+<strong>Join Point vs Pointcut：</strong>Join Point 是"所有可以插入的点"（Spring AOP 中只有方法执行这一个 Join Point）；Pointcut 是"实际选择了哪些点"，是 Join Point 的子集。<br><br>
+Spring AOP 只支持方法级别的 Join Point。如果需要拦截构造器调用、属性访问等更细粒度的切面，需要使用 AspectJ。</q>
+
+<h3>Q10：Spring AOP 源码流程（ProxyFactory / Advisor / MethodInterceptor）</h3>
+<q>Spring AOP 的源码流程分三步：<br><br>
+<strong>第一步：创建 ProxyFactory（代理工厂）。</strong><br>
+ProxyFactory 是 Spring AOP 的核心类，负责创建代理对象。它封装了目标对象和切面信息，根据配置决定使用 JDK 代理还是 CGLIB。<br><br>
+<strong>第二步：获取增强器（Advisor）。</strong><br>
+Spring 从容器中获取所有实现了 Advisor 接口的 Bean。Advisor 包含了 Pointcut（切点表达式）和 Advice（通知）。<br>
+· <strong>Pointcut 匹配方法：</strong>通过 Pointcut 检查当前方法是否匹配切点表达式<br>
+· <strong>Advisor 适配为 MethodInterceptor 链：</strong>匹配成功后，Spring 将 Advisor 适配成 MethodInterceptor 链<br><br>
+<strong>第三步：创建代理对象并执行。</strong><br>
+客户端调用 → 代理对象（JDK Proxy 或 CGLIB Subclass）→ 调用 invoke() / intercept() → 获取匹配的 MethodInterceptor 链 → 逐个执行 MethodInterceptor 的 proceed() → 执行完所有拦截器后，调用 target.invokeJoinpoint() 执行原始方法<br><br>
+<strong>关键源码位置：</strong><br>
+· JdkDynamicAopProxy.invoke()：JDK 动态代理的方法调用入口<br>
+· ObjenesisCglibAopProxy.intercept()：CGLIB 代理的方法调用入口<br>
+· ReflectiveMethodInvocation.proceed()：执行 MethodInterceptor 链的核心逻辑<br><br>
+MethodInterceptor 链的递归调用机制——proceed() 方法内部递归调用自身，每次调用一个拦截器，下一个拦截器的 proceed() 调用触发下一个拦截器，直到全部执行完才执行目标方法。</q>
+
+<h3>Q11：五种通知的执行顺序</h3>
+<q><strong>@Around（环绕通知）：</strong>最强通知，必须显式调用 proceed() 才执行目标方法，可以在 proceed() 前后穿插任意逻辑。<br><br>
+<strong>@Before（前置通知）：</strong>在目标方法执行之前运行。如果 @Around 不调用 proceed()，@Before 不会执行。<br><br>
+<strong>@After（后置通知）：</strong>在目标方法执行之后运行（无论是否抛出异常）。等同于 try-catch 的 finally 块，在 @AfterReturning 和 @AfterThrowing 之前执行。<br><br>
+<strong>@AfterReturning（返回通知）：</strong>在目标方法正常返回后运行。可以使用 returning 属性获取目标方法的返回值。<br><br>
+<strong>@AfterThrowing（异常通知）：</strong>在目标方法抛出异常后运行。可以使用 throwing 属性获取抛出的异常对象。<br><br>
+<strong>执行顺序总结：</strong><br>
+@Around 前置部分 → @Before → try { 目标方法 } catch { @AfterThrowing } finally { @After } → @Around 后置部分 → @AfterReturning<br><br>
+如果 @Around 不调用 proceed()，目标方法就不会执行，后续所有通知都不会执行。如果 @Around 捕获了异常但不重新抛出，@AfterThrowing 不会执行。</q>
+
+<hr>
+
+<h2>第三部分：Spring 循环依赖与三级缓存</h2>
+
+<h3>Q12：循环依赖的本质与三种类型</h3>
+<q><strong>循环依赖</strong>是指两个或多个组件相互引用形成的闭环关系。<br><br>
+<table>
+<tr><th>类型</th><th>能否解决</th></tr>
+<tr><td>Setter 循环依赖（A→B→A）</td><td>✅ 可以（三级缓存机制）</td></tr>
+<tr><td>构造器循环依赖</td><td>❌ 无法解决</td></tr>
+<tr><td>prototype 循环依赖</td><td>❌ 无法解决（Spring 不缓存 prototype Bean）</td></tr>
+</table><br>
+<strong>Setter 循环依赖可以解决的原因：</strong>Spring 在 Bean 实例化后（构造函数执行完）、属性填充前，就将"半成品"的 Bean 引用暴露给其他 Bean 使用。这个"提前暴露引用"的机制打破了循环。<br><br>
+Spring 默认只支持 singleton Bean 的循环依赖解决，因为 prototype Bean 每次请求都创建新实例，Spring 不缓存它们，无法提前暴露引用。</q>
+
+<h3>Q13：三级缓存原理</h3>
+<q>三级缓存是 Spring 循环依赖解决的核心机制，用三个 Map 实现。<br><br>
+<table>
+<tr><th>缓存</th><th>存储内容</th><th>特点</th></tr>
+<tr><td><strong>一级缓存</strong>（singletonObjects）</td><td>完全初始化好的 Bean（成品）</td><td>可以直接使用</td></tr>
+<tr><td><strong>二级缓存</strong>（earlySingletonObjects）</td><td>已实例化但未初始化的 Bean（半成品）</td><td>防止重复创建早期引用</td></tr>
+<tr><td><strong>三级缓存</strong>（singletonFactories）</td><td>ObjectFactory 对象工厂</td><td>延迟创建早期引用</td></tr>
+</table><br>
+<strong>三级缓存的工作流程（A→B→A 场景）：</strong><br>
+1. 创建 A → 构造函数实例化 A → A 的 ObjectFactory 存入三级缓存 → 开始填充 A 的属性<br>
+2. 发现 A 依赖 B → 创建 B → B 的 ObjectFactory 存入三级缓存 → 开始填充 B 的属性<br>
+3. B 发现依赖 A → 从三级缓存获取 A 的 ObjectFactory，调用 getObject() → 生成 A 的早期引用（可能是代理对象）→ 存入二级缓存，从三级缓存移除 → B 拿到 A 的引用，完成初始化，进入一级缓存<br>
+4. A 拿到完成初始化的 B → A 完成属性填充和初始化，进入一级缓存 → 循环依赖解决！<br><br>
+三级缓存并不是为了"提高效率"，而是为了解决 AOP 代理和循环依赖的冲突。</q>
+
+<h3 style="color:#c0392b;font-weight:bold;">Q14⭐：为什么需要三级缓存而不是二级？AOP 冲突如何解决？</h3>
+<q><strong>只用一级+二级缓存的问题：</strong><br>
+如果只有一级（成品）和二级（半成品），三级缓存用 ObjectFactory 直接替代。<br><br>
+如果 Bean 需要 AOP 代理，<strong>每次从 ObjectFactory 获取都会生成新的代理对象</strong>——第一次获取生成代理A1，第二次获取生成代理A2，第三次获取生成代理A3。同一个 Bean 在内存中有多个代理版本，Bean B 持有的代理 A 和最终容器中的代理 A 不是同一个对象。<br><br>
+<strong>三级缓存如何解决：</strong><br>
+二级缓存（earlySingletonObjects）的核心作用是<strong>缓存首次调用 ObjectFactory.getObject() 的结果</strong>。<br>
+· 第一次从三级缓存获取 A → 执行 ObjectFactory.getObject()（生成代理）→ 存入二级缓存<br>
+· 后续所有 Bean 获取 A 时 → 从<strong>二级缓存</strong>获取（不会重复生成）<br>
+· 最终 A 初始化完成后 → 从二级缓存移到一级缓存<br><br>
+<strong>为什么不能只用二级？</strong><br>
+如果只有二级缓存（半成品）和一级缓存（成品），A 实例化后但未初始化时，需要把 A 的引用暴露给 B 使用。此时 A 还是原始对象（没有 AOP 代理），如果后续 A 生成了 AOP 代理，B 持有的 A 就不是代理对象。<br><br>
+<strong>三级缓存的设计哲学：</strong>三级缓存用 ObjectFactory 延迟决策——<strong>只有在真正发生循环依赖时</strong>（从三级获取），才调用 getEarlyBeanReference() 生成代理对象。如果从未发生循环依赖（大多数 Bean），ObjectFactory 就不会被调用，没有额外开销。<br><br>
+这体现了 Spring 设计的一个核心原则——"不要提前做不必要的工作"（Lazy Initialization）。</q>
+
+<h3 style="color:#c0392b;font-weight:bold;">Q15⭐：构造器循环依赖为什么无法解决？</h3>
+<q><strong>根本原因：</strong>实例化和初始化是分离的，但构造器注入无法分离。<br><br>
+<strong>Setter 循环依赖可以解决的原因：</strong><br>
+Spring 在<strong>构造函数执行后</strong>、<strong>属性填充前</strong>，就暴露半成品引用。Bean B 拿到 A 的半成品引用，可以先完成 B 的初始化；等 A 拿到 B 的完整引用，再完成 A 的初始化。<br><br>
+<strong>构造器循环依赖无法解决的原因：</strong><br>
+· 构造器必须在实例化阶段完成，构造函数体内就要拿到所有参数<br>
+· 构造函数执行时，Bean 对象还没有创建完成，根本无法暴露引用<br>
+· A 的构造器需要 B，B 的构造器需要 A，形成死锁<br><br>
+如果两个 Bean 都通过构造器注入形成循环依赖，Spring 会直接抛出 <strong>BeanCurrentlyInCreationException</strong> 异常——不是等到运行时，而是<strong>启动时就报错</strong>。<br><br>
+Spring 在创建 Bean 时维护了一个 <strong>singletonsCurrentlyInCreation</strong> 的 Set，记录正在创建的 Bean 名称。如果创建 A 时发现 A 已在创建集合中，说明发生了构造器循环依赖，立即报错。<br><br>
+<strong>实际项目中的解决方式：</strong>将其中一个 Bean 改为 Setter 注入；或使用 <strong>@Lazy</strong> 注解延迟加载——Spring 先注入一个代理对象，等到真正调用方法时才创建真实对象。</q>
+
+<hr>
+
+<h2>第四部分：Spring Boot 核心机制</h2>
+
+<h3>Q16：Spring Boot 启动流程（10 个关键步骤）</h3>
+<q>Spring Boot 启动流程共 10 步：<br><br>
+<strong>第 1 步：SpringApplication 初始化。</strong>推断应用类型（Servlet / Reactive / None），加载 spring.factories 中的 ApplicationContextInitializer 和 ApplicationListener。<br>
+<strong>第 2 步：执行 run() 启动计时。</strong><br>
+<strong>第 3 步：初始化 SpringApplicationRunListeners。</strong>发布 ApplicationStartingEvent 事件。<br>
+<strong>第 4 步：准备 Environment。</strong>加载 application.properties / application.yml、OS 环境变量、命令行参数。发布 ApplicationEnvironmentPreparedEvent 事件。<br>
+<strong>第 5 步：打印 Banner。</strong><br>
+<strong>第 6 步：创建 ApplicationContext。</strong>Servlet 环境：AnnotationConfigServletWebServerApplicationContext；非 Web 环境：AnnotationConfigApplicationContext。<br>
+<strong>第 7 步：准备上下文。</strong>将 Environment 设置到 ApplicationContext，加载引导类。发布 ApplicationContextInitializedEvent。<br>
+<strong>第 8 步：refreshContext()（核心步骤）。</strong>等同于 Spring Framework 的容器刷新，触发 Bean 的扫描、实例化、依赖注入、自动配置。发布 ApplicationPreparedEvent。<br>
+<strong>第 9 步：启动嵌入式 Web 服务器。</strong>创建内嵌 Tomcat/Jetty/Undertow。发布 ServletWebServerInitializedEvent。<br>
+<strong>第 10 步：发布 Ready 事件。</strong>发布 ApplicationStartedEvent 和 ApplicationReadyEvent。应用启动完成，随时接收 HTTP 请求。<br><br>
+<strong>核心是 refreshContext()，所有 Bean 的创建、自动配置、组件扫描都在这一步完成。</strong></q>
+
+<h3 style="color:#c0392b;font-weight:bold;">Q17⭐：Spring Boot 自动配置原理</h3>
+<q><strong>@SpringBootApplication</strong> 是组合注解，包含三个核心注解：<br>
+· <strong>@SpringBootConfiguration</strong>：等价于 @Configuration<br>
+· <strong>@EnableAutoConfiguration</strong>：开启自动配置<br>
+· <strong>@ComponentScan</strong>：组件扫描，默认扫描主类所在的包及其子包<br><br>
+<strong>@EnableAutoConfiguration 的核心：@Import(AutoConfigurationImportSelector.class)</strong><br>
+AutoConfigurationImportSelector 实现了 DeferredImportSelector 接口，在所有 @Configuration 类处理完后才运行。<br><br>
+<strong>自动配置的三个核心问题：</strong><br>
+<strong>问题一：创建哪些 Bean？</strong>通过 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports 文件（Spring Boot 2.7+ 新格式）发现自动配置类。<br>
+<strong>问题二：Bean 的属性从哪来？</strong>通过 @ConfigurationProperties 注解将 application.yml 中的配置绑定到 Bean 属性。例如 server.port 绑定到 ServerProperties 类的 port 字段。<br>
+<strong>问题三：哪些 Bean 应该生效？</strong>通过 Conditional 系列注解控制：<br>
+<table>
+<tr><th>注解</th><th>条件</th></tr>
+<tr><td>@ConditionalOnClass</td><td>classpath 中存在指定类时才生效</td></tr>
+<tr><td>@ConditionalOnMissingClass</td><td>classpath 中不存在指定类时才生效</td></tr>
+<tr><td>@ConditionalOnBean</td><td>容器中存在指定 Bean 时才生效</td></tr>
+<tr><td>@ConditionalOnMissingBean</td><td>容器中不存在指定 Bean 时才生效</td></tr>
+<tr><td>@ConditionalOnProperty</td><td>配置属性满足条件时才生效</td></tr>
+<tr><td>@ConditionalOnWebApplication</td><td>是 Web 应用时才生效</td></tr>
+</table><br>
+<strong>面试加分点：</strong>Spring Boot 2.7 的重大变化——从 spring.factories 迁移到 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports，解决了配置类重复和加载顺序问题。</q>
+
+<h2>第五部分：Spring 事务</h2>
+
+<h3 style="color:#c0392b;font-weight:bold;">Q20⭐：@Transactional 事务失效的经典场景（8 种）</h3>
+<q>@Transactional 失效的核心原因是：Spring 事务基于 AOP 代理，代理失效或异常无法被捕获时，事务就不生效。<br><br>
+<strong>第一种：同类自调用（最常见）。</strong><br>
+this.processPayment() 绕过了 Spring 代理对象，直接调用目标方法，事务拦截器没有机会执行。<br>
+解决方案：拆分到不同类（推荐）；自我注入；使用 AopContext.currentProxy()。.<br><br>
+<strong>第二种：非 public 方法。</strong><br>
+@Transactional 只能标注在 public 方法上。标注 private/protected 方法不生效，因为 Spring AOP 获取事务属性时，allowPublicMethodsOnly() 对非 public 方法返回 null。<br><br>
+<strong>第三种：异常被 catch 吞掉。</strong><br>
+异常被吞掉后，Spring 事务拦截器感知不到异常，不知道需要回滚。<br><br>
+<strong>第四种：非运行时异常不回滚（默认行为）。</strong><br>
+Spring 默认只对 RuntimeException 和 Error 回滚。抛出 throw new Exception() 不会触发回滚。<br>
+解决方案：@Transactional(rollbackFor = Exception.class)<br><br>
+<strong>第五种：对象不是 Spring 容器管理的。</strong><br>
+自己 new 出来的对象，Spring 无法为其生成代理，事务不生效。<br><br>
+<strong>第六种：多线程。</strong><br>
+事务是线程绑定的。如果开启新线程执行数据库操作，新线程没有绑定到原有事务上下文中。<br><br>
+<strong>第七种：timeout 超时时间过小。</strong><br><br>
+<strong>第八种：数据库不支持事务。</strong><br>
+MySQL 的 MyISAM 引擎不支持事务。必须使用 InnoDB 引擎。<br><br>
+<strong>总结三个核心原则：</strong><strong>代理必须生效</strong>（同类自调用、非public方法、非容器管理对象）；<strong>异常必须抛出</strong>（catch吞掉、checked异常不回滚）；<strong>上下文必须传递</strong>（多线程、数据库不支持事务）。</q>
+
+<h3>Q21：事务的七种传播行为</h3>
+<q>Spring 事务传播行为决定了"一个方法在有事务和无事务时如何决定自己的行为"。默认为 REQUIRED。<br><br>
+<table>
+<tr><th>传播行为</th><th>说明</th><th>常见场景</th></tr>
+<tr><td><strong>REQUIRED（默认）</strong></td><td>存在事务则加入，不存在则新建</td><td>绝大多数业务场景</td></tr>
+<tr><td><strong>REQUIRES_NEW</strong></td><td>总是新建事务，挂起已有事务</td><td>日志记录（需要独立提交）</td></tr>
+<tr><td><strong>NESTED</strong></td><td>存在事务则创建保存点（子事务），否则新建</td><td>复杂业务（部分回滚）</td></tr>
+<tr><td><strong>SUPPORTS</strong></td><td>存在事务则加入，不存在则非事务执行</td><td>查询方法</td></tr>
+<tr><td><strong>MANDATORY</strong></td><td>必须在已有事务中，否则抛异常</td><td>强制要求调用方有事务</td></tr>
+<tr><td><strong>NOT_SUPPORTED</strong></td><td>非事务执行，存在事务则挂起</td><td>需要绕过事务的操作</td></tr>
+<tr><td><strong>NEVER</strong></td><td>非事务执行，存在事务则抛异常</td><td>强制无事务环境</td></tr>
+</table><br>
+<strong>REQUIRED：</strong>A 调用 B，B 加入 A 的事务。要么一起提交，要么一起回滚。<br>
+<strong>REQUIRES_NEW：</strong>B 总是新建事务，A 的事务被挂起。A 和 B 各自有独立的事务，B 独立提交，不受 A 的回滚影响。<br>
+<strong>NESTED：</strong>B 创建保存点（子事务）。A 异常时 A 和 B 一起回滚；B 异常时 A 可以捕获，不回滚 A（只回滚 B）。<br><br>
+<strong>NESTED vs REQUIRES_NEW 的核心区别：</strong>REQUIRES_NEW 的内层事务完全独立，父事务异常不影响内层提交；NESTED 的内层是子事务，父事务异常必然导致内层回滚。NESTED 使用 JDBC 的保存点实现，而非真正的子事务。</q>
+
+<h3>Q22：Spring 事务隔离级别</h3>
+<q>Spring 事务隔离级别和数据库隔离级别是对应的，通过 @Transactional(isolation = ...) 配置。<br><br>
+<table>
+<tr><th>隔离级别</th><th>说明</th><th>并发问题</th></tr>
+<tr><td><strong>DEFAULT</strong>（默认）</td><td>使用数据库默认隔离级别</td><td>取决于数据库</td></tr>
+<tr><td><strong>READ_UNCOMMITTED</strong></td><td>读未提交</td><td>脏读、不可重复读、幻读都可能发生</td></tr>
+<tr><td><strong>READ_COMMITTED</strong></td><td>读已提交（Oracle默认）</td><td>防止脏读</td></tr>
+<tr><td><strong>REPEATABLE_READ</strong></td><td>可重复读（MySQL默认）</td><td>防止脏读、不可重复读</td></tr>
+<tr><td><strong>SERIALIZABLE</strong></td><td>串行化</td><td>解决所有并发问题，但性能最差</td></tr>
+</table><br>
+<strong>MySQL 的默认隔离级别：REPEATABLE_READ</strong>，通过 MVCC（多版本并发控制）实现，允许同一事务内多次读取一致的数据快照。<br>
+<strong>Oracle 的默认隔离级别：READ_COMMITTED</strong>。<br><br>
+<strong>并发问题速记：</strong>脏读（读到未提交的数据）；不可重复读（同一事务中两次读取同一行，结果不同）；幻读（同一事务中两次查询，结果集不同）。</q>
+
+<hr>
+

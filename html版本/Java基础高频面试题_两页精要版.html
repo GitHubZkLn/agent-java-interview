@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Java 基础高频面试题 · 两页精要版</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.1cm 1.4cm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Microsoft YaHei', 'SimSun', serif;
+      font-size: 9.5pt;
+      line-height: 1.65;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 8px 14px;
+    }
+    h1 {
+      font-size: 15pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      padding: 9pt 12pt;
+      border-radius: 4pt;
+      margin-bottom: 8pt;
+      page-break-after: avoid;
+    }
+    .header-info {
+      text-align: center;
+      color: #666;
+      font-size: 9pt;
+      margin-bottom: 8pt;
+    }
+    h2 {
+      font-size: 10.5pt;
+      color: #fff;
+      background: linear-gradient(90deg, #e67e22 0%, #d35400 100%);
+      padding: 4pt 10pt;
+      border-radius: 3pt;
+      margin-top: 9pt;
+      margin-bottom: 5pt;
+      page-break-after: avoid;
+    }
+    q {
+      font-size: 9pt;
+      color: #444;
+      background: #fef9f4;
+      border-left: 3pt solid #e67e22;
+      padding: 5pt 9pt;
+      margin: 3pt 0;
+      display: block;
+      border-radius: 0 3pt 3pt 0;
+      line-height: 1.55;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4pt 0;
+      font-size: 8.5pt;
+    }
+    th {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      color: #fff;
+      padding: 3pt 6pt;
+      text-align: left;
+      font-weight: bold;
+    }
+    td {
+      padding: 2pt 6pt;
+      border: 0.5pt solid #e8c9a8;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #fdf5ec;
+    }
+    hr {
+      border: none;
+      border-top: 0.5pt solid #e8c9a8;
+      margin: 6pt 0;
+    }
+    code {
+      background: #fff3e0;
+      padding: 0pt 2pt;
+      border-radius: 2pt;
+      font-family: 'Courier New', monospace;
+      font-size: 8pt;
+      color: #c0392b;
+    }
+    strong {
+      color: #873600;
+    }
+    .footer {
+      text-align: center;
+      color: #999;
+      font-size: 8pt;
+      margin-top: 9pt;
+      padding-top: 5pt;
+      border-top: 0.5pt dashed #e8c9a8;
+    }
+    .followup {
+      background: #fff8f0;
+      border: 0.5pt dashed #e67e22;
+      border-radius: 3pt;
+      padding: 3pt 8pt;
+      margin-top: 4pt;
+      font-size: 8.5pt;
+      color: #555;
+    }
+    .followup::before {
+      content: "💬 追问：";
+      color: #d35400;
+      font-weight: bold;
+    }
+    .page-break {
+      page-break-after: always;
+    }
+    .tag {
+      display: inline-block;
+      background: #e67e22;
+      color: white;
+      font-size: 7pt;
+      padding: 1pt 5pt;
+      border-radius: 2pt;
+      margin-right: 4pt;
+      vertical-align: middle;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('q').forEach(function (q) {
+        var html = q.innerHTML;
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/``(.+?)``/g, '<code>$1</code>');
+        q.innerHTML = html;
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <h1>Java 基础高频面试题 · 两页精要版</h1>
+  <div class="header-info">适用于 Java 后端 / Android / 大数据岗位 · 核心基础 · 语言特性 · 集合框架 · JVM · 新特性</div>
+
+  <!-- ========== 第一页 ========== -->
+
+  <h2>Q1：== 与 equals 的区别是什么？hashCode 有什么关系？</h2>
+  <q>**== 是比较运算符，行为取决于比较对象的类型：**<br>
+    · <strong>基本类型（byte/short/int/long/float/double/boolean/char）：</strong>比较实际存储的<strong>值</strong>是否相等。<br>
+    · <strong>引用类型：</strong>比较两个引用指向的<strong>内存地址</strong>，即是否为同一个对象。<br><br>
+    **equals() 是 Object 类的实例方法：**<br>
+    · 默认实现与 == 完全一致（比较地址）。<br>
+    · <strong>String、Integer 等常用类重写了 equals()</strong>，改为比较对象的内容是否相等。<br><br>
+    **hashCode() 返回 int 哈希值：**<br>
+    · 主要用于 <code>HashMap</code>、<code>HashSet</code> 等哈希表的快速定位。<br>
+    · <strong>核心契约：</strong>若 <code>x.equals(y) == true</code>，则 <code>x.hashCode()</code> 必须等于 <code>y.hashCode()</code>。<br>
+    · 反过来不成立：hashCode 相同，equals 不一定为 true（哈希冲突）。<br><br>
+    **为什么要同时重写？**<br>
+    若只重写 equals 而不重写 hashCode，会导致相等的两个对象被插入 HashMap 的不同位置，查找语义被破坏。同样，重写 hashCode 后也要同步重写 equals。
+  </q>
+  <div class="followup">追问：String 的 equals 是如何重写的？new String("a") 和 "a" 的 == 结果是什么？Integer 在 [-128, 127] 范围内 == 比较结果如何？</div>
+
+  <h2>Q2：String、StringBuilder、StringBuffer 的区别？String 为什么不可变？</h2>
+  <q>**核心区别——可变性：**<br>
+    · <strong>String：</strong>底层是 <code>final char[]</code>（JDK9+ 改为 <code>final byte[]</code>），<strong>不可变对象</strong>，每次"修改"都生成新对象。<br>
+    · <strong>StringBuilder / StringBuffer：</strong>继承自 <code>AbstractStringBuilder</code>，底层是可变 <code>char[]</code>，直接在数组上修改。<br><br>
+    **线程安全性：**<br>
+    · <code>StringBuffer</code>：对所有关键方法加 <code>synchronized</code>，<strong>线程安全</strong>，性能较低。<br>
+    · <code>StringBuilder</code>：不加锁，<strong>线程不安全</strong>，性能更高。<br>
+    · 日常推荐：没有线程安全需求时优先用 StringBuilder。<br><br>
+    **String 不可变的好处：**<br>
+    ① 支持字符串常量池，节省内存；② hashCode 只计算一次，HashMap 查询效率高；③ 多线程安全，无需同步；④ 防止子类重写，保护核心行为；⑤ 安全性（数据库账号密码等不可被篡改）。<br><br>
+    **字符串常量池：** 字面量如 <code>"abc"</code> 存入常量池；<code>new String("abc")</code> 在堆中创建额外对象。<br>
+    <code>intern()</code>：JDK6 将字符串拷贝到常量池；JDK7+ 将堆中的引用放入常量池。
+  </q>
+  <div class="followup">追问：String s = new String("abc") 创建了几个对象？String s1 = "a" + "b" + "c" 呢？编译后一样吗？</div>
+
+  <h2>Q3：final、static、volatile、transient 关键字的作用？</h2>
+  <q>**final——限制可变性：** <br>
+    · 修饰<strong>变量</strong>：基本类型值不可变，引用类型引用地址不可变（对象内部仍可变）。必须显式初始化。<br>
+    · 修饰<strong>方法</strong>：方法不可被重写（但可被重载）。<br>
+    · 修饰<strong>类</strong>：类不可被继承，如 <code>String</code>。<br><br>
+    **static——类成员共享：** <br>
+    · 修饰<strong>变量</strong>：类变量，所有实例共享同一份，内存中只有一份副本。<br>
+    · 修饰<strong>方法</strong>：可直接 <code>类名.方法()</code> 调用，不能访问实例变量/方法。<br>
+    · 修饰<strong>代码块</strong>：静态代码块，类加载时执行一次，用于初始化静态资源。<br><br>
+    **volatile——可见性与禁止重排序（多线程相关）：** <br>
+    · <strong>保证可见性：</strong>线程修改后，其他 CPU 核心的缓存立即失效，强制从主内存重新读取。<br>
+    · <strong>禁止指令重排序：</strong>通过内存屏障阻止编译器和 CPU 的重排序优化。<br>
+    · <strong>不保证原子性：</strong><code>count++</code> 这种复合操作仍需额外同步。<br>
+    · 应用场景：状态标记量、DCL 单例模式中的 <code>instance</code> 变量。<br><br>
+    **transient——跳过序列化：** 修饰变量，反序列化时跳过该字段，初始化为默认值。静态变量天然不参与序列化。
+  </q>
+  <div class="followup">追问：静态内部类和非静态内部类的区别是什么？static 变量何时初始化？静态方法能否被重写？</div>
+
+  <h2>Q4：面向对象三大特性是什么？封装、继承、多态如何理解？</h2>
+  <q>**① 封装（Encapsulation）——数据安全**<br>
+    将对象的状态（属性）和行为（方法）捆绑在一起，通过访问修饰符隐藏内部实现细节。<br>
+    · <code>private</code> 属性 + <code>public</code> getter/setter：控制读写权限。<br>
+    · 好处：提高可维护性，降低耦合度，防止非法修改数据。<br><br>
+    **② 继承（Inheritance）——代码复用**<br>
+    子类复用父类的属性和方法，用 <code>extends</code> 关键字。Java 只支持<strong>单继承</strong>，但支持多层继承。<br>
+    · 子类继承父类所有 <code>non-private</code> 成员，通过 <code>super.xxx()</code> 调用父类实现。<br>
+    · 子类构造函数必须调用父类构造函数（显式或隐式）。<br><br>
+    **③ 多态（Polymorphism）——接口统一，行为多样**<br>
+    同一操作作用于不同对象，产生不同结果。必要条件：继承 + 重写 + 父类引用指向子类对象。<br>
+    · <strong>编译时多态（重载 Overload）：</strong>同名方法不同参数，编译时静态绑定。<br>
+    · <strong>运行时多态（重写 Override）：</strong>父类引用在运行时动态绑定到子类实现（虚方法表 vtable 分派）。<br>
+    · 好处：可替换性、可扩充性、接口性、灵活性。
+  </q>
+  <div class="followup">追问：多态的实现原理是什么？JVM 是如何通过虚方法表（vtable）做到动态分派的？</div>
+
+  <h2>Q5：抽象类与接口的区别？何时选用？</h2>
+  <q><table>
+    <tr><th>特性</th><th>抽象类</th><th>接口</th></tr>
+    <tr><td>关键字</td><td><code>abstract class</code></td><td><code>interface</code></td></tr>
+    <tr><td>实例化</td><td>❌ 不能</td><td>❌ 不能</td></tr>
+    <tr><td>继承机制</td><td>单继承</td><td>多实现（implements）</td></tr>
+    <tr><td>构造器</td><td>✅ 有</td><td>❌ 无</td></tr>
+    <tr><td>成员变量</td><td>任意类型</td><td>只能是 <code>public static final</code> 常量</td></tr>
+    <tr><td>方法类型</td><td>抽象 + 具体</td><td>抽象 + default / static（Java 8+）</td></tr>
+    <tr><td>访问修饰符</td><td>任意</td><td>默认 <code>public</code></td></tr>
+    <tr><td>设计意图</td><td>"是不是"关系，模板式</td><td>"有没有"能力，契约式</td></tr>
+  </table>
+  <br>
+  **何时用抽象类？** 需要为子类提供通用代码实现；子类需要共享非 public 成员；类之间有明确"是-种"继承关系。<br>
+  **何时用接口？** 定义不相关类的共同行为规范（如 <code>Comparable</code>、<code>Runnable</code>）；需要多重继承能力。<br>
+  **最佳实践：** 以接口定义契约，抽象类提供骨架实现（参考 <code>List</code> 接口 + <code>AbstractList</code>）。
+  </q>
+  <div class="followup">追问：Java 8 的 default 方法有什么坑？两个接口有同名 default 方法时子类怎么处理？</div>
+
+  <h2>Q6：重载（Overload）与重写（Override）的区别？</h2>
+  <q>**重载（Overload）——编译时多态，同类不同参**<br>
+    在<strong>同一类</strong>中定义多个方法名相同但参数列表不同（类型、数量或顺序）的方法。<br>
+    · 编译器根据参数签名静态绑定调用版本。<br>
+    · 返回类型可以不同，但不能仅以返回值区分（编译器无法区分）。<br>
+    · 可改变访问修饰符和异常声明。<br><br>
+    **重写（Override）——运行时多态，父子类方法签名一致**<br>
+    发生在<strong>父子类</strong>之间，子类用不同实现覆盖父类方法。<br>
+    · 方法名、参数列表、返回类型必须完全相同（JDK5+ 支持协变返回类型）。<br>
+    · 访问修饰符不能比父类更严格。<br>
+    · 不能重写被 <code>final</code>、<code>static</code>、<code>private</code> 修饰的方法。<br>
+    · 运行时通过<strong>虚方法表（vtable）</strong>动态分派。<br><br>
+  <table>
+    <tr><th>维度</th><th>重载 Overload</th><th>重写 Override</th></tr>
+    <tr><td>存在范围</td><td>同一类中</td><td>父类与子类之间</td></tr>
+    <tr><td>参数列表</td><td>必须不同</td><td>必须完全相同</td></tr>
+    <tr><td>绑定时机</td><td>编译时静态</td><td>运行时动态</td></tr>
+    <tr><td>多态关联</td><td>无关</td><td>核心体现</td></tr>
+  </table>
+  </q>
+  <div class="followup">追问：private 方法能被重写吗？静态方法能否构成重写？构造器能否重载？主方法能否重载？</div>
+
+  <h2>Q7：Java 是值传递还是引用传递？参数传递的内存模型是怎样的？</h2>
+  <q>**核心结论：Java 只有值传递（Pass by Value），没有引用传递。** 这是理解 Java 参数机制的关键。<br><br>
+    **基本类型的值传递：**<br>
+    方法接收的是值的完整副本。方法内的修改完全不影响原变量。<br>
+    <code>int a = 5; change(a);</code> → <code>a</code> 仍为 5。<br>
+    原因：基本类型存储在栈中，每个方法调用有独立的栈帧。<br><br>
+    **引用类型的传递（容易混淆）：**<br>
+    传递的是<strong>引用地址的副本</strong>，而不是引用本身。<br>
+    · <strong>修改对象属性</strong>（如 <code>p.name = "Alice"</code>）：影响原对象，因为引用副本仍指向同一个堆对象。<br>
+    · <strong>重新赋值引用</strong>（如 <code>p = new Person()</code>）：不影响原引用，因为只改变了副本的指向。<br><br>
+    **String 和包装类型的特殊性：**<br>
+    String 是不可变类，任何"修改"都创建新对象，表现如同值传递。<br>
+    <code>String name = "原始"; modify(name);</code> → <code>name</code> 仍为"原始"。<br><br>
+  <table>
+    <tr><th>操作类型</th><th>是否影响原变量</th><th>原因</th></tr>
+    <tr><td>修改对象属性</td><td>✅ 影响</td><td>引用副本指向同一堆对象</td></tr>
+    <tr><td>重新赋值引用</td><td>❌ 不影响</td><td>只改变副本的指向</td></tr>
+    <tr><td>基本类型</td><td>❌ 不影响</td><td>纯值副本</td></tr>
+    <tr><td>String / 包装类</td><td>❌ 不影响</td><td>不可变或值传递</td></tr>
+  </table>
+  </q>
+  <div class="followup">追问：为什么 Java 不设计成引用传递？如果要修改引用本身怎么办？</div>
+
+  <h2>Q8：ArrayList 和 HashMap 的底层原理？JDK1.7 和 1.8 的核心区别？</h2>
+  <q>**ArrayList 底层原理——动态数组：** <br>
+    · 底层使用 <code>Object[]</code>，默认初始容量 <strong>10</strong>。<br>
+    · 扩容机制：容量不足时扩容为原来的 <strong>1.5 倍</strong>。<br>
+    · 末尾添加：<strong>O(1)</strong>；指定位置插入/删除：<strong>O(n)</strong>（需移动元素）；随机访问：<strong>O(1)</strong>。<br>
+    · 线程不安全。<br><br>
+    **HashMap 底层原理——JDK1.7 vs 1.8：** <br>
+  <table>
+    <tr><th>特性</th><th>JDK 1.7</th><th>JDK 1.8+</th></tr>
+    <tr><td>数据结构</td><td>数组 + 链表</td><td>数组 + 链表 + 红黑树</td></tr>
+    <tr><td>插入方式</td><td>头插法</td><td>尾插法</td></tr>
+    <tr><td>死循环风险</td><td>高（并发扩容头插导致环链）</td><td>低（尾插避免）</td></tr>
+    <tr><td>链表转红黑树</td><td>无</td><td>链表长度 ≥ 8 <strong>且</strong> 数组长度 ≥ 64</td></tr>
+    <tr><td>查询复杂度</td><td>最好 O(1)，最差 O(n)</td><td>最好 O(1)，红黑树 O(log n)</td></tr>
+  </table>
+  <br>
+    **关键参数：** 默认初始容量 16，负载因子 0.75，扩容阈值 = capacity × loadFactor。<br>
+    **寻址算法：**<code>index = (n - 1) & hash</code>，JDK1.8 对 hash 做二次扰动（高16位异或低16位）减少碰撞。<br>
+    **扩容优化：** JDK1.8 扩容时，元素要么在原索引，要么在原索引 + oldCapacity，无需重新计算 hash。
+  </q>
+  <div class="followup">追问：HashMap 为什么选择红黑树而不是 AVL 树？负载因子 0.75 是怎么来的？线程安全吗？</div>
+
+  <div class="page-break"></div>
+
+  <!-- ========== 第二页 ========== -->
+
+  <h2>Q9：常用数据结构有哪些？各有什么使用场景？List / Set / Map / Queue 对比？</h2>
+  <q>**四大接口对比：**<br>
+  <table>
+    <tr><th>类型</th><th>元素</th><th>有序性</th><th>核心实现</th><th>适用场景</th></tr>
+    <tr><td><strong>List</strong></td><td>可重复</td><td>有序</td><td>ArrayList / LinkedList / Vector</td><td>有序列表、按索引访问</td></tr>
+    <tr><td><strong>Set</strong></td><td>唯一</td><td>无序（部分有序）</td><td>HashSet / LinkedHashSet / TreeSet</td><td>去重、集合运算</td></tr>
+    <tr><td><strong>Map</strong></td><td>键值对</td><td>无序（部分有序）</td><td>HashMap / LinkedHashMap / TreeMap</td><td>键值映射、快速查找</td></tr>
+    <tr><td><strong>Queue</strong></td><td>可重复</td><td>FIFO 或优先级</td><td>LinkedList / PriorityQueue / ArrayDeque</td><td>任务调度、异步处理</td></tr>
+  </table>
+  <br>
+  **List 选择：** <br>
+  · <strong>ArrayList：</strong>频繁随机访问（O(1)），尾插性能好。推荐默认选择。<br>
+  · <strong>LinkedList：</strong>频繁在任意位置插入/删除（O(1)），但随机访问 O(n)。<br>
+  · <strong>Vector：</strong>已过时，需要线程安全时用 <code>Collections.synchronizedList()</code> 或 <code>CopyOnWriteArrayList</code>。<br><br>
+  **Set 选择：** <br>
+  · <strong>HashSet：</strong>只需去重，无序，高效。<br>
+  · <strong>LinkedHashSet：</strong>去重 + 保持插入顺序。<br>
+  · <strong>TreeSet：</strong>去重 + 自然排序或自定义排序（底层红黑树）。<br><br>
+  **Map 选择：** <br>
+  · <strong>HashMap：</strong>键值高效查找，无序。<br>
+  · <strong>LinkedHashMap：</strong>键值查找 + 保持插入顺序或访问顺序（LRU Cache）。<br>
+  · <strong>TreeMap：</strong>键值查找 + 按键排序（范围查询）。<br><br>
+  **Queue / Deque：** <br>
+  · <strong>ArrayDeque：</strong>高性能双端队列，不支持 null，不支持并发。<br>
+  · <strong>PriorityQueue：</strong>二叉堆实现，支持优先级排序（非 FIFO），默认小顶堆。<br>
+  · <strong>LinkedList：</strong>既实现了 List 又实现了 Queue，支持 null。
+  </q>
+  <div class="followup">追问：HashSet 的底层实现是什么？它和 HashMap 的关系是什么？CopyOnWriteArrayList 适合什么场景？</div>
+
+  <h2>Q10：Java 内部类有哪几种？静态内部类和成员内部类的区别？</h2>
+  <q>**四种内部类对比：**<br>
+  <table>
+    <tr><th>类型</th><th>定义位置</th><th>持有外部引用</th><th>访问外部成员</th><th>能否定义静态成员</th><th>内存泄漏风险</th></tr>
+    <tr><td>成员内部类</td><td>外部类成员位置</td><td>✅ 有（隐式 this$0）</td><td>所有成员（含私有）</td><td>❌ 不能</td><td>有</td></tr>
+    <tr><td>静态内部类</td><td>外部类成员位置（static）</td><td>❌ 无</td><td>只能访问静态成员</td><td>✅ 可以</td><td>无</td></tr>
+    <tr><td>局部内部类</td><td>方法 / 构造器内部</td><td>✅ 有</td><td>所有外部成员</td><td>❌ 不能</td><td>有</td></tr>
+    <tr><td>匿名内部类</td><td>表达式内部，无类名</td><td>✅ 有</td><td>所有外部成员</td><td>❌ 不能</td><td>有</td></tr>
+  </table>
+  <br>
+  **成员内部类：** 定义在外部类的成员位置，无 static 修饰。持有外部类隐式引用，可访问外部类所有成员。创建需先创建外部类对象：<code>new Outer().new Inner()</code>。<br><br>
+  **静态内部类：** 不持有外部类引用，独立于外部类对象存在。只能访问外部类静态成员。创建不需外部类对象：<code>new Outer.NestedClass()</code>。<br>
+  · <strong>应用场景：</strong>Builder 模式（<code> public static class Builder</code>）、单例模式（Holder 方式）、逻辑分组。<br><br>
+  **局部内部类和匿名内部类：** 只能访问 <code>final</code> 或事实上 final 的局部变量（原因：方法结束后局部变量销毁，但内部类对象可能仍存活，Java 通过复制值解决）。<br>
+  · 匿名内部类没有类名，编译后以 <code>OuterClass$1</code> 命名。广泛用于事件监听、回调、一次性接口实现。
+  </q>
+  <div class="followup">追问：静态内部类会导致内存泄漏吗？ThreadLocal 的 key 为什么要用 WeakReference？</div>
+
+  <h2>Q11：Java 泛型是什么？类型擦除是什么？通配符 ? extends T 和 ? super T 的区别？</h2>
+  <q>**泛型的价值：** 在类型安全与代码复用间取得平衡，避免强制类型转换错误。<br><br>
+    **类型擦除（Type Erasure）：** <br>
+    Java 泛型信息只存在于<strong>编译时</strong>，编译后所有泛型类型被擦除为原始类型。例如 <code>List&lt;String&gt;</code> 和 <code>List&lt;Integer&gt;</code> 编译后都变为 <code>List</code>。这是为了保持向后兼容性，减少虚拟机改动。<br>
+    · 无法创建泛型数组（如 <code>T[] arr = new T[10]</code>）。解决方案：反射或 <code>Array.newInstance(Class&lt;T&gt;, size)</code>。<br>
+    · 无法用 <code>instanceof</code> 判断泛型类型（运行时类型信息丢失）。<br><br>
+    **通配符对比：**<br>
+  <table>
+    <tr><th>类型</th><th>语法</th><th>能否读取</th><th>能否写入</th><th>应用场景</th></tr>
+    <tr><td>无界通配符</td><td><code>List&lt;?&gt;</code></td><td>可（Object）</td><td>❌ 不能</td><td>只读操作</td></tr>
+    <tr><td>上界通配符</td><td><code>List&lt;? extends T&gt;</code></td><td>可（T）</td><td>❌ 不能</td><td>生产者（读取数据）</td></tr>
+    <tr><td>下界通配符</td><td><code>List&lt;? super T&gt;</code></td><td>可（Object）</td><td>可（T）</td><td>消费者（写入数据）</td></tr>
+  </table>
+  <br>
+    **PECS 原则（Producer-Extends, Consumer-Super）：**<br>
+    · 集合作为<strong>生产者</strong>（提供数据）用 <code>? extends T</code>。<br>
+    · 集合作为<strong>消费者</strong>（接收数据）用 <code>? super T</code>。<br>
+    · 经典案例：<code>Collections.copy(List&lt;? super T&gt; dest, List&lt;? extends T&gt; src)</code>，dest 是消费者，src 是生产者。<br><br>
+    **注意：**<code>List&lt;Integer&gt;</code> 不是 <code>List&lt;Number&gt;</code> 的子类型，需用通配符来解决子类型问题。
+  </q>
+  <div class="followup">追问：为什么 Java 不支持泛型的 reified（实例化）类型？泛型数组怎么创建？什么是桥接方法？</div>
+
+  <h2>Q12：Java 异常处理机制？throw、throws、try-catch-finally 的区别？</h2>
+  <q>**异常体系：** <br>
+    · <code>Error</code>：JVM 层面的严重问题（如 <code>OutOfMemoryError</code>），程序无法处理，不应捕获。<br>
+    · <code>Exception</code>：分为 <strong>受检异常（Checked）</strong>（编译期必须处理，如 IOException）和 <strong>非受检异常（Unchecked）</strong>（运行时异常，如 NullPointerException）。<br><br>
+    **throw vs throws：** <br>
+    · <code>throw</code>：在方法体内手动抛出异常对象，如 <code>throw new RuntimeException("参数错误")</code>。<br>
+    · <code>throws</code>：在方法签名后声明可能抛出的异常类型，将异常上报给调用者。<br><br>
+    **try-catch-finally 规则：** <br>
+    · try 必须有；catch 和 finally 至少出现一个。<br>
+    · <strong>finally 不一定执行：</strong>① try 之前已抛异常；② 执行了 <code>System.exit()</code>；③ finally 中抛出异常。<br>
+    · <strong>catch 中有 return，finally 仍会执行。</strong>基本类型返回值不受 finally 影响（值已压栈）；引用类型若 finally 修改了引用则有影响。若 finally 也有 return，则覆盖 catch 的返回值。<br>
+    · 建议使用<strong>try-with-resources</strong>（Java 7+），自动关闭 <code>AutoCloseable</code> 资源。<br><br>
+    **finalize() 已被废弃：** <code>Object.finalize()</code> 由垃圾回收器调用，不应依赖它释放资源。
+  </q>
+  <div class="followup">追问：受检异常和非受检异常的设计考量是什么？Java 为什么选择不支持多异常捕获（如 catch(A | B e)）？</div>
+
+  <h2>Q13：强引用、软引用、弱引用、虚引用有什么区别？各自的使用场景？</h2>
+  <q>**四种引用强度从强到弱：**<br>
+  <table>
+    <tr><th>引用类型</th><th>回收时机</th><th>能否通过 get() 获取</th><th>典型使用场景</th></tr>
+    <tr><td><strong>强引用</strong></td><td>永不回收（内存不足时抛 OOM）</td><td>可以</td><td>常规对象引用 <code>Object o = new Object()</code></td></tr>
+    <tr><td><strong>软引用</strong></td><td>内存不足时回收</td><td>可以</td><td>内存敏感缓存（如图片缓存）</td></tr>
+    <tr><td><strong>弱引用</strong></td><td>每次 GC 时必回收</td><td>可以</td><td>防止内存泄漏（如 ThreadLocalMap.Entry）</td></tr>
+    <tr><td><strong>虚引用</strong></td><td>随时可能被回收</td><td>永远不行</td><td>跟踪对象回收（堆外内存管理）</td></tr>
+  </table>
+  <br>
+    **强引用：** 最普遍的引用方式。JVM 宁愿抛出 <code>OutOfMemoryError</code> 也不会回收强引用对象。<br><br>
+    **软引用：** 描述非必需对象。在系统将要发生内存溢出之前会被回收。适合做内存敏感的高速缓存，内存充足时保留，不足时自动回收。<br><br>
+    **弱引用：** 被弱引用关联的对象只能生存到下一次垃圾收集发生之前。无论内存是否足够，GC 扫描到时都会立即回收。<br>
+    · <strong>典型案例：</strong><code>ThreadLocal</code> 的 Entry 继承 <code>WeakReference&lt;ThreadLocal&lt;?&gt;&gt;</code>，当 ThreadLocal 对象无强引用时，下一次 GC 时 key 被回收，避免内存泄漏。<br><br>
+    **虚引用（幻影引用）：** 最弱的引用，不影响对象生命周期。唯一作用是在对象被回收时收到系统通知。必须与 <code>ReferenceQueue</code> 配合使用。<br>
+    · <strong>典型案例：</strong>NIO <code>DirectByteBuffer</code> 借助虚引用 + ReferenceQueue 管理堆外内存（off-heap memory）。
+  </q>
+  <div class="followup">追问：WeakHashMap 的实现原理是什么？ReferenceQueue 在软引用和虚引用中起什么作用？</div>
+
+  <h2>Q14：Java 8 有哪些新特性？Lambda、Stream、Optional 的核心用法？</h2>
+  <q>**① Lambda 表达式：**<br>
+    将函数作为方法参数传递。基本语法：<code>(参数) -> 函数体</code>。<br>
+    示例：<code>list.forEach(e -> System.out.println(e))</code>、<code>(a, b) -> a + b</code>。<br>
+    Lambda 可捕获局部变量、实例变量和静态变量。<br><br>
+    **② 函数式接口：** <br>
+    仅有一个抽象方法的接口，用 <code>@FunctionalInterface</code> 标记。可包含多个 default/static 方法。<br>
+    常见函数式接口：<code>Runnable</code>、<code>Callable</code>、<code>Function&lt;T,R&gt;</code>、<code>Predicate&lt;T&gt;</code>、<code>Consumer&lt;T&gt;</code>、<code>Supplier&lt;T&gt;</code>。<br><br>
+    **③ Stream API：** <br>
+    函数式处理集合数据的利器。特点：无存储、不修改源数据、延迟执行、可无限流、元素只访问一次。<br>
+    · <strong>中间操作：</strong><code>filter / map / flatMap / distinct / sorted / limit / skip</code>（懒加载）。<br>
+    · <strong>终端操作：</strong><code>collect / reduce / forEach / count / toArray / min / max</code>（触发执行）。<br>
+    · 示例：<code>list.stream().filter(x -> x > 0).map(x -> x * 2).collect(Collectors.toList())</code>。<br><br>
+    **④ Optional 类：** <br>
+    避免 NPE（空指针异常）的包装类。<br>
+    · <code>Optional.ofNullable(x).orElse("默认值")</code><br>
+    · <code>Optional.ofNullable(x).map(...).orElse(null)</code><br>
+    · <code>Optional.ofNullable(x).isPresent()</code> → <code>Optional.ofNullable(x).ifPresent(...)</code><br><br>
+    **⑤ 接口的 default 和 static 方法：** <br>
+    Java 8 允许接口定义实现，打破了接口不能有实现的历史。使用场景：向后兼容的接口扩展（如 <code>Collection.stream()</code>）。
+  </q>
+  <div class="followup">追问：Stream 的 parallelStream() 和 stream() 有什么区别？什么时候用并行流？Optional 链式调用怎么写？</div>
+
+  <h2>Q15：Object 类有哪些核心方法？equals、hashCode、clone 如何正确重写？</h2>
+  <q>**Object 类核心方法（共 11 个）：**<br>
+    <code>toString / equals / hashCode / clone / getClass / notify / notifyAll / wait / finalize / registerNatives / wait(long timeout)</code><br><br>
+    **toString()：** 默认返回 <code>类名@十六进制哈希码</code>（如 <code>Person@15db9742</code>）。建议所有业务类都重写，返回关键属性的可读字符串。<br><br>
+    **equals() 重写规范（五大约定）：**<br>
+    ① 自反性：<code>x.equals(x)</code> 为 true。② 对称性：<code>x.equals(y) == y.equals(x)</code>。③ 传递性。④ 一致性（多次调用结果相同）。⑤ 与 null 比较返回 false。<br>
+    · 标准重写模板：<code>==</code> 自检 → <code>instanceof</code> 类型检查 → 强转 → 字段比较。<br><br>
+    **hashCode() 重写原则：**<br>
+    · 必须与 equals 成对重写，否则哈希表行为异常。<br>
+    · 推荐使用 IDE 自动生成或 <code>Objects.hash(field1, field2, ...)</code>。<br>
+    · 乘数常用 <code>31</code>（31 = 2^5 - 1，便于 JVM 优化为 <code>(i << 5) - i</code>）。<br><br>
+    **clone()：** 默认是浅拷贝，返回 <code>Object</code> 类型。必须实现 <code>Cloneable</code> 接口，否则抛 <code>CloneNotSupportedException</code>。<br>
+    · 正确姿势：<code>protected Object clone() { return super.clone(); }</code>。<br>
+    · 现代推荐：优先使用<strong>拷贝构造器</strong>或<strong>拷贝工厂方法</strong>，更直观且可控制深拷贝。
+  </q>
+  <div class="followup">追问：深拷贝和浅拷贝的区别是什么？深拷贝的三种实现方式？（序列化 / 克隆 / 手动赋值）</div>
+
+  <h2>Q16：BIO、NIO、AIO 的区别是什么？为什么 NIO 是主流？</h2>
+  <q>**核心概念区分：** <br>
+    · <strong>同步 / 异步：</strong>关注消息通知机制——异步是操作系统完成 I/O 后主动通知，同步是应用主动等待或轮询结果。<br>
+    · <strong>阻塞 / 非阻塞：</strong>关注线程状态——阻塞是线程被挂起，非阻塞是线程立即返回可执行其他操作。<br><br>
+  <table>
+    <tr><th>模型</th><th>全称</th><th>线程模型</th><th>优点</th><th>缺点</th><th>适用场景</th></tr>
+    <tr><td><strong>BIO</strong></td><td>同步阻塞 I/O</td><td>一连接一线程</td><td>逻辑简单直观</td><td>线程数随连接线性增长，无法支撑高并发</td><td>连接数少且固定的简单应用</td></tr>
+    <tr><td><strong>NIO</strong></td><td>同步非阻塞 I/O</td><td>一线程处理多连接（Reactor 模式）</td><td>少量线程管理大量连接，资源利用率高</td><td>编程模型复杂，有 Selector 空轮询 Bug</td><td>高并发、长连接、低活跃（聊天 / RPC / Kafka）</td></tr>
+    <tr><td><strong>AIO</strong></td><td>异步非阻塞 I/O</td><td>基于 Proactor 模式，操作系统完成后通知</td><td>理论上性能最高，无需轮询</td><td>Linux 上实现不成熟，API 复杂，生态不完善</td><td>超高并发长连接（Windows IOCP）</td></tr>
+  </table>
+  <br>
+    **NIO 三大核心组件：**<br>
+    · <strong>Channel（通道）：</strong>类似流，但可双向读写（不像流单向）。<br>
+    · <strong>Buffer（缓冲区）：</strong>读写数据的容器，支持多种数据类型。<br>
+    · <strong>Selector（选择器）：</strong>单线程监听多个 Channel 的 I/O 事件，实现多路复用。<br><br>
+    **为什么 NIO 是主流而非 AIO？**<br>
+    NIO 在 Linux 平台实现成熟（epoll）、生态完善（Netty、gRPC、Kafka 都基于 NIO）。AIO 在 Linux 上依赖 epoll 但未充分优化，实际上是线程池模拟异步。Netty 等主流框架均选择 NIO 架构。
+  </q>
+  <div class="followup">追问：什么是 Selector 空轮询 Bug？Netty 是如何解决的？什么是零拷贝（Zero-Copy）？</div>
+
+  <div class="footer">
+    Java 基础高频精选 16 题 · 核心语言特性 · 面向对象 · 集合框架 · 异常机制 · JVM 引用 · 新特性 · I/O 模型
+  </div>
+
+</body>
+</html>

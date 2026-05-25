@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AI Agent 高频场景题 · 系统设计篇 · 含Coupang特供 · 面试口述版</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm 2.5cm;
+    }
+    body {
+      font-family: 'Microsoft YaHei', 'SimSun', serif;
+      font-size: 12pt;
+      line-height: 1.8;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 22pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 18pt 12pt;
+      border-radius: 6pt;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 15pt;
+      color: #fff;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      padding: 8pt 14pt;
+      border-radius: 4pt;
+      margin-top: 22pt;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 13pt;
+      color: #444;
+      border-left: 5pt solid #667eea;
+      padding-left: 10pt;
+      margin-top: 14pt;
+      page-break-after: avoid;
+    }
+    q {
+      font-style: normal;
+      color: #555;
+      background: #f0f0f8;
+      border-left: 4pt solid #667eea;
+      padding: 10pt 14pt;
+      margin: 8pt 0;
+      display: block;
+      border-radius: 0 4pt 4pt 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10pt 0;
+      font-size: 11pt;
+    }
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 7pt 10pt;
+      text-align: left;
+      font-weight: bold;
+    }
+    td {
+      padding: 6pt 10pt;
+      border: 0.5pt solid #d4d8e0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #f8f9fc;
+    }
+    hr {
+      border: none;
+      border-top: 1pt solid #d4d8e0;
+      margin: 16pt 0;
+    }
+    .final-tips {
+      background: #f0f0f8;
+      border: 1pt solid #667eea;
+      padding: 14pt 18pt;
+      border-radius: 4pt;
+      margin-top: 20pt;
+    }
+    .final-tips h2 {
+      background: none;
+      color: #667eea;
+      padding: 0;
+      margin-top: 0;
+    }
+    code {
+      background: #ecf0f1;
+      padding: 1pt 4pt;
+      border-radius: 2pt;
+      font-family: 'Courier New', monospace;
+      font-size: 10pt;
+    }
+    strong {
+      color: #c0392b;
+      font-weight: bold;
+    }
+    em {
+      color: #555;
+      font-style: normal;
+      background: #fff9e6;
+      padding: 0 3pt;
+      border-radius: 2pt;
+    }
+    .scene-tag {
+      display: inline-block;
+      background: #764ba2;
+      color: #fff;
+      font-size: 9pt;
+      padding: 1pt 6pt;
+      border-radius: 10pt;
+      margin-right: 6pt;
+      vertical-align: middle;
+    }
+    .design-tag {
+      display: inline-block;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 9pt;
+      padding: 1pt 6pt;
+      border-radius: 10pt;
+      margin-right: 6pt;
+      vertical-align: middle;
+    }
+    .coupang-tag {
+      display: inline-block;
+      background: #f39c12;
+      color: #fff;
+      font-size: 9pt;
+      padding: 1pt 6pt;
+      border-radius: 10pt;
+      margin-right: 6pt;
+      vertical-align: middle;
+    }
+    .answer {
+      background: #f0fdf4;
+      border: 1pt solid #27ae60;
+      border-radius: 4pt;
+      padding: 10pt 14pt;
+      margin-top: 8pt;
+    }
+    .answer-label {
+      color: #27ae60;
+      font-weight: bold;
+      font-size: 10pt;
+      margin-bottom: 4pt;
+    }
+    .step {
+      color: #667eea;
+      font-weight: bold;
+    }
+    .highlight {
+      background: #fff3cd;
+      padding: 1pt 4pt;
+      border-radius: 2pt;
+    }
+    .architecture-box {
+      background: #fafafa;
+      border: 1pt solid #ddd;
+      border-radius: 4pt;
+      padding: 12pt;
+      margin: 10pt 0;
+      font-family: 'Courier New', monospace;
+      font-size: 10pt;
+      line-height: 1.6;
+    }
+    .pro-con {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8pt;
+      margin: 8pt 0;
+    }
+    .pro {
+      background: #eafaf1;
+      padding: 6pt 10pt;
+      border-radius: 4pt;
+      border-left: 3pt solid #27ae60;
+    }
+    .con {
+      background: #fdf2f2;
+      padding: 6pt 10pt;
+      border-radius: 4pt;
+      border-left: 3pt solid #e74c3c;
+    }
+  </style>
+  <script>
+    function toggleAnswer(id) {
+      var el = document.getElementById(id);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+    function showAll() {
+      document.querySelectorAll('.answer').forEach(function(el) {
+        el.style.display = 'block';
+      });
+    }
+    function hideAll() {
+      document.querySelectorAll('.answer').forEach(function(el) {
+        el.style.display = 'none';
+      });
+    }
+  </script>
+</head>
+<body>
+
+<h1>AI Agent 高频场景题 · 系统设计篇 · 含Coupang特供 · 面试口述版</h1>
+
+<div style="text-align:center; margin-bottom:20pt; font-size:11pt; color:#555;">
+  点击题目可展开/收起答案 &nbsp;|&nbsp;
+  <a href="javascript:showAll()">全部展开</a> &nbsp;|&nbsp;
+  <a href="javascript:hideAll()">全部收起</a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <span style="background:#764ba2;color:#fff;padding:1pt 6pt;border-radius:10pt;font-size:9pt;">场景题</span> 高频场景
+  <span style="background:#e74c3c;color:#fff;padding:1pt 6pt;border-radius:10pt;font-size:9pt;">设计题</span> 系统设计
+  <span style="background:#f39c12;color:#fff;padding:1pt 6pt;border-radius:10pt;font-size:9pt;">Coupang</span> Coupang高频
+</div>
+
+<!-- ==================== PART 1 ==================== -->
+<h2>一、Agent 核心架构与运行机制（场景理解）</h2>
+
+<!-- Q1 -->
+<h3><span class="scene-tag">高频</span>Agent 的 ReAct 模式是怎么工作的？和 Chain-of-Thought 有什么区别？</h3>
+<q>考察对 Agent 自主决策循环的理解深度。</q>
+<div class="answer" style="display:none" id="a1">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>ReAct = Reason + Act + Observe，三步循环</strong><br>
+  ① <em>Thought（思考）</em>：LLM 分析当前状态，决定要不要调用工具、调用什么工具。<br>
+  ② <em>Action（行动）</em>：调用工具（查数据库、调API、执行代码等），返回结构化 JSON（工具名+参数）。<br>
+  ③ <em>Observation（观察）</em>：拿到工具返回结果，注入上下文，进入下一轮思考。<br>
+  循环直到 LLM 判断"任务完成"，返回最终答案。<br><br>
+
+  <strong>和 Chain-of-Thought 的核心区别：</strong><br>
+  CoT 是"闭卷考试"——只靠模型自身推理能力做多步思考，不调用外部工具。<br>
+  ReAct 是"开卷考试"——在思考过程中能调用外部工具获取真实信息，思考和行动交替进行。<br>
+  举例：问"今天北京的天气"，CoT 只能猜，ReAct 会调用 Weather API 获取真实数据。<br><br>
+
+  <strong>面试加分：</strong>"ReAct 的本质是把 LLM 的推理能力和外部世界的真实性结合起来，解决纯推理模型的'幻觉问题'。生产环境中，ReAct 还需要配合循环检测（防止死循环）和上下文截断（防止窗口溢出）才能稳定运行。"
+</div>
+
+<!-- Q2 -->
+<h3><span class="scene-tag">高频</span>Function Calling、Tool Calling、MCP 协议三者有什么区别？</h3>
+<q>这三个概念是 2026 年 Agent 面试的标配概念题。</q>
+<div class="answer" style="display:none" id="a2">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>三个层次的关系：</strong><br><br>
+  <span class="step">① Function Calling（怎么调）——技术实现层</span><br>
+  大模型输出结构化 JSON 的能力，告诉系统"我要调用 XX 函数，参数是 YY"。解决的是"模型怎么表达工具调用意图"的问题。<br>
+  典型流程：用户问"帮我查下北京天气"→ LLM 判断需要调工具 → 输出 <code>{"tool":"weather_api","params":{"city":"北京"}}</code> → 后端执行。<br><br>
+
+  <span class="step">② Tool Calling（调什么）——工程实践层</span><br>
+  对一组相关 Function 做业务化封装。比单纯调函数更上层，通常包含"工具描述+调用约束+结果处理"。<br>
+  例如：邮件处理 Skill = 发送邮件函数 + 查询邮件函数 + 标记已读函数，业务层只管调用 Skill，不用关心底层实现。<br><br>
+
+  <span class="step">③ MCP 协议（按什么规矩调）——协议标准层</span><br>
+  Anthropic 提出的标准化通信协议，让大模型和外部工具、数据源能够统一对接。<br>
+  核心价值：<em>一次对接，多端复用</em>。不用为每个 Agent 写一套工具对接代码，通过统一的 JSON-RPC 2.0 格式通信。<br>
+  形象比喻：Function Calling 是"会说英语"，Tool Calling 是"会用筷子"，MCP 是"国际通用的餐具接口标准"。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "三者不在同一层，是递进关系。Function Calling 是基础能力，Tool Calling 是工程封装，MCP 是标准化协议。我在做 Agent 开发时，会优先用 Function Calling 实现工具调用，对于多工具复杂场景会用 MCP 做标准化编排，减少重复对接工作。"
+</div>
+
+<!-- Q3 -->
+<h3><span class="scene-tag">高频</span>Agent 记忆模块是怎么实现的？短期记忆和长期记忆有什么区别？</h3>
+<q>记忆是 Agent 从"单次问答"升级为"持续智能体"的关键。</q>
+<div class="answer" style="display:none" id="a3">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>为什么需要记忆？</strong><br>
+  LLM 上下文窗口有限，对话早期内容会被截断丢失。真实场景中用户任务往往持续多轮甚至跨天，没有 Memory 的 Agent 只能做单轮问答，有了 Memory 才能记住用户偏好、历史任务、跨会话知识。<br><br>
+  <strong>三层记忆架构：</strong><br><br>
+  <span class="step">① 短期记忆（Working Memory）</span><br>
+  当前对话的上下文，维持当前任务状态。实现方式：滑动窗口（保留最近 N 轮对话）、摘要压缩（每轮对话后 LLM 生成摘要替代原文）。容量有限但时效性最强。<br><br>
+  <span class="step">② 长期记忆（Long-Term Memory）</span><br>
+  跨会话积累的知识和偏好。实现方式：<em>向量数据库</em>（Milvus/Pinecone/Weaviate）存储历史对话摘要、用户画像、知识片段，通过 Embedding + 语义相似度检索。<br>
+  工作流程：<code>Input → Retrieve → Combine with Context → LLM Reasoning → Output → Update Memory</code><br><br>
+  <span class="step">③ 工作记忆（Task Memory）</span><br>
+  当前任务的中间结果和待确认状态。例如多步骤任务中，第一步的输出作为第二步的输入，这个中间结果存在工作记忆里。<br><br>
+
+  <strong>记忆优化的工程要点：</strong><br>
+  · 历史压缩：保留最近 3 轮原文，早期用摘要。<br>
+  · 意图过滤：只记忆与用户目标相关的信息，避免记忆污染。<br>
+  · 分层检索：先查短期记忆，再查长期记忆，按相关性排序合并。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "短期记忆解决'刚才聊了什么'，长期记忆解决'之前有没有相关经验'。生产环境我会用向量数据库存长期记忆，Redis 存短期会话状态，摘要压缩控制 token 消耗。这样 Agent 才能做到'越用越聪明'。"
+</div>
+
+<!-- Q4 -->
+<h3><span class="scene-tag">高频</span>Agent 工具调用失败了怎么办？如何设计错误恢复机制？</h3>
+<q>考察 Agent 工程落地能力的核心场景题。</q>
+<div class="answer" style="display:none" id="a4">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>错误恢复的核心思路：不要硬编码，告诉 LLM 让它自己判断。</strong><br><br>
+  <strong>五种错误场景及处理方案：</strong><br><br>
+  <span class="step">① 工具参数错误</span><br>
+  LLM 生成的参数格式不对或缺失必填参数。处理：工程侧做参数校验 + schema 约束，校验失败返回明确错误信息给 LLM："XX 参数缺失，有效值范围是..."，让 LLM 重新生成。<br><br>
+  <span class="step">② 工具执行超时</span><br>
+  API 调用超时（网络抖动、下游服务慢）。处理：设置合理的超时时间（一般 10-30s），超时后返回超时错误给 LLM，告诉它"工具调用超时，是否重试或换思路"。<br><br>
+  <span class="step">③ 工具返回空结果</span><br>
+  检索没结果、查询无数据。处理：返回空结果给 LLM，告诉它"未找到相关信息，任务可能无法完成"或"建议调整查询条件"。<br><br>
+  <span class="step">④ 工具权限不足</span><br>
+  调用了没有权限的 API（读取私有数据）。处理：返回权限错误 + 可用工具列表，引导 LLM 选择替代方案。<br><br>
+  <span class="step">⑤ 死循环检测</span><br>
+  LLM 反复调用同一工具但每次结果相同。处理：设置最大循环次数（如 10 次），超过后强制终止并返回兜底答案。同时在循环中检测"最近 3 次 Action 是否完全相同"，相同则触发重试/终止逻辑。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "我的工程实践是：每个工具调用都包裹 try-catch，返回结构化的错误信息（错误类型+错误原因+建议），然后把错误作为 Observation 反馈给 LLM，让它自己决定是重试、换工具还是换个思路。核心原则是'让 LLM 做决策而不是硬编码'。"
+</div>
+
+<!-- Q5 -->
+<h3><span class="scene-tag">高频</span>多 Agent 协作有哪几种模式？各自适用什么场景？</h3>
+<q>多 Agent 是 2026 年 Agent 架构的主流方向。</q>
+<div class="answer" style="display:none" id="a5">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>三种主流协作模式：</strong><br><br>
+  <span class="step">① Supervisor 模式（中心化，主管模式）</span><br>
+  一个主管 Agent 负责任务拆解 + 分配 + 结果汇总，其他 Agent 是执行者。<br>
+  适用：任务边界清晰、有明确主流程的场景，如客服系统。<br>
+  <div class="pro-con">
+    <div class="pro">✅ 架构清晰、可控性强、易调试</div>
+    <div class="con">❌ 单点瓶颈、主管 Agent 压力大</div>
+  </div><br>
+
+  <span class="step">② 去中心化 Peer-to-Peer 模式（点对点协作）</span><br>
+  所有 Agent 地位对等，通过共享消息总线通信，主动协作。<br>
+  适用：需要多视角分析、无固定主流程的创意任务。<br>
+  <div class="pro-con">
+    <div class="pro">✅ 扩展性强、无单点故障</div>
+    <div class="con">❌ 通信冗余、调试复杂、可能出现循环依赖</div>
+  </div><br>
+
+  <span class="step">③ 流水线 Pipeline 模式（串行/并行混合）</span><br>
+  任务被拆分为多个阶段，每个阶段由专门 Agent 处理，顺序执行或并行处理独立子任务后合并。<br>
+  适用：代码生成（分析→写代码→测试→优化）、文档处理（提取→转换→校验→输出）。<br><br>
+
+  <strong>解决多 Agent 常见问题的工程方案：</strong><br>
+  · <em>循环调用</em>：设置消息年龄字段，超过阈值丢弃。<br>
+  · <em>状态不一致</em>：用共享状态存储（如 Redis）管理协作状态。<br>
+  · <em>通信开销大</em>：用消息聚合，减少不必要的 Agent 间通信。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "我的选择逻辑是：客服/工单等有明确流程的用 Supervisor；创意分析/多方决策用去中心化；代码生成/数据处理等有明确阶段的任务用 Pipeline。实际项目中往往是混合架构——Pipeline 串行大阶段，每个阶段内部用 Supervisor 或去中心化。"
+</div>
+
+<!-- ==================== PART 2 ==================== -->
+<h2>二、系统设计题 · 智能客服 Agent</h2>
+
+<!-- Q6 -->
+<h3><span class="design-tag">设计题</span>如何设计一个智能问答客服 Agent？</h3>
+<q>最经典的 Agent 系统设计题，必问。</q>
+<div class="answer" style="display:none" id="a6">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>核心设计目标：</strong>高准确率（意图识别）+ 高完成率（多轮对话）+ 低成本（模型分级）+ 高可靠性（人工兜底）。<br><br>
+
+  <strong>四层分层架构：</strong>
+  <div class="architecture-box">
+  网关层（鉴权/限流）
+  ↓
+  业务层（会话管理/工单系统）
+  ↓
+  AI层（意图识别 → 对话管理 → RAG → Agent → 大模型生成）
+  ↓
+  数据层（向量数据库/Redis/知识库/日志）
+  </div>
+
+  <strong>核心模块设计：</strong><br><br>
+  <span class="step">① 意图识别层（路由大脑）</span><br>
+  用 BERT/轻量模型做分层分类：<br>
+  L1：闲聊 / 业务咨询 / 投诉建议 / 转人工<br>
+  L2：业务咨询下细分：订单查询/退换货/产品推荐/技术问题...<br>
+  准确率可达 92%，置信度低于 0.85 自动转人工。<br><br>
+
+  <span class="step">② RAG 知识问答（主力）</span><br>
+  标准 RAG 链路：文档清洗 → 语义分块（按段落不是固定长度） → Embedding 入库 Milvus → 用户Query改写 → 混合检索（向量+关键词） → Rerank → 上下文注入 → LLM 生成 → 引用标注。<br>
+  命中率可达 60%，通过缓存热门问题进一步提升。<br><br>
+
+  <span class="step">③ Agent 对话管理（复杂任务）</span><br>
+  多轮对话用 Dialogue State Tracking（DST）维护状态。例如：用户说"我要退这个订单"→ 识别意图（退换货）+ 提取槽位（订单号、商品） → 引导补充信息或直接操作。<br><br>
+
+  <span class="step">④ 人工兜底机制</span><br>
+  三种情况转人工：① 意图识别置信度低 ② 触发关键词（投诉/诈骗） ③ 连续3轮无法解决。转人工时传递完整对话历史，人工坐席无缝接手。<br><br>
+
+  <strong>效果数据口述：</strong><br>
+  "我们线上数据：意图识别准确率 92%，对话完成率 78%，用户满意度 4.6/5，人力成本节省 60%以上，日均处理 10万轮对话。"
+</div>
+
+<!-- Q7 -->
+<h3><span class="design-tag">设计题</span>如何设计一个代码评审 Agent？</h3>
+<q>代码智能（Code Agent）是 AI 工程化的热门方向。</q>
+<div class="answer" style="display:none" id="a7">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>代码评审 Agent 的价值：</strong>自动化 Code Review，减少人工review负担，发现潜在bug、安全漏洞、性能问题。<br><br>
+
+  <strong>系统架构设计：</strong><br><br>
+  <span class="step">① 代码获取与解析</span><br>
+  接入 GitHub/GitLab Webhook，PR/MR 创建时自动触发评审。<br>
+  用 TreeSitter/AST 解析代码结构，理解语法树而非纯文本。好处是能精确定位问题行，不像正则匹配那样误报。<br><br>
+
+  <span class="step">② 多维度评审维度</span><br>
+  <em>代码风格</em>：用 ESLint/Pylint 内置规则检测。<br>
+  <em>Bug 检测</em>：空指针、边界条件、并发问题、资源泄漏。用 LLM 结合 AST 做语义分析。<br>
+  <em>安全漏洞</em>：SQL注入、XSS、敏感信息硬编码（API Key在代码里）、不安全的依赖。接 Snyk/CodeQL 工具 + LLM 综合判断。<br>
+  <em>性能问题</em>：N+1查询、循环内查数据库、全量加载内存。<br>
+  <em>可读性</em>：方法过长、圈复杂度高、命名不规范。<br><br>
+
+  <span class="step">③ 评审 Agent 核心实现</span><br>
+  用 ReAct 循环：LLM 先理解代码变更上下文 → 调用代码分析工具获取 AST 和指标 → 生成评审意见 → 格式化输出为 Review Comments。<br>
+  每个评审维度对应一个 Tool（Bug工具/安全工具/性能工具），LLM 决定调用哪些工具。<br><br>
+
+  <span class="step">④ 评审结果处理</span><br>
+  严重问题（安全漏洞、明显bug）→ 直接 blocking 评论，PR 不能合并。<br>
+  建议性问题（命名、注释）→ non-blocking 评论，可选修复。<br>
+  汇总报告：每个问题标注严重等级（Blocker/Critical/Major/Minor）+ 代码位置 + 修复建议。<br><br>
+
+  <strong>避免幻觉的措施：</strong><br>
+  · 必须基于 AST 分析而非纯文本，确保指出的代码行准确。<br>
+  · 引用具体的规则编号（如 OWASP CWE-89 对应 SQL注入）。<br>
+  · 高严重问题用两个不同模型交叉验证再发布。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "代码评审 Agent 的核心价值不是替代人工，而是过滤掉 80% 的重复性 trivial 问题，让人 review 聚焦在架构设计和业务逻辑上。落地时最难的不是 LLM 能力，而是和 CI/CD 流程、GitOps 的集成，以及误报率控制。"
+</div>
+
+<!-- Q8 -->
+<h3><span class="design-tag">设计题</span>如何设计一个数据分析和报表生成 Agent？</h3>
+<q>考察 Agent + 工具调用的综合设计能力。</q>
+<div class="answer" style="display:none" id="a8">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>系统设计目标：</strong>用户用自然语言提问，Agent 自动查询数据库/数据源，生成分析结论和可视化图表。<br><br>
+  <strong>核心架构（三阶段）：</strong><br><br>
+  <span class="step">① 自然语言 → SQL 查询（NL2SQL）</span><br>
+  用 LLM 做意图理解和 SQL 生成。关键挑战：<br>
+  · <em>表结构理解</em>：把数据库 schema（表名、字段、含义）注入 prompt，让 LLM 理解能查什么。<br>
+  · <em>SQL 正确性</em>：生成的 SQL 必须做语法校验，执行前 review，高风险 SQL（如全表扫描、大量删除）需要二次确认。<br>
+  · <em>防注入</em>：用户输入不做字符串拼接，用参数化查询。<br>
+  <div class="architecture-box">
+  用户Query → 意图识别 → Schema匹配 → SQL生成 → 语法校验 → 执行 → 结果
+  </div><br>
+
+  <span class="step">② 数据分析与洞察生成</span><br>
+  查询结果返回后，LLM 分析数据特征：<br>
+  · 趋势判断（上升/下降/平稳）<br>
+  · 异常点检测（远超均值的数值）<br>
+  · 对比分析（同期环比、同比）<br>
+  · 归因推断（什么原因导致）<br>
+  输出结构化分析结论，语言简洁、可直接引用。<br><br>
+
+  <span class="step">③ 报表生成与自动化</span><br>
+  支持定时任务：设置"每周一生成上周经营日报"，Agent 自动执行查询+分析+发送邮件/钉钉消息。<br>
+  可视化：用 Python/Matplotlib 或 ECharts 生成图表，嵌入到 HTML/PDF 报告。<br><br>
+
+  <strong>质量保障机制：</strong><br>
+  · SQL 执行结果和用户期望不符时，LLM 自动重写 SQL（Self-Correction）。<br>
+  · 关键数据加"人工确认"环节再对外发送。<br>
+  · 记录所有 Query-SQL 对应关系，用于持续优化 Prompt。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "数据分析 Agent 的本质是'把 SQL 能力用自然语言暴露出来'。核心难点不是 LLM 生成 SQL，而是 Schema 理解和 SQL 正确性校验。生产环境我一定会加人工确认节点，AI 辅助而非 AI 全权决策。"
+</div>
+
+<!-- ==================== PART 3 ==================== -->
+<h2>三、系统设计题 · Agent 平台与工程化</h2>
+
+<!-- Q9 -->
+<h3><span class="design-tag">设计题</span>如何设计一个 Agent 编排平台，让非技术人员也能配置 Agent 流程？</h3>
+<q>平台化思维题，考察从点到面的架构能力。</q>
+<div class="answer" style="display:none" id="a9">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>核心需求：</strong>拖拽编排 + 低代码配置 + 可视化调试 + 生产发布 + 监控运营。<br><br>
+  <strong>五层技术架构：</strong>
+  <div class="architecture-box">
+  接入层（Nginx/网关，鉴权/限流/可观测）
+  ──────────────────────────────
+  编排层（可视化画布，节点拖拽，边连线，DSL生成）
+  ──────────────────────────────
+  执行层（Agent Runtime，多租户隔离，资源调度）
+  ──────────────────────────────
+  工具层（Function注册中心，版本管理，权限控制）
+  ──────────────────────────────
+  数据层（向量库/知识库，状态存储，审计日志）
+  </div>
+
+  <strong>核心设计要点：</strong><br><br>
+  <span class="step">① 可视化编排引擎</span><br>
+  用 DAG（有向无环图）建模 Agent 流程。节点类型：LLM节点/分支节点/循环节点/工具节点/结束节点。连线表示数据流向。<br>
+  配置内容：Prompt模板（支持变量占位${user_name}）、模型选择、温度参数、输出格式、异常处理策略。<br>
+  生成 DSL（领域特定语言）存储流程配置，DSL 可导出为 JSON/YAML，便于版本管理。<br><br>
+
+  <span class="step">② 工具（Function）注册中心</span><br>
+  统一管理所有可复用的工具函数。包含：工具名称/描述/参数schema/权限级别/版本。<br>
+  版本管理：新版本工具上线后旧版本可继续运行，支持灰度切换。<br>
+  权限分级：只读工具（如查询类）直接可用，写操作工具（如发邮件、转账）需要审批。<br><br>
+
+  <span class="step">③ 多租户隔离与资源调度</span><br>
+  每个租户独立的 Agent 实例，资源配额（QPS/Token/并发数）独立限制，防止资源争抢。<br>
+  用 Kubernetes 部署，HPA 自动扩缩容。<br><br>
+
+  <span class="step">④ 可视化调试与监控</span><br>
+  单步执行：任意节点可单独运行，看输入输出。<br>
+  全链路Trace：每个会话的完整执行链路（用了哪些节点、调用了哪些工具、消耗多少Token）。<br>
+  关键指标：任务成功率、平均步数、Token消耗、平均延迟。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "Agent 编排平台的本质是把'能力'和'流程'解耦。工具层专注做能力，编排层专注做流程，平台的价值是让两者灵活组合。平台化最大的挑战不是技术，是让非技术人员敢用、用好，所以 Prompt 配置和调试体验至关重要。"
+</div>
+
+<!-- Q10 -->
+<h3><span class="design-tag">设计题</span>如何设计一个 RAG 与 Agent 结合的系统？</h3>
+<q>RAG 是 LLM 应用落地的标配，RAG + Agent 是 2026 年主流架构。</q>
+<div class="answer" style="display:none" id="a10">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>为什么需要 RAG + Agent？</strong><br>
+  纯 RAG 是"检索 → 生成"的单向流程，适合固定知识库问答。Agent + RAG 是"检索 → 推理 → 行动 → 再检索..."的多轮循环，能处理复杂任务。<br><br>
+
+  <strong>三种结合模式：</strong><br><br>
+  <span class="step">① RAG 作为工具（Agent 调 RAG）</span><br>
+  Agent 在推理过程中，根据任务需要主动调用 RAG 检索知识。<br>
+  场景：复杂推理任务，需要实时知识才能回答。<br>
+  流程：LLM 推理 → 判断需要外部知识 → 调用 RAG 工具 → 获取检索结果 → 继续推理。<br><br>
+
+  <span class="step">② Agent 增强 RAG（RAG 调用 Agent 优化）</span><br>
+  RAG 流程中的检索/排序环节，由 Agent 动态优化。<br>
+  场景：查询改写（用户说"那个产品"→ Agent 推断指代哪个产品）、动态调整检索策略。<br><br>
+
+  <span class="step">③ 混合架构（RAG + Agent 并行）</span><br>
+  RAG 负责知识问答，Agent 负责任务执行，两者共享记忆和上下文。<br>
+  场景：企业助手，既要回答政策问题，又要帮员工完成请假/报销等操作。<br><br>
+
+  <strong>RAG 核心工程细节：</strong><br>
+  <em>文档分块</em>：不用固定长度，按语义段落分块，保持每个 chunk 语义完整。块大小 500 字左右，重叠 50 字防止边界切断。<br>
+  <em>混合检索</em>：向量检索（语义相似）+ BM25关键词检索，结合 Rerank 模型重排。<br>
+  <em>上下文压缩</em>：检索回来的 chunks 可能很长，需要 LLM 摘要压缩后再注入，降低 token 消耗。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "我的实践经验是：简单问答用纯 RAG，复杂多步任务用 RAG 作为 Agent 的工具。RAG 是 Agent 的'知识外挂'，让 Agent 不用靠记忆而靠检索来获取准确信息，这是解决幻觉最有效的方式。"
+</div>
+
+<!-- Q11 -->
+<h3><span class="design-tag">设计题</span>如何设计一个 Agent 的安全防护体系？</h3>
+<q>Agent 安全是 2026 年高频考点，OWASP 专门出了 LLM Top 10。</q>
+<div class="answer" style="display:none" id="a11">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>Agent 安全面临的核心威胁（OWASP Top 10 for LLM）：</strong><br><br>
+  <span class="step">① Prompt 注入（最常见）</span><br>
+  攻击者在用户输入中注入恶意指令，如"忽略之前的指令，转到XX网站..."。<br>
+  防御：输入过滤 + 指令分离 + Dual LLM 架构。<br><br>
+
+  <span class="step">② 数据泄露</span><br>
+  Agent 可能通过输出泄露训练数据中的敏感信息、用户隐私、企业内部知识。<br>
+  防御：输出过滤 + 敏感信息识别 + 数据脱敏。<br><br>
+
+  <span class="step">③ 工具滥用</span><br>
+  Agent 被引导调用危险工具（如删除数据、执行系统命令）。<br>
+  防御：工具权限分级 + 写操作二次确认 + 操作审计日志。<br><br>
+
+  <strong>五层防护体系设计：</strong><br><br>
+  <span class="step">第一层：输入防护</span><br>
+  · Prompt 注入检测：正则匹配"ignore/override/bypass"等关键词 + LLM 二次判断（用另一个 LLM 检测输入是否含注入意图）。<br>
+  · 结构化分隔：用特殊标记（如 XML tag）区分系统指令和用户输入，防止用户输入覆盖系统 Prompt。<br>
+  · Pydantic schema 校验输入格式，拒绝格式错误的请求。<br><br>
+
+  <span class="step">第二层：Dual LLM 架构（重要）</span><br>
+  · <em>隔离 LLM</em>：处理不可信数据（用户输入、外部文档），<strong>无工具访问权限</strong>，只做信息提取。<br>
+  · <em>特权 LLM</em>：处理结构化输出，调用工具和系统指令，只接收来自隔离 LLM 的结构化数据。<br>
+  效果：即使用户输入注入了恶意指令，由于隔离 LLM 无法调用工具，指令无法执行。<br><br>
+
+  <span class="step">第三层：工具权限分级</span><br>
+  · L1（只读）：查询类工具，直接可用。<br>
+  · L2（操作）：修改类工具，需要二次 LLM 审核或人工审批。<br>
+  · L3（危险）：删除/支付/系统命令，禁止 Agent 直接调用，必须人工介入。<br><br>
+
+  <span class="step">第四层：输出过滤</span><br>
+  · 清洗工具返回数据，去除可能被解释为指令的内容（如"你现在是XXX"）。<br>
+  · 敏感信息（手机号、身份证）脱敏后再返回给 LLM。<br>
+  · 输出内容做人机共同审核，高风险场景强制人工审批后再发送。<br><br>
+
+  <span class="step">第五层：监控与审计</span><br>
+  · 记录完整操作日志：谁、什么时间、调用了什么工具、返回了什么、Token 消耗多少。<br>
+  · 异常检测：非正常时段的大量调用、异常工具调用频率、敏感数据访问模式。<br>
+  · 实时告警 + 自动限流/封禁。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "Agent 安全没有银弹，核心思路是'多层防御堆积攻击成本'。输入防护过滤已知攻击模式，Dual LLM 架构从架构层面隔离风险，工具分级限制破坏范围，输出过滤防止信息泄露，监控审计保证可追溯。安全这事是成本和体验的权衡，越核心的 Agent 需要越严格的防护。"
+</div>
+
+<!-- ==================== PART 4 ==================== -->
+<h2>四、RAG 与知识库系统设计</h2>
+
+<!-- Q12 -->
+<h3><span class="scene-tag">高频</span>RAG 系统的召回率低、幻觉多，怎么优化？</h3>
+<q>RAG 是 LLM 应用落地的核心技术，优化能力是面试重点。</q>
+<div class="answer" style="display:none" id="a12">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>RAG 效果差的两大原因：</strong>检索层没找到正确信息（召回率低）、生成层乱编（幻觉多）。<br><br>
+  <strong>检索层优化（六管齐下）：</strong><br><br>
+  <span class="step">① 文档预处理优化</span><br>
+  · 不做固定长度切分，按语义段落切，每个 chunk 保持完整语义。<br>
+  · 添加 metadata（标题、来源、作者、时间）丰富检索维度。<br>
+  · 文档结构化提取：表格转成 JSON、代码块单独索引、图片alt文本描述化。<br><br>
+
+  <span class="step">② 查询改写（Query Rewriting）</span><br>
+  用户说法口语化、含糊不清，直接检索效果差。<br>
+  用 LLM 将用户 Query 改写为检索友好的表达，同时生成多个同义 Query 并行检索（Query Expansion）。<br>
+  效果：召回率提升 20-30%。<br><br>
+
+  <span class="step">③ 混合检索</span><br>
+  单一向量检索有局限（语义相近但关键词不同则检索不到）。<br>
+  方案：向量检索（语义）+ BM25关键词检索 + TF-IDF，同时执行后合并结果。<br>
+  再用 Rerank 模型（如 BGE-Reranker）做重排序，将最相关结果排在前面。<br><br>
+
+  <span class="step">④ 元数据过滤</span><br>
+  检索时加入时间、品牌、类别等过滤条件（如"最近三个月关于XXX的文档"），大幅缩小检索范围，提高精度。<br><br>
+
+  <span class="step">⑤ 知识图谱增强（GraphRAG）</span><br>
+  传统 RAG 按文本块检索，GraphRAG 构建知识图谱，检索时不仅返回文本块还返回关联实体和关系路径。<br>
+  效果：复杂推理问题（如"某公司的竞争对手分析"）效果显著优于纯向量检索。<br><br>
+
+  <strong>生成层优化（三招）：</strong><br><br>
+  <span class="step">① 上下文压缩</span><br>
+  检索回来的 chunks 往往很多，全塞进 context 会稀释关键信息且超过窗口限制。<br>
+  方案：用 LLM 摘要每个 chunk 的关键点，过滤重复，只保留和问题最相关的内容。<br><br>
+
+  <span class="step">② 引用标注（Citation）</span><br>
+  生成答案时标注每个结论的来源（"根据[文档A]的记载..."），用户可溯源，降低幻觉感知。<br><br>
+
+  <span class="step">③ 置信度过滤</span><br>
+  检索结果的相关度分数低于阈值时，不强制生成，改为"抱歉未找到相关信息，建议您..."。<br>
+  避免低质量检索结果导致 LLM 乱编。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "RAG 优化要从检索和生成两端同时入手。检索端核心是'找对找全'，用混合检索+查询改写+GraphRAG 提升召回；生成端核心是'用好证据'，用上下文压缩+引用标注+置信度过滤降低幻觉。实际项目中 80% 的 RAG 问题是检索做的不够好，优先优化检索。"
+</div>
+
+<!-- Q13 -->
+<h3><span class="scene-tag">高频</span>向量数据库怎么选型？Milvus 和 Pinecone 的区别是什么？</h3>
+<q>考察工程落地经验和数据存储选型能力。</q>
+<div class="answer" style="display:none" id="a13">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <table>
+    <tr><th>维度</th><th>Milvus</th><th>Pinecone</th><th>选型建议</th></tr>
+    <tr><td><strong>部署方式</strong></td><td>开源自部署 or 云端Attu</td><td>全托管 SaaS</td><td>有运维能力用Milvus，想省事用Pinecone</td></tr>
+    <tr><td><strong>规模</strong></td><td>支持100B+向量</td><td>支持10B+向量</td><td>超大规模选Milvus</td></tr>
+    <tr><td><strong>性能</strong></td><td>HNSW/IVF多种索引，GPU加速</td><td>自带索引优化，开箱即用</td><td>性能调优需求强用Milvus</td></tr>
+    <tr><td><strong>成本</strong></td><td>服务器成本</td><td>按量付费，成本高</td><td>成本敏感选Milvus</td></tr>
+    <tr><td><strong>运维</strong></td><td>需自行运维</td><td>零运维，托管</td><td>团队小缺运维选Pinecone</td></tr>
+    <tr><td><strong>适用场景</strong></td><td>企业级生产环境</td><td>快速验证、中小型项目</td><td>——</td></tr>
+  </table>
+  <strong>其他向量库补充：</strong><br>
+  · <em>Weaviate</em>：内置 BM25 全文检索，混合搜索能力强。<br>
+  · <em>Qdrant</em>：Rust 实现，性能高，支持过滤，适合实时性要求高的场景。<br>
+  · <em>FAISS</em>：Meta 开源，适合离线研究和快速原型，毫秒级检索，不适合在线生产。<br><br>
+  <strong>总结口述：</strong><br>
+  "我的选型逻辑：亿级向量以下、业务快速迭代，用 Pinecone 省心；亿级以上或者有定制化需求，用 Milvus 自建；做大数据研究原型，用 FAISS。向量库选型本质是'规模+成本+运维能力'的权衡，没有绝对最优解。"
+</div>
+
+<!-- ==================== PART 5 ==================== -->
+<h2>五、Agent 效果评估与性能优化</h2>
+
+<!-- Q14 -->
+<h3><span class="scene-tag">高频</span>如何评估一个 Agent 的效果？有哪些核心指标？</h3>
+<q>Agent 评估体系是工程化的核心问题。</q>
+<div class="answer" style="display:none" id="a14">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>三个评估维度（结果 + 过程 + 成本）：</strong><br><br>
+  <span class="step">① 结果维度（任务完成度）</span><br>
+  · <em>任务完成率</em>：Agent 能独立完成的任务占比，不能完成的转人工兜底。<br>
+  · <em>答案正确率</em>：有标准答案的任务中，回答正确的比例。<br>
+  · <em>RAG 召回率</em>：RAG 检索回来的文档中，包含正确答案的比例（Hit Rate@K）。<br>
+  · <em>幻觉率</em>：生成内容被人工/自动化检测判定为幻觉的比例。<br><br>
+
+  <span class="step">② 过程维度（执行质量）</span><br>
+  · <em>平均推理步数</em>：完成任务需要的 ReAct 循环次数，越少越好。<br>
+  · <em>工具选择准确率</em>：Agent 选择调用工具的正确率。<br>
+  · <em>自我纠正率</em>：Agent 发现自己错误并纠正的频率，体现自主学习能力。<br>
+  · <em>死循环率</em>：触发循环检测强制终止的比例。<br>
+  · <em>冗余操作率</em>：Agent 做了不必要的重复操作。<br><br>
+
+  <span class="step">③ 成本维度（资源效率）</span><br>
+  · <em>Token 消耗</em>：每次任务平均消耗的 Token 数。<br>
+  · <em>工具调用次数</em>：平均每个任务调用多少次工具（影响延迟和成本）。<br>
+  · <em>端到端延迟</em>：从用户发起到收到回复的 P50/P95/P99 延迟。<br>
+  · <em>单任务成本</em>：Token费用 + API调用费用，换算成钱。<br><br>
+
+  <strong>评估框架工具：</strong><br>
+  · <em>RAGAS</em>：专注 RAG 评估，提供 Faithfulness（忠实度）、Answer Relevancy（答案相关性）指标。<br>
+  · <em>DeepEval</em>：40+ 开箱即用指标，企业级全链路监控。<br>
+  · <em>G-Eval</em>：用 CoT 自动开发评估标准，适合无标准答案的生成质量评估。<br><br>
+
+  <strong>分层评估策略：</strong><br>
+  · <em>基础层（天级）</em>：自动化指标跑批，看任务成功率、幻觉率、延迟。<br>
+  · <em>监控层（实时）</em>：用户反馈 + AB测试对比新旧版本效果。<br>
+  · <em>审计层（周级）</em>：人工抽检 5% 的对话，打标签做精细评估。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "Agent 评估不能只看答案对不对，过程质量和成本同样重要。我的实践是：用任务完成率作为核心指标（决定能否上线），过程指标作为优化依据（决定怎么优化），成本指标作为商业化底线（决定能不能赚钱）。三个维度平衡才是好的 Agent。"
+</div>
+
+<!-- Q15 -->
+<h3><span class="scene-tag">高频</span>如何降低 Agent 的 Token 消耗和推理成本？</h3>
+<q>Agent 成本控制是生产环境的硬需求。</q>
+<div class="answer" style="display:none" id="a15">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>Agent 成本公式：</strong><br>
+  <code>总成本 = LLM Token费用 + 工具调用费用 + 记忆访问费用 + 重试费用</code><br>
+  未优化的 Agent 系统中，LLM Token 费用占总成本 80%+，是优化重点。<br><br>
+  <strong>六大降本策略：</strong><br><br>
+  <span class="step">① 智能路由（最有效）</span><br>
+  按任务复杂度分流到不同规模的模型：<br>
+  · 简单查询（FAQ、一句话问答）→ Llama 3 8B / Qwen 2 7B（成本基准 1x）<br>
+  · 中等复杂（需要推理+检索）→ Mistral 7B / Qwen 14B（成本 3x）<br>
+  · 高复杂（多步推理+多工具）→ GPT-4 / Claude 3（成本 10x）<br>
+  某电商客服实测：成本降低 72%，响应速度提升 55%。<br><br>
+
+  <span class="step">② 提示词压缩</span><br>
+  · 结构化模板：JSON/Markdown 替代口语化描述，896 Token → 352 Token。<br>
+  · 上下文智能裁剪：删除 3 轮前的无关交互，用摘要替代。<br>
+  · 动态遮蔽：不常用工具的描述用简短标签替代，详细描述按需加载。<br><br>
+
+  <span class="step">③ KV 缓存优化</span><br>
+  把上下文设计为"稳定前缀 + 追加日志"：<br>
+  · 稳定前缀 = 系统提示词 + 工具 schema + 输出格式模板（这些在多轮对话中不变）。<br>
+  · 追加日志 = 用户对话历史（逐轮追加）。<br>
+  关键：稳定前缀中不要放时间戳等动态内容，否则每次请求缓存都会失效。<br><br>
+
+  <span class="step">④ 缓存机制</span><br>
+  · <em>结果缓存</em>：按"Query意图 + 核心参数"设置缓存键，静态信息缓存 7-30 天，动态信息缓存 5-15 分钟。命中率可达 60%。<br>
+  · <em>Embedding 缓存</em>：相同 Query 的向量只计算一次。<br><br>
+
+  <span class="step">⑤ 工具调用优化</span><span style="color:#555">（省钱又提速）</span><br>
+  · 并行调用独立工具（减少串行等待时间）。<br>
+  · 成本感知：评估"调用工具的成本"vs"调用工具的价值"，只在值得时调用。<br>
+  · 提前截断：RAG 检索时 Early Rerank 截断，低相关 chunk 直接丢弃。<br><br>
+
+  <span class="step">⑥ 历史摘要压缩</span><br>
+  对话进行 5-10 轮后，用 LLM 压缩历史为摘要，后续对话基于摘要而非原文。<br>
+  保留最近 3 轮原文（保留细节）+ 早期摘要（保留记忆）。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "Agent 降本的核心思路是'能省则省、能小则小'。简单任务用小模型、结果能缓存就缓存、历史能压缩就压缩、工具能并行就并行。实测通过智能路由+提示词压缩+结果缓存三招，可以把 Agent 的推理成本降低 70-90%，而不牺牲效果。"
+</div>
+
+<!-- Q16 -->
+<h3><span class="scene-tag">高频</span>如何处理 Agent 的幻觉问题？</h3>
+<q>幻觉是 LLM 的本质问题，面试必问。</q>
+<div class="answer" style="display:none" id="a16">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>幻觉的三种类型：</strong><br>
+  · <em>事实性错误</em>：说错了事实（如错误的日期、数字）。<br>
+  · <em>逻辑矛盾</em>：前后回答自相矛盾。<br>
+  · <em>虚构引用</em>：编造不存在的论文、专家言论、数据来源。<br><br>
+  <strong>幻觉的根因：</strong>训练数据的知识截止 + LLM 概率采样 + 缺乏真正的推理能力。<br><br>
+
+  <strong>六层解决体系（从预防到检测到纠正）：</strong><br><br>
+  <span class="step">第一层：RAG 检索增强（最有效）</span><br>
+  让 LLM 回答时必须基于检索到的真实文档，而不是靠记忆生成。RAG 是减少幻觉最直接有效的手段。<br><br>
+  <span class="step">第二层：提示词约束</span><br>
+  · 明确指令："如果不确定，请直接说不知道，不要编造"<br>
+  · 要求引用："每个结论请标注来源，无来源的结论请注明'未经验证'"<br>
+  · 格式约束：用 JSON Schema 限制输出格式，减少自由发挥空间。<br><br>
+  <span class="step">第三层：温度参数调优</span><br>
+  降低 temperature（0.2-0.3）减少随机性，降低生成幻觉 token 的概率。<br>
+  适用于 factual 场景，不适用于创意场景。<br><br>
+  <span class="step">第四层：多模型交叉验证</span><br>
+  重要任务用两个不同模型（如 GPT-4 + Claude）分别回答，不一致的地方重点校验。<br>
+  成本翻倍但准确性显著提升，适用于高风险场景。<br><br>
+  <span class="step">第五层：自我一致性校验</span><br>
+  对同一问题多次采样生成，检查答案是否一致。不一致的答案说明模型对该问题不确定，降低置信度。<br><br>
+  <span class="step">第六层：自动化 + 人工检测</span><br>
+  · <em>自动化检测</em>：用 LLM 做 G-Eval 打分，或用专门幻觉检测模型（如 HaluMem）。<br>
+  · <em>人工抽检</em>：高风险输出（医疗、法律、金融）强制人工审核后再发送。<br>
+  · <em>置信度阈值</em>：置信度低于阈值时，输出"AI 暂不确定，建议您..."而非强制生成。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "幻觉是 LLM 的本质局限，没有完美解决方案。实用策略是'预防为主，检测为辅'。RAG 把不确定性转化为检索问题（能回答就回答），提示词约束减少自由发挥，置信度过滤兜底不确定答案。三层配合可以把幻觉率从 18% 降到 2-3%，满足大多数生产场景需求。"
+</div>
+
+<!-- ==================== PART 6 ==================== -->
+<h2>六、综合架构与场景设计</h2>
+
+<!-- Q17 -->
+<h3><span class="design-tag">设计题</span>如何设计一个可以自动处理用户工单的全流程 Agent？</h3>
+<q>综合考察 Agent 编排、工具调用、状态管理、多 Agent 协作能力。</q>
+<div class="answer" style="display:none" id="a17">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>工单处理 Agent 的流程：</strong><br>
+  <div class="architecture-box">
+  用户提交工单 → 分类Agent（判断类型/紧急度） → 路由Agent（分配处理链路）
+  ↓
+  【咨询类】 → RAG问答Agent → 回复用户 → 满意度跟进
+  【操作类】 → 工具调用Agent（查订单/退换货/修改地址） → 执行 → 结果通知
+  【投诉类】 → 升级人工 + 生成摘要供人工参考
+  ↓
+  归档Agent（生成处理报告 + 更新知识库 + 更新用户画像）
+  </div>
+
+  <strong>核心设计要点：</strong><br><br>
+  <span class="step">① 工单分类与优先级判断</span><br>
+  用 LLM 分析工单内容，自动分类：咨询/投诉/退款/技术问题/建议。<br>
+  紧急度识别：关键词（宕机/错误/损失）触发 P0，24h 内必须处理。<br><br>
+
+  <span class="step">② 多 Agent 路由</span><br>
+  根据工单类型路由到不同的处理 Agent：<br>
+  · 咨询类 → RAG 问答 Agent（查知识库）。<br>
+  · 操作类 → 工具调用 Agent（有数据库写操作权限）。<br>
+  · 投诉类 → 转人工 + Agent 生成摘要（减少人工处理时间）。<br><br>
+
+  <span class="step">③ 状态机管理</span><br>
+  工单状态：待处理 → 处理中 → 等待用户确认 → 已解决 → 已归档。<br>
+  每个状态转换由 Agent 决策，确保流程合规（如投诉必须人工审批后才能赔付）。<br><br>
+
+  <span class="step">④ 操作审计与回滚</span><br>
+  所有工具调用记录日志，支持回滚。退款/修改订单等操作需要二次确认。<br>
+  定期生成工单处理质量报告，分析未解决原因，优化知识库。<br><br>
+
+  <strong>效果数据口述：</strong><br>
+  "工单 Agent 落地效果：自动处理率 65%，平均处理时间从 4 小时缩短到 15 分钟，用户满意度从 3.8 提升到 4.4 分，人工客服只处理复杂投诉和新类型问题。"
+</div>
+
+<!-- Q18 -->
+<h3><span class="design-tag">设计题</span>如何设计一个 Agent，让它能持续学习新知识而不是每次都重新训练？</h3>
+<q>考察 Agent 的长期演化能力和持续学习设计思维。</q>
+<div class="answer" style="display:none" id="a18">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>核心思路：把知识和模型解耦，知识存在外部，模型按需调用。</strong><br><br>
+  <strong>三层知识更新机制：</strong><br><br>
+  <span class="step">① 知识库热更新（推荐）</span><br>
+  新知识直接写入向量数据库，无需重新训练 LLM。<br>
+  · 公司政策更新 → 文档写入知识库 → RAG 检索时自动包含新内容。<br>
+  · 新产品上线 → 产品手册入库 → Agent 立即能回答相关问题。<br>
+  时效性：分钟级生效。<br><br>
+
+  <span class="step">② Prompt 动态注入</span><br>
+  系统 Prompt 中动态注入最新信息：<br>
+  <code>System Prompt = 固定角色定义 + 今日公告（每日更新） + 用户历史偏好</code><br>
+  时效性：每日更新或实时更新。<br><br>
+
+  <span class="step">③ 工具定义热更新</span><br>
+  新 API/新能力 → 注册到 Function 注册中心 → Agent 立即能调用新工具。<br>
+  工具描述用自然语言，LLM 能理解工具用途，无需改变模型。<br><br>
+
+  <strong>持续学习框架设计：</strong><br>
+  <div class="architecture-box">
+  用户交互 → 发现知识盲区（LLM 无法回答） → 记录为"待学习"
+  → 知识工程师审核 → 入知识库（向量存储）
+  → 反馈给用户"已学习此问题，下次可回答"
+  → 定期分析盲区模式 → 优化知识库结构
+  </div>
+  <br>
+  <strong>避免"灾难性遗忘"的设计：</strong><br>
+  · 不在 LLM 权重层学习新知识，而是存在外部知识库。<br>
+  · 用 RAG 而非微调来注入新知识（微调会导致遗忘旧知识）。<br>
+  · 仅在必要时做 LoRA 微调（如特定领域术语），且用较小学习率防止覆盖主知识。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "Agent 的持续学习本质是'知识管理'而不是'模型训练'。最佳实践是 RAG + 知识库热更新 + 工具注册中心，三者组合让 Agent 具备'小时级'的知识更新能力，同时不丢失已有能力。这才是工程化的持续学习。"
+</div>
+
+<!-- Q19 -->
+<h3><span class="design-tag">设计题</span>如何设计一个多模态 Agent（比如能做图文分析的客服）？</h3>
+<q>多模态是 Agent 的发展方向，考察前沿技术理解。</q>
+<div class="answer" style="display:none" id="a19">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>多模态 Agent 的核心能力：</strong>同时理解文本、图像、音频、视频，做跨模态推理和生成。<br><br>
+  <strong>三阶段融合架构：</strong><br><br>
+  <span class="step">① 编码层（各模态独立编码）</span><br>
+  · 文本：Embedding 模型（如 BGE、Text-Embedding-3）<br>
+  · 图像：Vision Transformer（CLIP、ViT）<br>
+  · 音频：Whisper（ASR）+ AudioMAE<br>
+  各模态独立编码后映射到统一的语义向量空间。<br><br>
+
+  <span class="step">② 融合层（多模态语义对齐）</span><br>
+  三种融合策略：<br>
+  · <em>早期融合</em>：编码阶段直接合并各模态特征（计算量大，适合模态关联强的场景）。<br>
+  · <em>晚期融合</em>：各模态独立处理后再合并（简单灵活，适用于图文无关场景）。<br>
+  · <em>中间融合</em>：在中间层做交叉注意力（推荐，兼顾性能和精度）。<br>
+  常用方法：LLaVA 的 projection 层、BLIP-2 的 Q-Former。<br><br>
+
+  <span class="step">③ 推理与生成层（Agent 决策）</span><br>
+  基于融合后的多模态向量，Agent 做理解和决策：<br>
+  · 图文问答：用户发图+文字提问，Agent 分析图片内容后回答。<br>
+  · 故障诊断：用户发截图+错误描述，Agent 分析日志截图+文字定位根因。<br>
+  · 产品推荐：用户发图片（喜欢的产品样式）+ 文字描述，Agent 理解视觉偏好+功能需求后推荐。<br><br>
+
+  <strong>图文客服 Agent 实战设计：</strong><br>
+  用户发一张商品图片 + "这个有货吗，尺码怎么选"：<br>
+  ① 图像编码器提取商品视觉特征 → 向量检索商品库找相似商品。<br>
+  ② 文本意图识别：查询库存 + 尺码推荐。<br>
+  ③ 融合层综合图像特征和文本意图 → 查询库存 API + 尺码推荐 Agent。<br>
+  ④ 返回："这款商品有货，尺码偏大，建议选小一码，搭配参考..."<br><br>
+
+  <strong>技术选型口述：</strong><br>
+  "2026 年多模态 Agent 的主流方案是：视觉编码用 CLIP/ViT，融合层用 Q-Former 或 LMML，推理层用 GPT-4V / Claude 3.5 / Gemini。开源方案可选 LLaVA/Qwen-VL，本地部署用 ChatGLM-Multimodal。多模态 Agent 的难点不在模型能力，在于工程集成和延迟控制。"
+</div>
+
+<!-- Q20 -->
+<h3><span class="scene-tag">高频</span>如何设计 Agent 的可观测性体系？出了线上问题怎么排查？</h3>
+<q>Agent 工程化的最后一环，也是生产环境的必备能力。</q>
+<div class="answer" style="display:none" id="a20">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>Agent 可观测性三大支柱：</strong>链路追踪（Trace）+ 指标监控（Metrics）+ 日志审计（Logs）。<br><br>
+  <strong>全链路 Trace（最核心）：</strong><br>
+  记录每个会话从用户输入到最终输出的完整执行链路。<br>
+  <div class="architecture-box">
+  trace_id = "abc123"  (贯穿整个请求生命周期)
+  ├─ span_1: 意图识别 (50ms, 成功)
+  ├─ span_2: RAG检索 (200ms, 找到5个chunks, 最相关0.92)
+  ├─ span_3: LLM生成 (3000ms, 输出200 tokens)
+  │   ├─ span_3_1: 工具调用 - weather_api (100ms)
+  │   └─ span_3_2: 工具调用 - database_query (150ms)
+  └─ span_4: 结果格式化 (20ms)
+  </div>
+  每个 span 记录：开始/结束时间、输入/输出内容、Token 消耗、是否出错。<br><br>
+
+  <strong>核心监控指标：</strong><br>
+  · <em>任务成功率</em>：Agent 能独立完成请求的比例。<br>
+  · <em>P99 延迟</em>：端到端响应时间。<br>
+  · <em>Token 消耗速率</em>：每分钟消耗 Token 数，预测月度成本。<br>
+  · <em>工具调用错误率</em>：哪些工具最容易失败。<br>
+  · <em>RAG 命中率</em>：检索不到相关内容的比例（高则需要优化知识库）。<br>
+  · <em>循环次数分布</em>：大部分任务几步完成，是否有异常的长尾。<br><br>
+
+  <strong>线上问题排查流程：</strong><br>
+  <span class="step">① 发现问题</span><br>
+  告警：任务成功率跌破 90% / P99 延迟超过 10s / Token 消耗异常飙升。<br><br>
+  <span class="step">② 定位链路</span><br>
+  用 trace_id 拉出完整链路，看是哪个 span 耗时最长或出错。<br><br>
+  <span class="step">③ 分层排查</span><br>
+  · 意图识别慢 → 看 LLM API 响应时间，模型还是网络问题。<br>
+  · RAG 命中率低 → 看检索 query 和返回 chunks，分析知识库是否覆盖。<br>
+  · 工具调用失败 → 看工具 API 日志，是超时还是权限还是服务挂了。<br>
+  · LLM 生成质量差 → 看输入 Prompt 和输出内容，是否 Prompt 泄漏或模型降级。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "Agent 可观测性是工程化的最大挑战，因为 LLM 是黑盒，出了问题不像传统服务那样能快速定位。我的做法是'全链路 Trace + 关键节点埋点'，每个 ReAct 循环都是一个 span，每个工具调用都是子 span。这样出了任何问题，5 分钟内都能定位到是哪个环节出问题。"
+</div>
+
+<!-- Q21 -->
+<h3><span class="scene-tag">高频</span>如果让你从头设计一个企业级 Agent 应用，你的整体技术方案是什么？</h3>
+<q>综合设计题，考察全局架构能力和技术选型权衡。</q>
+<div class="answer" style="display:none" id="a21">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>整体技术方案（自下而上六层）：</strong><br><br>
+  <div class="architecture-box">
+  【接入层】API网关（鉴权/限流/可观测）+ CDN静态加速
+  【业务层】会话管理/状态机/工单/通知
+  【Agent层】意图识别 + 对话管理 + RAG + ReAct执行引擎 + 工具编排
+  【模型层】LLM路由 + Prompt管理 + 输出校验 + 流式输出
+  【数据层】向量数据库 + Redis缓存 + 知识库 + 审计日志
+  【运维层】K8s部署 + CI/CD + 监控告警 + AB测试平台
+  </div>
+
+  <strong>核心技术选型口述：</strong><br>
+  · <em>Agent 框架</em>：LangGraph（复杂流程）或自研轻量引擎（简单场景）。<br>
+  · <em>大模型</em>：GPT-4 / Claude 3（复杂推理）+ Qwen 2 / Llama 3（成本优化场景）。<br>
+  · <em>RAG</em>：Milvus + BGE Embedding + Rerank 模型。<br>
+  · <em>工具协议</em>：MCP 标准协议，一次对接多 Agent 复用。<br>
+  · <em>监控</em>：OpenTelemetry Trace + Prometheus + Grafana。<br><br>
+
+  <strong>落地节奏口述：</strong><br>
+  <em>第一阶段（1-2月）</em>：RAG 知识问答上线，验证核心价值。<br>
+  <em>第二阶段（2-3月）</em>：加入 Agent 工具调用，处理简单操作类任务。<br>
+  <em>第三阶段（3-4月）</em>：多 Agent 协作，优化复杂任务处理能力。<br>
+  <em>第四阶段（持续）</em>：效果评估 → 问题发现 → 迭代优化 → 成本优化。<br><br>
+
+  <strong>避坑指南：</strong><br>
+  · 不要一上来就做多 Agent，先用单 Agent 验证核心场景。<br>
+  · 知识库质量比模型能力更重要，Garbage in Garbage out。<br>
+  · 幻觉问题要从一开始设计防护，不要等上线后再补救。<br>
+  · 成本控制要提前做，否则 LLM Token 费用会超乎预期。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "企业级 Agent 应用的核心不是'有多少模型能力'，而是'有多少工程化保障'。我的方案是'分层设计，逐步落地'——先 RAG 验证价值，再 Agent 扩展能力，最后多 Agent 协作提升效率。每一步都要有明确的效果评估指标和退出标准。"
+</div>
+
+<!-- Q22 COUPANG SPECIAL -->
+<h3><span class="coupang-tag">Coupang特供</span>如何设计一个实时订单履约系统（Real-time Order Fulfillment System）？</h3>
+<q>Coupang 高频设计题！Coupang 的核心优势就是"火箭配送"，物流系统是他们的灵魂。</q>
+<div class="answer" style="display:none" id="a22">
+  <div class="answer-label">📌 口述答案要点（结合 Coupang 业务特色）：</div>
+  <strong>核心挑战：</strong>Coupang 70% 订单在 24 小时内送达，需要从用户下单到仓库拣货到配送全链路毫秒级协调。系统必须在<em>库存准确性</em>和<em>履约速度</em>之间做权衡。<br><br>
+
+  <strong>四阶段流程设计：</strong><br>
+  <span class="step">① 订单接收与验证（0-100ms）</span><br>
+  用户下单 → 订单服务接收 → 库存预扣（Redis 分布式锁 + Lua 原子扣减）→ 支付验证 → 生成履约任务。<br>
+  关键：库存预扣不是最终扣减，先占库存再异步确认，防止超卖。<br><br>
+  <span class="step">② 仓库履约调度（100ms-30min）</span><br>
+  履约引擎根据用户地址匹配最近仓库 → 调度拣货任务到 Fulfillment Center。<br>
+  拣货路径优化：按货架分区并行拣货（类似装箱问题优化）。<br>
+  实时状态更新：拣货中 → 打包中 → 配送中，用户可实时看到状态。<br><br>
+  <span class="step">③ 配送路由优化（30min-2h）</span><br>
+  路径优化算法（TSP 变种）：考虑配送站距离、交通实时状况、包裹重量体积。<br>
+  动态调整：配送员临时下线 → 系统重新分配，不影响 SLA。<br><br>
+  <span class="step">④ 最终交付确认（2h-24h）</span><br>
+  配送完成 → 库存最终扣减（从预扣转为实扣） → 更新用户画像（偏好仓库/配送时间）。<br><br>
+
+  <strong>防超卖核心机制（必考）：</strong><br>
+  预扣库存 + 最终库存两层模型：<br>
+  · 预扣层：Redis 做实时扣减，高并发防超卖。<br>
+  · 实扣层：MySQL 做最终确认，每天凌晨对账。<br>
+  如果 Redis 和 MySQL 库存不一致，<strong>以 MySQL 为准</strong>，触发库存修正任务。<br><br>
+
+  <strong>Event-Driven 架构：</strong><br>
+  <div class="architecture-box">
+  订单服务 → Kafka Topic: order.created
+  订阅方: 库存服务（预扣）/ 配送服务（调度）/ 通知服务（推送）
+  ──────────────────────────────────────
+  仓库服务 → Kafka Topic: fulfillment拣货完成
+  订阅方: 配送服务（出发）/ 通知服务（更新状态）
+  </div>
+  所有状态变更通过事件驱动，保证各服务松耦合。<br><br>
+
+  <strong>Coupang 特色加分点：</strong><br>
+  "Coupang 的核心优势是物理世界和数字世界的深度整合。设计时要始终想着'物理约束'——仓库容量有限、配送员时间有限、用户等待预期有限。我的方案始终围绕如何在这些约束下最大化履约效率。"
+</div>
+
+<!-- Q23 COUPANG SPECIAL -->
+<h3><span class="coupang-tag">Coupang特供</span>如何设计一个实时库存管理系统，防止超卖和库存不一致？</h3>
+<q>Coupang 高频追问题！库存是电商的命脉。</q>
+<div class="answer" style="display:none" id="a23">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>库存系统的三层架构：</strong><br>
+  <div class="architecture-box">
+  应用层: 订单服务 / 仓储服务 / 供应商补货服务
+  ↓
+  缓存层（Redis）: 实时库存水位，原子扣减，防超卖
+  ↓
+  数据层（MySQL）: 最终真实库存，定时同步
+  </div>
+
+  <strong>防超卖三道防线：</strong><br><br>
+  <span class="step">第一道：Redis Lua 原子扣减</span><br>
+  <code>if redis.call('get', stock_key) >= quantity
+  then redis.call('decrby', stock_key, quantity)
+  return 1 else return 0 end</code><br>
+  原子操作，绝不超卖。扣减失败直接返回"库存不足"。<br><br>
+  <span class="step">第二道：乐观锁最终确认</span><br>
+  Redis 扣减成功后，异步写 MySQL：<br>
+  <code>UPDATE inventory SET stock = stock - N WHERE id = ? AND stock >= N</code><br>
+  WHERE 条件加了库存校验，MySQL 层面再做一次防超卖兜底。<br><br>
+  <span class="step">第三道：每日对账修正</span><br>
+  Redis 库存每天凌晨和 MySQL 对账。差异超过阈值（如 ±5 件）触发人工审核。差异原因：宕机丢数据、网络分区、程序 bug。<br><br>
+
+  <strong>多仓库库存同步问题：</strong><br>
+  场景：用户在 A 城市，商品在 A 仓和 B 仓都有库存，应该优先从哪个仓库发货？<br>
+  方案：用一致性哈希根据用户地址分配仓库 + Redis Pub/Sub 实时同步各仓库存水位。<br>
+  新增仓库节点时，用虚拟节点减少数据迁移震荡。<br><br>
+
+  <strong>库存水位告警：</strong><br>
+  库存低于阈值（如 10 件）→ 触发供应商补货提醒 → 自动生成采购单。<br>
+  库存为 0 → 立即下架商品页，避免用户下单后再告知无货（极差体验）。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "库存系统的核心是'分层防超卖 + 最终一致性'。Redis 做实时扣减防并发，MySQL 做最终兜底，每日对账修正漂移。三层配合才能在高性能和高准确性之间找到平衡。"
+</div>
+
+<!-- Q24 COUPANG SPECIAL -->
+<h3><span class="coupang-tag">Coupang特供</span>如何设计一个商品搜索和推荐系统？</h3>
+<q>Coupang 高频设计题！搜索是电商的流量入口。</q>
+<div class="answer" style="display:none" id="a24">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>搜索系统三层架构：</strong><br>
+  <div class="architecture-box">
+  用户端: 搜索框 → 输入补全（autocomplete） → 结果页
+  ↓
+  检索层: Elasticsearch / OpenSearch（倒排索引 + 分词）
+  ↓
+  排序层: 特征工程 → 机器学习排序模型 → 多维度综合排序
+  ↓
+  个性化层: 用户画像 / 实时行为 / 历史偏好 → 个性化加权
+  </div>
+
+  <strong>Query 处理流程：</strong><br><br>
+  <span class="step">① Query 改写</span><br>
+  拼写纠错（"iphon" → "iPhone"）、同义词扩展（"手机" → "手机/移动电话/智能机"）、Query 归一化（大写转小写、去除特殊字符）。<br><br>
+  <span class="step">② 类目预测</span><br>
+  分类模型预测 Query 的目标类目（如"手机充电器"→ 电子配件），用于过滤和加权。<br><br>
+  <span class="step">③ 召回（Recall）</span><br>
+  多路召回：<br>
+  · 倒排索引召回（关键词匹配）<br>
+  · 向量召回（语义相似，如"轻薄笔记本"能找到"超极本"）<br>
+  · 协同过滤召回（买过的人也买了）<br>
+  · 热门商品兜底（无匹配时）<br><br>
+  <span class="step">④ 排序（Ranking）</span><br>
+  LTR（Learning to Rank）模型，综合：<br>
+  · 相关性分（Query-Item 匹配度）<br>
+  · 质量分（转化率、好评率）<br>
+  · 个性化分（用户偏好匹配）<br>
+  · 商业分（广告出价）<br>
+  最终排序 = α×相关性 + β×质量 + γ×个性化 + δ×商业<br><br>
+
+  <strong>推荐系统 vs 搜索系统的区别口述：</strong><br>
+  "搜索是'人找货'，用户有明确意图；推荐是'货找人'，用户没有明确意图但有偏好。搜索重相关性，推荐重个性化。底层技术相通但优化目标不同——搜索优化相关性+转化率，推荐优化点击率+停留时长+复购率。"<br><br>
+
+  <strong>冷启动问题口述：</strong><br>
+  新用户没有行为数据，用人口统计学特征（年龄/性别/地区）初始化画像 + 热门商品兜底。新商品没有销售数据，用内容特征（类目/属性/描述）做向量召回。<br><br>
+
+  <strong>总结口述：</strong><br>
+  "电商搜索的核心是多路召回 + LTR 排序。多路召回保证'找对'，LTR 排序保证'排好'。向量检索解决语义匹配问题，协同过滤解决个性化问题。系统设计的关键是'快'和'准'——ES 保证毫秒级响应，ML 模型保证排序质量。"
+</div>
+
+<!-- Q25 COUPANG SPECIAL -->
+<h3><span class="coupang-tag">Coupang特供</span>如何设计一个最后一公里配送系统（Last-Mile Delivery）？</h3>
+<q>Coupang 特色题！结合物理世界约束的经典题。</q>
+<div class="answer" style="display:none" id="a25">
+  <div class="answer-label">📌 口述答案要点：</div>
+  <strong>最后一公里的核心矛盾：</strong><br>
+  用户期望"下单后几小时送达"，但配送员路线有限、时间有限、交通不可预测。系统要在 SLA（服务水平协议）和配送成本之间做优化。<br><br>
+  <strong>路由优化算法（核心）：</strong><br><br>
+  将配送问题建模为<em>带时间窗的车辆路径问题（VRPTW）</em>：<br>
+  输入：配送站、待配送订单（地址+时间窗口）、配送员数量。<br>
+  目标：最小化总配送时间 / 最小化总路程 / 最大化按时交付率。<br>
+  求解：用贪心 + 局部搜索（2-opt交换）或启发式算法（Clarke-Wright Savings Algorithm）。<br>
+  实时场景：用实时交通数据动态调整路线（类似滴滴派单）。<br><br>
+  <strong>配送员调度流程：</strong><br>
+  <div class="architecture-box">
+  订单打包完成 → 配送系统接收任务 → 按区域/时间窗口聚类
+  → 路径优化算法排单 → 分配给最优配送员
+  → 配送员 APP 接收任务 → 开始配送 → 完成确认
+  </div>
+  <br>
+  <strong>异常处理机制（必考）：</strong><br>
+  · <em>配送员临时下线</em>：任务重新入队，其他配送员认领。<br>
+  · <em>地址无法送达</em>：配送员拍照上传，系统自动通知用户取货点。<br>
+  · <em>配送超时预警</em>：订单 SLA 剩余 30 分钟未送达 → 触发加急推送 + 补偿券。<br>
+  · <em>恶劣天气</em>：批量延长配送时间窗口，不逐单处理避免雪崩。<br><br>
+  <strong>总结口述：</strong><br>
+  "最后一公里的本质是'物理约束下的优化问题'——地址是坐标、时间是窗口、路况是变量。我的方案是：先用路径算法做静态优化，再用实时数据做动态调整。异常处理要'快速感知、快速转移'，不能让一个配送员的问题影响整体 SLA。"
+</div>
+
+<!-- Q26 -->
+<h3><span class="scene-tag">极高频</span>万能系统设计答题模板 —— 任何 "Design a..." 都能用的四步框架</h3>
+<q>外企面试的核心框架！面试官不看你技术多牛，看你思路清不清。</q>
+<div class="answer" style="display:none" id="a26">
+  <div class="answer-label">📌 万能四步框架（背下来！每次面试前默写一遍）：</div>
+  <strong>框架核心：结构 > 技术。面试官打分看的是协作能力，不是背书能力。</strong><br><br>
+  <div style="background:#f0f0f8;border:1pt solid #667eea;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 1: Clarify Requirements & Scale（需求澄清）—— 5分钟</strong><br>
+  不要上来就画图！先问清楚面试官要什么。<br><br>
+  <span class="step">① 确认功能范围（Functional Requirements）</span><br>
+  "这个系统有哪些核心功能？用户是谁？主要场景是什么？"<br>
+  "我可以默认支持 XX 功能吗？还是需要先讨论范围？"<br><br>
+  <span class="step">② 确认非功能需求（Non-Functional Requirements）</span><br>
+  · <em>Scale（规模）</em>："日活/日订单量/QPS大概是多少？"<br>
+  · <em>Availability（可用性）</em>："SLA 要求是 99.9% 还是 99.99%？"<br>
+  · <em>Latency（延迟）</em>："P99 延迟要求是多少毫秒？"<br>
+  · <em>Consistency（一致性）</em>："可以接受最终一致性吗？还是需要强一致性？"<br>
+  · <em>Cost（成本）</em>："有硬件预算限制吗？"<br><br>
+  <span class="step">③ 做估算（Back-of-Envelope）</span><br>
+  估算公式：<br>
+  <code>QPS = DAU × 人均请求数 / 86400</code><br>
+  <code>峰值QPS ≈ 平均QPS × 3~5</code><br>
+  <code>存储 = 日新增数据 × 单条大小 × 保留天数</code><br>
+  估算结果要大声说出来："按 1000万 DAU 计算，峰值 QPS 大约是..."<br>
+  </div>
+  <br>
+  <div style="background:#f0fdf4;border:1pt solid #27ae60;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 2: High-Level Architecture（高层架构）—— 10分钟</strong><br>
+  画架构图，边画边讲，不要画完再说。<br><br>
+  <span class="step">① 系统分层</span><br>
+  一般分 4-5 层：<br>
+  <div class="architecture-box" style="margin:6pt 0;">
+  客户端层（APP/Web）<br>
+  ↓<br>
+  网关/CDN 层（负载均衡/鉴权/静态资源）<br>
+  ↓<br>
+  应用服务层（业务逻辑，可水平扩展）<br>
+  ↓<br>
+  数据存储层（MySQL/Redis/ES/向量库）<br>
+  ↓<br>
+  消息队列层（异步解耦/Kafka/RocketMQ）
+  </div>
+  <br>
+  <span class="step">② 核心数据流</span><br>
+  用虚线标出关键路径（用户请求从哪里进、经过哪些服务、最终落到哪个数据库）。<br><br>
+  <span class="step">③ API 设计</span><br>
+  给出核心接口设计（REST 即可），说明请求参数和响应格式。<br>
+  </div>
+  <br>
+  <div style="background:#fef9e7;border:1pt solid #f39c12;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 3: Deep Dive & Trade-offs（深入设计 & 取舍分析）—— 20分钟</strong><br>
+  面试官会在这里追问 3-5 个问题，深入挖细节。<br><br>
+  <span class="step">① 选一个核心组件深入设计</span><br>
+  主动说："我觉得这个系统最关键的组件是 XX，我重点讲一下..."<br>
+  展示深度，而不是每个组件都浅尝辄止。<br><br>
+  <span class="step">② 讲清楚 Trade-offs</span><br>
+  这是加分的关键！每做一个选择，都要说明取舍：<br>
+  "我选 Redis 做缓存而不是 Memcached，因为 Redis 支持更多数据结构，方便以后扩展"<br>
+  "我选最终一致性而不是强一致性，因为订单量太大，强一致性会带来严重的性能问题"<br>
+  "我选 Kafka 而不是 RabbitMQ，因为日均亿级消息，Kafka 吞吐量更高"<br>
+  <strong>口述技巧：</strong>先说选择，再说权衡，最后说结论。不要只说"我选XX"，要说"我选XX而不是YY，因为ZZ，除非AA场景我会换成YY"。<br><br>
+  <span class="step">③ 讨论 Failure Handling</span><br>
+  每个系统都要讲清楚：<br>
+  "如果 Redis 挂了怎么办？" → 降级到本地缓存 + 监控告警<br>
+  "如果 MySQL 挂了怎么办？" → 主从切换 + 读写分离降级<br>
+  "如果消息队列挂了怎么办？" → 本地缓冲 + 定时重发<br>
+  <strong>核心原则：</strong>fail-safe defaults（默认安全），任何组件挂了都不能让用户看到错误。<br>
+  </div>
+  <br>
+  <div style="background:#fdf2f2;border:1pt solid #e74c3c;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 4: Summary & Next Steps（总结 & 演进）—— 5分钟</strong><br>
+  <span class="step">① 承认设计不完美</span><br>
+  "这个设计在当前规模下可以工作，但当 QPS 超过 XX 时会有瓶颈..."<br>
+  展示谦逊和成长型思维。<br><br>
+  <span class="step">② 提出优化方向</span><br>
+  "如果时间允许，我可以进一步优化：① 引入 CDN 做多级缓存 ② 加读写分离 ③ 分库分表..."<br><br>
+  <span class="step">③ 讨论监控和可观测性</span><br>
+  "我会接入全链路监控，核心指标是：QPS / P99延迟 / 错误率 / CPU/内存水位"<br><br>
+  <span class="step">④ 面试官追问应对</span><span style="color:#555">（套路）</span><br>
+  "你为什么不用 XX 技术？" → "XX 也是一个选择，我选 YY 是因为（权衡），但 XX 在（场景）下更好"<br>
+  "如果系统规模扩大 100 倍呢？" → "首先估算增量，然后讨论：分库分表/水平扩展/缓存策略升级"<br>
+  "如果让你从头再做一次，你会改什么？" → 承认 1-2 个弱点，给出改进方案。<br>
+  </div>
+
+  <strong>万年通用 Trade-offs 清单（面试前背熟）：</strong><br>
+  <table>
+    <tr><th>维度</th><th>选择A</th><th>选择B</th><th>取舍点</th></tr>
+    <tr><td>一致性</td><td>强一致性</td><td>最终一致性</td><td>强一致性延迟高，最终一致性可能读到旧数据</td></tr>
+    <tr><td>可用性</td><td>多副本</td><td>单节点</td><td>多副本成本高，单节点有单点故障</td></tr>
+    <tr><td>延迟</td><td>同步调用</td><td>异步消息</td><td>同步延迟低但耦合强，异步解耦但延迟不确定</td></tr>
+    <tr><td>成本</td><td>自建</td><td>云服务</td><td>自建灵活但运维成本高，云服务省心但有厂商锁定</td></tr>
+    <tr><td>扩展性</td><td>单体</td><td>微服务</td><td>单体简单但扩展差，微服务灵活但复杂度高</td></tr>
+  </table>
+</div>
+
+<!-- Q27 -->
+<h3><span class="scene-tag">极高频</span>Agent 系统设计万能答题模板 —— "Design an AI Agent for XX" 专用框架</h3>
+<q>专门针对 Agent/AI 场景设计的四步答题框架。</q>
+<div class="answer" style="display:none" id="a27">
+  <div class="answer-label">📌 Agent Design 四步框架（2026 外企面试专用）：</div>
+  <strong>Agent 系统设计的本质：</strong>在 LLM 的"智能"和工程系统的"可靠性"之间找到平衡。面试官想看的是你知道 Agent 会出问题，以及你怎么解决。<br><br>
+  <div style="background:#f0f0f8;border:1pt solid #667eea;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 1: Clarify & Scope（需求澄清）—— 5分钟</strong><br>
+  <span class="step">① Agent 的边界是什么？</span><br>
+  "用户可以用自然语言做什么？不能做什么？"<br>
+  "Agent 能调用哪些工具？权限范围是什么？"<br>
+  "任务失败时的兜底机制是什么？"<br><br>
+  <span class="step">② 非功能需求</span><br>
+  · <em>可靠性</em>："任务必须成功还是可以容忍失败？成功率要求是多少？"<br>
+  · <em>延迟</em>："用户能接受多少秒的等待？"<br>
+  · <em>成本</em>："每次任务允许消耗多少 Token？"<br>
+  · <em>安全性</em>："有哪些绝对不能执行的操作？"<br><br>
+  <span class="step">③ 判断是否真的需要 Agent</span><span style="color:#c0392b">（外企加分项！）</span><br>
+  "如果这个任务可以用规则/状态机解决，就不要用 Agent。Agent 的成本和不可预测性只值得用在'规则无法覆盖'的场景。"<br>
+  这句话说出来，面试官会觉得你不是在炫技，而是在务实思考。<br>
+  </div>
+  <br>
+  <div style="background:#f0fdf4;border:1pt solid #27ae60;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 2: Core Architecture（核心架构）—— 10分钟</strong><br>
+  画一个完整的 Agent 架构图，边画边讲每个组件：<br>
+  <div class="architecture-box" style="margin:6pt 0;">
+  用户输入（自然语言）
+  ↓
+  【入口层】意图识别 → 任务分类 → 路由
+  ↓
+  【编排层】Orchestrator（控制循环）
+  ├─ Planning 模块（ReAct / Graph / Hierarchical）
+  ├─ State Manager（记忆管理：Redis / Postgres）
+  └─ Policy Engine（权限/预算/安全检查）
+  ↓
+  【执行层】Tool Gateway（标准化工具接口）
+  ├─ 工具注册中心（Schema / 版本 / 权限）
+  ├─ 认证管理（OAuth / API Key 托管）
+  ├─ 沙箱隔离（Docker / Firecracker）
+  └─ 结果标准化（JSON 输出格式）
+  ↓
+  【数据层】RAG / 知识库 / 用户画像
+  ↓
+  【输出层】LLM 生成 → 格式化 → 用户
+  </div>
+  <strong>画图技巧：</strong>Orchestrator 是核心，用粗箭头连接各个组件。每条连线旁边标注是什么数据在流动。<br>
+  </div>
+  <br>
+  <div style="background:#fef9e7;border:1pt solid #f39c12;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 3: Deep Dive —— 关键问题（面试官会追的 5 个点）</strong><br><br>
+  <span class="step">① Memory 如何设计？</span><br>
+  短期（Redis，保留最近 N 轮对话）+ 长期（向量数据库，跨会话记忆）+ 摘要压缩（每 5 轮压缩一次历史）。<br><br>
+  <span class="step">② 如果 LLM 调用失败了怎么办？</span><br>
+  三层兜底：超时重试（指数退避）+ 降级到简单规则逻辑 + 返回"系统暂时无法处理"。<br>
+  关键：不要让 LLM 失败导致整个系统崩溃。<br><br>
+  <span class="step">③ 如何防止 Agent 执行危险操作？</span><br>
+  四层防护：输入过滤（Prompt 注入检测）→ Policy Engine（权限检查）→ 工具分级（写操作需审批）→ 沙箱隔离（高风险操作在容器中执行）。<br><br>
+  <span class="step">④ 如何评估 Agent 效果？</span><br>
+  三维：结果维度（任务完成率/幻觉率）+ 过程维度（平均步数/自我纠正率）+ 成本维度（Token消耗/端到端延迟）。<br><br>
+  <span class="step">⑤ 如何控制成本？</span><br>
+  智能路由（小任务用小模型）+ 结果缓存（60% 命中率）+ 摘要压缩 + KV 缓存。实测降低 70-90% 成本。<br>
+  </div>
+  <br>
+  <div style="background:#fdf2f2;border:1pt solid #e74c3c;border-radius:4pt;padding:12pt;margin:8pt 0;font-size:11pt;">
+  <strong>Step 4: Production & Operations（生产运营）—— 5分钟</strong><br>
+  <span class="step">① 可观测性</span><br>
+  全链路 Trace（每个 ReAct 循环一个 span）+ 关键指标监控（任务成功率/P99延迟/Token消耗）+ 异常告警。<br><br>
+  <span class="step">② 持续学习</span><br>
+  知识库热更新（新知识不重新训练模型）+ 失败案例回流（记录失败模式，优化 Prompt）+ 定期效果评估。<br><br>
+  <span class="step">③ 灰度发布 & Rollback</span><br>
+  先用 5% 流量测试新版本，监控任务成功率是否有下降，有下降立即回滚。<br><br>
+  <span class="step">④ 面试官最后的追问应对</span><br>
+  "你的 Orchestrator 和 Tool Gateway 是什么关系？" → "Orchestrator 负责决策，Tool Gateway 负责执行。决策和执行必须分离，这样安全策略才不会被 LLM 绕过。"<br>
+  "Agent 跑飞了怎么办？" → "三道防线：步数限制 + 循环检测 + 预算耗尽强制终止。终止后返回兜底结果，绝不让 Agent 无限运行。"<br>
+  </div>
+</div>
+
+<hr>
+
+<div class="final-tips">
+  <h2>💡 Agent 场景面试口述技巧总结</h2>
+  <strong>场景题回答框架：</strong><br>
+  ① 先<em>描述问题本质</em>（Agent 和传统系统的本质差异在哪里）<br>
+  ② 再<em>说技术选型和权衡</em>（为什么选这个方案，有什么取舍）<br>
+  ③ 最后<em>给实践经验和数据</em>（真实效果数字比理论推导有说服力）<br><br>
+  <strong>设计题加分技巧：</strong><br>
+  · 画架构图（用文字描述分层结构），面试官能直观理解。<br>
+  · 说真实项目中的坑和解决方案，远比背理论有说服力。<br>
+  · 提到具体工具和数据（如"某电商客服实测召回率提升30%"），加分。<br>
+  · 对比不同方案的优劣，不要只说一个方案。<br><br>
+  <strong>2026 Agent 面试核心知识点：</strong><br>
+  ReAct 循环 / 记忆三层架构 / Function Calling/MCP/Tool Calling 三层关系 / RAG + Agent 融合 / 多 Agent 协作模式 / Agent 安全五层防护 / 幻觉六层解决体系 / Token 成本优化 / 效果评估三维体系 / 可观测性 Trace 链路<br>
+  掌握以上内容，Agent 场景面试可以覆盖 90% 以上的高频问题。
+</div>
+
+<div class="final-tips">
+  <h2>Coupang 面试特别提示 & 万能模板使用指南</h2>
+  <strong>Coupang System Design 评分标准（背熟！）：</strong><br>
+  · <em>Trade-off reasoning</em>（权衡推理）—— 最重要！面试官打分权重最高，占 40%<br>
+  · <em>Problem decomposition</em>（问题分解）—— 能否把大系统拆成小模块<br>
+  · <em>Failure recovery</em>（容错设计）—— 挂了怎么办，有没有 graceful degradation<br>
+  · <em>Architecture thinking</em>（架构思维）—— 数据流、存储选型、扩展性<br>
+  · <em>Communication</em>（沟通能力）—— 边画边讲，不要沉默，协作而非独角戏<br><br>
+  <strong>Coupang 常问的追问（提前准备！）：</strong><br>
+  · "如果 Redis 挂了怎么办？" → 降级本地缓存 + 监控告警<br>
+  · "如果库存和 MySQL 不一致怎么办？" → 最终一致性 + 每日对账<br>
+  · "你怎么防止超卖？" → Redis Lua 原子扣减 + MySQL 乐观锁兜底<br>
+  · "为什么选最终一致性而不是强一致性？" → 电商场景吞吐量优先，弱一致性可接受<br>
+  · "如果 QPS 扩大 100 倍呢？" → 水平扩展 + 分库分表 + 缓存升级<br><br>
+  <strong>万能模板使用时机：</strong><br>
+  · 任何 Design a XXX System → 用四步框架<br>
+  · 任何 Design an Agent XXX → 用 Agent Design 四步框架<br>
+  · 被追问细节 → 回到框架的对应步骤深入展开<br>
+  · 被问"还有别的方案吗？" → 说出 Trade-off，给出备选方案<br><br>
+  <strong>面试现场注意事项：</strong><br>
+  ① 拿到题先 Clarify，不要急着画图（体现工程成熟度）<br>
+  ② 边画架构边讲，不要画完再说（体现协作能力）<br>
+  ③ 每做一个选择主动说 Trade-off（这是 Coupang 最看重的）<br>
+  ④ 被追问答不上来 → "这个我没深入研究过，但我知道 XX 方案和 YY 方案，我的思路是..."<br>
+  ⑤ 结尾主动说设计弱点和改进方向（体现成长型思维）<br>
+</div>
+
+<div style="text-align:center; margin-top:30pt; color:#999; font-size:10pt;">
+  AI Agent 高频场景题 · 系统设计篇 · 面试口述版 · 2026年整理 · 含 Coupang 特供题 & 万能答题模板
+</div>
+
+</body>
+</html>

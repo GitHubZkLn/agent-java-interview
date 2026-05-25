@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent 项目面经（Think-Execute / RAG）· 面试口述版</title>
+  <style>
+    @page { size: A4; margin: 2cm 2.5cm; }
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'SimSun', sans-serif;
+      font-size: 12pt;
+      line-height: 1.8;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 20pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 50%, #1a237e 100%);
+      padding: 16pt 12pt;
+      border-radius: 4pt;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 16pt;
+      color: #fff;
+      background: linear-gradient(90deg, #5c6bc0 0%, #3949ab 100%);
+      padding: 8pt 12pt;
+      border-radius: 4pt;
+      margin-top: 20pt;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 13pt;
+      color: #333;
+      margin-top: 14pt;
+      page-break-after: avoid;
+      border-left: 4pt solid #3949ab;
+      padding-left: 10pt;
+    }
+    q {
+      font-style: normal;
+      color: #444;
+      background: linear-gradient(135deg, #fafafa 0%, #e8eaf6 100%);
+      border-left: 4pt solid #3949ab;
+      padding: 12pt 16pt;
+      margin: 8pt 0;
+      display: block;
+      border-radius: 0 4pt 4pt 0;
+    }
+    .meta {
+      font-size: 10pt;
+      color: #666;
+      text-align: center;
+      margin-bottom: 16pt;
+    }
+    .tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+      color: #fff;
+      padding: 2pt 8pt;
+      border-radius: 10pt;
+      font-size: 9pt;
+      margin-right: 4pt;
+    }
+    .note {
+      background: #e8eaf6;
+      border: 1pt solid #5c6bc0;
+      padding: 10pt 14pt;
+      border-radius: 4pt;
+      font-size: 11pt;
+      color: #283593;
+      margin: 12pt 0;
+    }
+    pre.pseudo {
+      background: #263238;
+      color: #eceff1;
+      padding: 12pt 14pt;
+      border-radius: 4pt;
+      overflow-x: auto;
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 10pt;
+      line-height: 1.5;
+      margin: 10pt 0;
+    }
+    strong { color: #3d4f6f; font-weight: bold; }
+    em { color: #555; font-style: normal; background: #fff9e6; padding: 0 3pt; border-radius: 2pt; }
+    code {
+      background: #f0f0f0;
+      padding: 1pt 4pt;
+      border-radius: 2pt;
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 10pt;
+    }
+    hr { border: none; border-top: 1pt solid #d4d8e0; margin: 16pt 0; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('q').forEach(function (q) {
+        var html = q.innerHTML;
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        html = html.replace(/``(.+?)``/g, '<code>$1</code>');
+        q.innerHTML = html;
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <h1>AI Agent 项目面经 · 面试口述版</h1>
+  <p class="meta">题目来源：社媒面经截图（Think-Execute / RAG / 基座模型 / Skill 等）· 答案综合公开资料与常见表述 · 标「*项目*」处请替换为你的真实经历</p>
+
+  <div class="note"><strong>使用方式：</strong>Q1、Q2、Q4、Q5、Q14 等与<strong>你本人项目</strong>强相关，口述时用真实架构与模型名；其余题为通用技术问答，可直接消化后用自己的话复述。</div>
+
+  <h2>目录</h2>
+  <p>项目架构 Q1 · Prompt Q2-Q3 · 模型与调用 Q4-Q5 · RAG Q6 · 多轮与上下文 Q7-Q8 · DeepSeek / BERT-Transformer Q9-Q10 · Python / Skill Q11-Q12 · 伪代码与实现 Q13-Q14 · 快排 Q15</p>
+
+  <hr>
+
+  <h3>Q1：第一个 AI Agent 系统是多 Agent 还是单 Agent？<span class="tag">架构</span></h3>
+  <q>**常见答法（按真实项目改）：** 很多团队**第一版是单 Agent**：一个循环里完成规划、工具调用与总结，工程简单、易调试。等业务复杂了再拆成**多 Agent**（角色分工、子任务委派、评审/工具专用 Agent）。<br><br>
+    **口述加分：** 说明演进动机——单 Agent 上下文与职责边界清晰时够用；多 Agent 适合**工具域差异大**、要**并行子任务**或需要**互相校验**（如 coder + reviewer）。若你确实是多 Agent 起手，说明**为什么一开始就要拆分**（合规、多租户、多模型路由等）。</q>
+
+  <h3>Q2：Think-Execute 循环的 prompt 工程是你自己写的吗？<span class="tag">项目</span></h3>
+  <q>**诚实 + 分工：** 若整体是你设计、与mentor/业务方多轮迭代，可以说「**主框架和约束是我写的**，部分措辞和边界 case 是和团队一起改的」。若基于开源模板，说明**哪些改了**（工具描述、安全策略、输出格式）。<br><br>
+    **避免：** 笼统「全是自己写的」若与简历不符容易被追问穿帮。</q>
+
+  <h3>Q3：能简单说一下 Think-Executor 的 prompt 是怎么设计的吗？<span class="tag">Prompt</span></h3>
+  <q>**思路对齐 ReAct / Plan-Execute：** 一般拆成**角色与目标**、**可用工具说明**、**Think 段规范**（分析现状、是否需工具、选哪个工具、参数是什么）、**Execute 段规范**（只输出可解析的 tool call 或代码块）、**结束条件**（何时输出最终答案给用户）。<br><br>
+    **工程细节可提：** 用 **XML/JSON** 约束结构便于解析；Few-shot 示例覆盖「直接答 / 调工具 / 多步」；强调**不要编造工具结果**；对危险操作加**二次确认**或白名单。<br><br>
+    **收口：** Think 负责**可解释推理**，Execute 负责**与环境交互**，两者通过固定协议衔接，方便日志与回放。</q>
+
+  <h3>Q4：系统用的基座模型是什么？<span class="tag">项目</span></h3>
+  <q>按实际回答即可（如 **GPT-4.x / Claude / 通义 / 文心 / DeepSeek-V3 / 私有化 Qwen** 等）。<br><br>
+    **可补一句选型理由：** 上下文长度、工具调用稳定性、成本、是否允许数据出境、是否需**私有化部署**。</q>
+
+  <h3>Q5：基座模型是通过 API 方式调用的吗？<span class="tag">工程</span></h3>
+  <q>**常见两种：** **HTTP API**（OpenAI 兼容或厂商 SDK）适合快速迭代；**私有化部署**（vLLM、TGI、本地推理服务）适合数据合规与成本可控。<br><br>
+    **口述可提：** 重试、超时、限流、**熔断**、多 Key 轮询、日志脱敏；若有多模型，说**路由层**如何选模型。</q>
+
+  <h3>Q6：RAG 系统包含哪些模块？<span class="tag">RAG</span></h3>
+  <q>**离线侧：** 文档接入与清洗 → **分块（chunk）** → **向量化（Embedding）** → 写入**向量库**；可选 **BM25 倒排** 做混合检索；元数据与权限标签。<br><br>
+    **在线侧：** **Query 理解/改写** → **检索召回**（Dense / Sparse / Hybrid）→ **重排序（Rerank）** → **上下文组装** → **Prompt 约束生成** → 可选 **引用校验、拒答、后处理**。<br><br>
+    **监控：** 命中率、空召回率、延迟、幻觉反馈闭环。<br><br>
+    （要点与公开 RAG 架构文章一致：召回 + 精排 + 生成 + 评测迭代。）</q>
+
+  <h3>Q7：系统支持多轮对话吗？上下文爆炸或工具循环调用怎么解决？<span class="tag">Agent</span></h3>
+  <q>**多轮：** 支持的话说明**会话 ID**、历史如何进上下文；不支持则说明是**单轮任务型**或靠外置状态机。<br><br>
+    **上下文爆炸：** **滑动窗口**保留最近 K 轮；**摘要压缩**旧轮次；工具结果**截断或二次摘要**；**向量库检索历史**只注入相关片段；超阈值触发 **compact**。<br><br>
+    **工具死循环：** **最大步数**、**重复检测**（同一工具同参数）、**耗时/费用上限**、在 prompt 里要求**显式给出终止条件**；严重场景用**状态机**限制合法转移。<br><br>
+    这些做法与业界讨论的 Agent 上下文管理、防循环策略一致。</q>
+
+  <h3>Q8：假设要解决上下文爆炸，你觉得有什么解决方案？<span class="tag">系统设计</span></h3>
+  <q>**分层说：** **产品层**——能单轮解决的不要堆多轮；**架构层**——系统提示固定 + 最近原始对话 + **远期摘要**；**工具层**——大工具结果落盘/对象存储，上下文只保留**引用 ID**；**模型层**——更长上下文模型或**外挂记忆**（向量库 + 按需检索）。<br><br>
+    **关键观点：** 「装更多」不如**装更准**——高质量短上下文往往比冗长大杂烩效果更好（有时被称为上下文质量/「腐烂」问题）。<br><br>
+    **评测：** 压测 token 曲线与任务成功率，避免压缩丢关键约束。</q>
+
+  <h3>Q9：DeepSeek 这个模型了解吗？<span class="tag">大模型</span></h3>
+  <q>**了解程度口述：** DeepSeek（深度求索）是国内重要的**开源大模型**路线之一，系列包括 **V2/V3、R1（强推理）** 等；工程上常见亮点包括 **MoE（混合专家）** 降低推理算力、**MLA 等注意力优化**、训练与推理侧的**工程优化**（如 FP8、通信优化等，按记忆点到为止）。<br><br>
+    **使用侧：** 很多业务通过 **API 或私有化权重**接入；R1 类适合**复杂推理**，通用对话可用 V 系列。<br><br>
+    **态度：** 表明会看**模型卡、上下文长度、工具调用能力、授权与合规**，不盲目跟风。</q>
+
+  <h3>Q10：Bert 和 Transformer 了解吗？<span class="tag">基础</span></h3>
+  <q>**Transformer：** 基于 **Self-Attention**，并行编码序列，Encoder-Decoder 结构；是现代 LLM 的基础组件。<br><br>
+    **BERT：** **Encoder-only**，**双向**上下文建模，预训练任务 **MLM（掩码语言模型）** + **NSP**（句对关系，部分后续版本弱化）；擅长**理解、分类、向量表示**；不原生自回归生成长文本。<br><br>
+    **对比 GPT 类：** GPT 多为 **Decoder-only**，生成强；BERT 偏**判别与表征**，常用于 **Embedding、检索、分类**；现在 RAG 里 Embedding 仍常见 Transformer 系模型。<br><br>
+    **一句话：** Transformer 是架构，BERT 是该架构上的一种**预训练理解模型**。</q>
+
+  <h3>Q11：Python 语言用的多吗？<span class="tag">语言</span></h3>
+  <q>按实际答：**Agent / LLM 生态**（LangChain、LlamaIndex、FastAPI、批处理脚本）Python 很普遍；若你主力是 **Java/Go**，说明**边界**：编排、推理服务客户端用 Python，核心交易链路用别的语言。<br><br>
+    **加分：** 熟悉 **类型标注、异步、虚拟环境、简单性能剖析**；大工程提 **CI、依赖锁定**。</q>
+
+  <h3>Q12：Skill 了解吗？<span class="tag">生态</span></h3>
+  <q>**可答两条线（看面试官语境）：**<br>
+    **Cursor / IDE 里的 Skill：** 给 AI 的**可复用能力包**（如 ``SKILL.md``），写清何时启用、步骤与约束，让 Agent **稳定完成一类任务**。<br>
+    **广义 Agent Skill：** 把**工具组合 + SOP + 提示模板**封装成可调用单元，类似「插件化工作流」。<br><br>
+    **收口：** Skill 解决的是**可重复、可治理**的交付，而不是每次都从零写 prompt。</q>
+
+  <h3>Q13：共享 IDE，写 Think-Execute 的伪代码类和方法？<span class="tag">编码</span></h3>
+  <q>下面为**面试白板级**伪代码，命名可与 LangGraph / 自研循环对齐：</q>
+
+  <pre class="pseudo">class ThinkExecuteAgent:
+    def __init__(self, llm, tools, max_steps=20):
+        self.llm = llm
+        self.tools = tools
+        self.max_steps = max_steps
+
+    def think(self, state) -&gt; str:
+        """根据当前目标、历史、工具结果，输出下一步推理（自然语言或结构化）。"""
+        prompt = build_think_prompt(state)
+        return self.llm.chat(prompt)
+
+    def execute(self, plan) -&gt; dict:
+        """解析 plan 中的 tool_call，调用真实工具，返回 observation。"""
+        name, args = parse_tool_call(plan)
+        return self.tools.run(name, args)
+
+    def run(self, user_input) -&gt; str:
+        state = init_state(user_input)
+        for _ in range(self.max_steps):
+            thought = self.think(state)
+            if should_finish(thought):
+                return extract_final_answer(thought)
+            obs = self.execute(thought)
+            state = append_turn(state, thought, obs)
+        return "超过最大步数，中止。"</pre>
+
+  <q>**口述：** ``think`` 调模型做决策；``execute`` 只做**工具执行与结果结构化**；主循环负责**终止条件与防循环**。</q>
+
+  <h3>Q14：Think 和 Execute 是框架自带的还是自己实现的？<span class="tag">项目</span></h3>
+  <q>**常见真实组合：** **循环与状态**用框架（如 LangChain Agent、LangGraph、AutoGen、自研编排），**think/execute 的提示词与解析协议**自己写；或 **execute** 封装成统一 ``ToolRegistry``，**think** 就是一次带 tool schema 的 chat。<br><br>
+    **答法：** 明确边界——「**调度与消息流转**用现成库；**业务工具、prompt、停止策略**是我们实现的。」显得诚实且懂架构。</q>
+
+  <h3>Q15：简单说一下快速排序的实现逻辑和思想。<span class="tag">算法</span></h3>
+  <q>**思想：** **分治**。选一个 **pivot（基准）**，把数组分成「小于基准」「等于」「大于基准」三部分（或两指针partition），**递归**处理左右子区间，直到区间长度为 1。<br><br>
+    **复杂度：** 平均 **O(n log n)**，最坏 **O(n²)**（已排序且每次选极差 pivot）；工程上常用**随机 pivot**、**三数取中**、或小数组改**插入排序**。<br><br>
+    **不稳定：** 相等元素可能交换顺序；需稳定性用归并。<br><br>
+    **口述 partition：** 双指针 ``i,j`` 或单向填充「小于区」；讲清一次划分后基准已就位。</q>
+
+  <hr>
+  <p class="meta">题目共 15 道；可与同目录下 ``AI_Agent深度面试题库_面试口述版.html`` 对照补充理论题。</p>
+
+</body>
+</html>

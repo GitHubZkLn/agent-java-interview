@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Elasticsearch 高频面试题 · 两页精要版</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.2cm 1.5cm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Microsoft YaHei', 'SimSun', serif;
+      font-size: 10pt;
+      line-height: 1.7;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 10px 15px;
+    }
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      padding: 10pt 12pt;
+      border-radius: 4pt;
+      margin-bottom: 10pt;
+      page-break-after: avoid;
+    }
+    .header-info {
+      text-align: center;
+      color: #666;
+      font-size: 9pt;
+      margin-bottom: 10pt;
+    }
+    h2 {
+      font-size: 11pt;
+      color: #fff;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      padding: 5pt 10pt;
+      border-radius: 3pt;
+      margin-top: 10pt;
+      margin-bottom: 6pt;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 10pt;
+      color: #059669;
+      margin-top: 6pt;
+      margin-bottom: 3pt;
+      page-break-after: avoid;
+    }
+    q {
+      font-size: 9.5pt;
+      color: #444;
+      background: #f8faf9;
+      border-left: 3pt solid #10b981;
+      padding: 6pt 10pt;
+      margin: 4pt 0;
+      display: block;
+      border-radius: 0 3pt 3pt 0;
+      line-height: 1.6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5pt 0;
+      font-size: 9pt;
+    }
+    th {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      padding: 4pt 6pt;
+      text-align: left;
+      font-weight: bold;
+    }
+    td {
+      padding: 3pt 6pt;
+      border: 0.5pt solid #b7d9c7;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td {
+      background: #f3f8f5;
+    }
+    hr {
+      border: none;
+      border-top: 1pt solid #b7d9c7;
+      margin: 8pt 0;
+    }
+    code {
+      background: #e8f5e9;
+      padding: 0pt 3pt;
+      border-radius: 2pt;
+      font-family: 'Courier New', monospace;
+      font-size: 8.5pt;
+      color: #c62828;
+    }
+    strong {
+      color: #065f46;
+    }
+    .key-point {
+      color: #059669;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      color: #999;
+      font-size: 8pt;
+      margin-top: 10pt;
+      padding-top: 6pt;
+      border-top: 1pt dashed #b7d9c7;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var quotes = document.querySelectorAll('q');
+      quotes.forEach(function (q) {
+        var html = q.innerHTML;
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/``(.+?)``/g, '<code>$1</code>');
+        q.innerHTML = html;
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <h1>Elasticsearch 高频面试题 · 两页精要版</h1>
+  <div class="header-info">适用于 AI Agent 场景（ES + 倒排索引 + BM25 + 分布式搜索）</div>
+
+  <!-- ========== 第一页 ========== -->
+
+  <h2>Q1：ES 集群架构是怎样的？如何设计分片和副本？</h2>
+  <q>ES 是一个分布式全文检索引擎，核心架构围绕**分片（Shard）**展开。<br><br>
+    **集群核心概念：**<br>
+    · <strong>节点类型：</strong>Master 节点（管理集群）、Data 节点（存储数据）、Coordinating 节点（路由请求）。生产环境建议角色分离，避免 Master 节点负载过重。<br><br>
+    · <strong>分片类型：</strong><strong>主分片（Primary Shard）</strong>负责索引和存储，<strong>副本分片（Replica Shard）</strong>提供数据冗余和读负载均衡。<br><br>
+    · <strong>分片数量设计原则：</strong>每个分片数据量建议在 20-50GB 为宜。分片数过少导致数据集中、热点集中；分片数过多则元数据开销大、搜索性能下降。<br><br>
+    <strong>典型 3 节点生产架构：</strong>索引主分片数 = 5，副本数 = 1，总分片数 = 5 主分片 + 5 副本 = 10。<br><br>
+    <strong>路由公式：</strong><code>shard = hash(document_id) % num_of_primary_shards</code>，文档到哪个分片由文档 ID 哈希决定。<br><br>
+    <strong>调优建议：</strong>写入前副本设为 0 提升写入速度；热数据用 SSD；冷热分离管理数据生命周期；基于日期模板创建索引通过 Rollover API 滚动。
+  </q>
+
+  <h2>Q2：ES 倒排索引的原理是什么？底层如何实现？</h2>
+  <q>倒排索引是 ES 实现毫秒级全文检索的核心数据结构，与传统正排索引（文档→词项）相反。<br><br>
+    **倒排索引结构：**<br>
+    由两部分组成：<strong>词典（Term Dictionary）</strong> 存储所有分词后的词项；<strong>倒排表（Posting List）</strong>记录每个词项出现在哪些文档中，以及词频 TF、位置、偏移量等信息。<br><br>
+    <strong>检索过程（以搜索"ES 原理"为例）：</strong><br>
+    ① 分词器对"ES 原理"分词 → ["ES", "原理"]<br>
+    ② 在词典中定位"ES"和"原理"，找到各自的 Posting List<br>
+    ③ 对两个 Posting List 求交集，命中交集的文档即为结果<br>
+    ④ 根据词频 TF 和文档频率 DF 计算 BM25 相关性得分，返回排序结果<br><br>
+    <strong>词典的高效查询——FST：</strong><br>
+    ES 词典使用 FST（有限状态转移器）实现，内存占用仅为 HashMap 的 1/10，支持前缀匹配和范围查询。<br><br>
+    <strong>倒排表压缩——FOR 算法：</strong><br>
+    倒排表使用 Frame Of Reference 算法压缩，压缩率达 3-5 倍，大幅降低 IO 开销。<br><br>
+    <strong>面试加分：</strong>可以提到，正排索引是"我有哪些文档，文档里有什么词"；倒排索引是"我要找这个词，它在哪些文档里"。ES 的写入流程本质是：数据 → 分词 → 构建倒排索引 →写入磁盘。
+  </q>
+
+  <h2>Q3：ES 的写入流程是怎样的？如何保证数据不丢失？</h2>
+  <q>ES 采用 **Write → Memory Buffer → Segment → Disk** 的写入链路，结合 Translog 实现数据可靠。<br><br>
+    **完整写入流程（7 步）：**<br>
+    ① 客户端请求到协调节点（Coordinating Node）<br>
+    ② 协调节点根据 <code>document_id</code> 哈希路由到对应主分片节点<br>
+    ③ 主分片节点先将数据写入 <strong>Memory Buffer</strong>（内存缓冲区）<br>
+    ④ 同时将操作写入 <strong>Translog</strong>（事务日志，默认落盘）<br>
+    ⑤ 满足刷新条件后（默认 1 秒），将 Buffer 中的数据生成新的 <strong>Segment</strong>（段），写入文件系统缓存，此时数据可被搜索<br>
+    ⑥ 异步将 Segment <strong>fsync</strong> 到磁盘，永久保存<br>
+    ⑦ 当 Translog 达到阈值（默认 512MB 或 30 分钟），执行 <strong>flush</strong> 清空 Translog<br><br>
+    <strong>Translog 的作用——数据恢复：</strong><br>
+    Segment 数据可能只存在于文件系统缓存（未刷盘），此时宕机会丢失。Translog 记录了所有未刷盘的操作，ES 重启时根据 Translog 恢复数据，确保不丢失。<br><br>
+    <strong>写入调优策略：</strong><br>
+    · 批量写入用 <code>bulk API</code>，减少网络往返<br>
+    · 写入前关闭副本（<code>number_of_replicas: 0</code>），写入完成后再开启<br>
+    · 关闭 <code>refresh_interval</code>（默认 1 秒），批量写入完成后再开启<br>
+    · 使用 ES 自动生成的文档 ID，避免手动指定导致并发冲突
+  </q>
+
+  <h2>Q4：ES 的搜索流程是怎样的？什么是 Query-Then-Fetch 两阶段？</h2>
+  <q>ES 的搜索是典型的**分布式搜索两阶段**模式：<strong>Query 阶段（分散）</strong> + <strong>Fetch 阶段（汇总）</strong>。<br><br>
+    <strong>第一阶段：Query（查询）</strong><br>
+    ① 协调节点收到搜索请求，广播到所有相关分片（主分片或副本分片）<br>
+    ② 各分片节点在本地执行搜索，在倒排索引中查找匹配文档<br>
+    ③ 每个分片构建一个<strong>优先队列（Top N 队列）</strong>，只保留得分最高的文档 ID 和排序值<br>
+    ④ 各分片返回队列中的文档 ID 和排序值给协调节点<br><br>
+    <strong>第二阶段：Fetch（拉取）</strong><br>
+    ① 协调节点对所有分片返回的结果做全局排序，确定最终 Top N 文档<br>
+    ② 协调节点向相关分片发起 <strong>Fetch 请求</strong>，获取完整文档内容<br>
+    ③ 各分片返回文档完整数据给协调节点<br>
+    ④ 协调节点汇总结果返回客户端<br><br>
+    <strong>深度分页问题：</strong><br>
+    假设分片数为 5，要取第 10000-10010 条，需要在每个分片上构建 10010 条队列然后汇总排序，Top N 之后只取最后 10 条，前面的 10000 条被丢弃。这是 <code>from + size</code> 深度分页的核心开销。<br>
+    <strong>解决方案：</strong>使用 <code>search_after</code> 基于游标分页，规避深度翻页问题。
+  </q>
+
+  <!-- ========== 第二页 ========== -->
+  <h2>Q5：什么是 ES 脑裂问题？如何避免？Master 选举机制是怎样的？</h2>
+  <q><strong>脑裂（Split-Brain）</strong>是指集群因网络分区导致多个节点无法互相检测，各自认为对方已下线，重新选举出多个 Master 的现象。多个 Master 同时服务会导致数据不一致甚至写入冲突。<br><br>
+    <strong>Master 选举机制（ZenDiscovery 模块）：</strong><br>
+    ① 所有 <code>node.master: true</code> 的候选节点互相 Ping，发现彼此<br>
+    ② 各节点对候选节点列表按 <code>nodeId</code> 字典序排序<br>
+    ③ 各节点投票给排序后的第一个节点<br>
+    ④ 获得 <strong>n/2 + 1</strong> 票（Quorum 过半机制）且自己给自己投票的节点成为 Master<br><br>
+    <strong>避免脑裂的核心措施：</strong><br>
+    <strong>① 配置最小 Master 节点数：</strong><br>
+    <code>discovery.zen.minimum_master_nodes = (候选节点数 / 2) + 1</code><br>
+    例如 3 个候选 Master 节点，设置为 2。那么只有获得 ≥2 票的节点才能成为 Master。网络分区后，包含 2 个及以上节点的分区可以选 Master，只剩 1 个节点的分区无法选出 Master，避免多 Master。<br><br>
+    <strong>② 角色分离：</strong>Master 节点只负责集群管理（<code>node.master: true, node.data: false</code>），Data 节点只负责数据存储（<code>node.master: false, node.data: true</code>）。<br><br>
+    <strong>③ 增加探测超时：</strong>调大 <code>discovery.zen.ping_timeout</code>（默认 3s，建议调至 6s），避免网络抖动导致的误判。<br><br>
+    <strong>面试加分：</strong>ES 7.x 之后默认使用 <code>voting configurations (votingondiscover)</code> 自动管理投票配置，降低了脑裂风险，但 Quorum 原则不变。
+  </q>
+
+  <h2>Q6：ES 与 MySQL 分库分表各适用什么场景？两者如何选型？</h2>
+  <q>ES 和 MySQL 不是替代关系，是互补关系。选择取决于数据规模、查询类型和业务场景。<br><br>
+    <strong>ES 更适合的场景：</strong><br>
+    · <strong>枚举字段或低区分度字段搜索：</strong>MySQL 对布尔值、状态码等低区分度字段建 B+ 树索引效果差，ES 倒排索引只需 O(1) 扫描<br>
+    · <strong>复杂多条件组合查询：</strong>10+ 个条件字段的联合筛选，MySQL 联合索引难以覆盖，ES 对各字段建 bitmap 求交集效果更优<br>
+    · <strong>海量数据水平扩展：</strong>PB 级数据通过分片轻松扩展，而 MySQL 分库分表涉及数据迁移、改业务代码，风险和成本高<br>
+    · <strong>全文模糊搜索：</strong>前缀匹配、模糊匹配、相关性排序<br>
+    · <strong>倒排索引天然支持：</strong>枚举类、标签类检索<br><br>
+    <strong>MySQL 更适合的场景：</strong><br>
+    · 数据量 < 1000 万行，查询并发不高<br>
+    · 强事务需求（ES 不支持真正的跨文档事务）<br>
+    · 精确数值范围查询（如金额、精确时间）<br>
+    · 需要 JOIN 关联查询的场景<br><br>
+    <strong>业界主流架构：MySQL 分库分表 + ES 搜索引擎</strong><br>
+    ① MySQL 作为主存储（Binlog 同步数据到 ES）<br>
+    ② 有分片键的精确查询走 MySQL 分库分表路由<br>
+    ③ 模糊查询、多条件筛选交给 ES 处理<br>
+    ④ 典型案例：京东到家订单中心（日均 5 亿查询），ES 存 10 亿文档 + MySQL 做主存储<br><br>
+    <strong>面试加分：</strong>可以提到，非分片键的跨分片查询有三种方案：映射表、前缀分片法、ES 搜索。其中 ES 方案最灵活，但需要解决数据同步一致性问题（业务双写或 Binlog 监听）。
+  </q>
+
+  <h2>Q7：ES 分词器有哪些？如何选择？自定义分词器的原理是什么？</h2>
+  <q>分词器（Analyzer）是 ES 全文检索的核心，决定了"如何把文本切成词"。ES 的分词流程由三部分组成：<strong>Character Filters → Tokenizer → Token Filters</strong>。<br><br>
+    <strong>内置分词器：</strong><br>
+    · <strong>Standard Analyzer：</strong>默认分词器，按单词边界切分，支持小写转换、去除停用词。适合大多数欧洲语言。<br>
+    · <strong>Simple Analyzer：</strong>按非字母字符切分，简单高效，适合没有停用词概念的语言。<br>
+    · <strong>Whitespace Analyzer：</strong>按空格切分，不做任何转换，适合代码、日志类文本。<br>
+    · <strong>Keyword Analyzer：</strong>不分词，将整个文本作为一个词项，适合精确匹配场景（如订单号、标签数组）。<br>
+    · <strong>IK Analyzer（中文推荐）：</strong>基于词典的分词，支持细粒度和智能分词两种模式。需要安装插件。<br>
+    · <strong>HanLP Analyzer：</strong>基于 NLP 的中文分词，效果更好但性能开销较大。<br><br>
+    <strong>分词选择原则：</strong><br>
+    · <strong>英文/数字/代码：</strong><code>keyword</code> 类型，无需分词，适合精确匹配<br>
+    · <strong>中文短文本：</strong>IK 细粒度分词，适合搜索联想<br>
+    · <strong>中文长文本：</strong>IK 智能分词，识别短语和命名实体<br>
+    · <strong>日志/URL：</strong>Whitespace 或自定义正则分词<br><br>
+    <strong>自定义分词器示例：</strong><br>
+    <code>"char_filter": ["html_strip"], "tokenizer": "ik_max_word", "filter": ["lowercase", "synonym_filter"]</code><br>
+    流程：HTML 标签移除 → IK 最大分词 → 转小写 → 同义词替换<br><br>
+    <strong>面试加分：</strong>可以提到，分词粒度直接影响搜索效果——粒度越细，召回率越高但精确率可能下降；粒度越粗，精确率高但召回率可能不足。ES 7.x+ 的 <code>search_analyzer</code> 参数允许索引时分词粒度粗、搜索时分词粒度细，兼顾召回和精确。
+  </q>
+
+  <h2>Q8：ES 搜索调优有哪些手段？如何提升查询性能？</h2>
+  <q>ES 搜索调优需要从索引设计、查询写法、系统资源四个层面综合优化。<br><br>
+    <strong>① 索引设计层优化（最关键）</strong><br>
+    · <strong>合理使用字段类型：</strong><code>keyword</code> 用于精确匹配、过滤、排序；<code>text</code> 用于全文检索。不要将 keyword 字段设置为 text 来做聚合。<br>
+    · <strong>禁用 wildcards：</strong><code>*abc*</code> 这类通配符查询无法利用倒排索引，复杂度 O(n)，数据量大时直接打满 CPU。<br>
+    · <strong>禁用批量 terms 查询：</strong>几百上千个 terms 的 <code>terms {"id": [1,2,...,1000]}</code> 性能很差，改为 terms lookup 或拆分为多次小批量查询。<br>
+    · <strong>减少返回字段：</strong>用 <code>_source filtering</code> 只返回必要字段，减少网络传输和内存开销。<br><br>
+    <strong>② 查询写法优化</strong><br>
+    · <strong>bool 查询优化：</strong><code>filter</code> 上下文比 <code>must</code> 快，因为 filter 不计算相关性得分且结果可缓存。<br>
+    · <strong>巧用 search_after：</strong>深度分页用 search_after 代替 from+size，避免构建大优先队列。<br>
+    · <strong>预热 FS Cache：</strong>热点索引提前加载到文件系统缓存，加速查询。<br><br>
+    <strong>③ 聚合调优</strong><br>
+    · 大数据量聚合时使用 <code>shard_size</code> 调大，减少精度损失<br>
+    · <code>execution_hint: "map"</code> 可在特定场景下绕过分片级聚合，提升性能<br><br>
+    <strong>④ 系统资源调优</strong><br>
+    · 热点数据用 SSD，确保文件系统缓存命中率高<br>
+    · 调大 <code>indices.memory.index_buffer_size</code>（默认 10%）提升写入和查询性能<br>
+    · 监控 <code>thread_pool</code> 队列，避免搜索线程池耗尽<br><br>
+    <strong>面试加分：</strong>可以提到，ES 查询性能的核心瓶颈是"有多少数据需要加载到内存"。所以优化思路是：减少搜索范围（时间过滤、分区）→ 减少返回数据量（字段过滤、scroll）→ 提升缓存命中率（预热、filter 缓存）。先用 <code>profile API</code> 分析各阶段耗时，再针对性优化。
+  </q>
+
+  <div class="footer">
+    高频精选 8 题 · AI Agent 技术栈 · ES + 倒排索引 + BM25 + 分布式搜索
+  </div>
+
+</body>
+</html>

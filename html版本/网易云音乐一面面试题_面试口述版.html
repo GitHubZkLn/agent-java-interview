@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网易云音乐一面面试题 · 面试口述版</title>
+  <style>
+    @page { size: A4; margin: 2cm 2.5cm; }
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', 'SimSun', sans-serif;
+      font-size: 12pt;
+      line-height: 1.8;
+      color: #222;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 22pt;
+      text-align: center;
+      color: #fff;
+      background: linear-gradient(135deg, #e53935 0%, #c62828 50%, #880e4f 100%);
+      padding: 16pt 12pt;
+      border-radius: 4pt;
+      margin-top: 0;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 16pt;
+      color: #fff;
+      background: linear-gradient(90deg, #e53935 0%, #c62828 100%);
+      padding: 8pt 12pt;
+      border-radius: 4pt;
+      margin-top: 20pt;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 13pt;
+      color: #333;
+      margin-top: 14pt;
+      page-break-after: avoid;
+      border-left: 4pt solid #c62828;
+      padding-left: 10pt;
+    }
+    q {
+      font-style: normal;
+      color: #444;
+      background: linear-gradient(135deg, #fafafa 0%, #eceff1 100%);
+      border-left: 4pt solid #c62828;
+      padding: 12pt 16pt;
+      margin: 8pt 0;
+      display: block;
+      border-radius: 0 4pt 4pt 0;
+    }
+    .meta {
+      font-size: 10pt;
+      color: #666;
+      text-align: center;
+      margin-bottom: 16pt;
+    }
+    .tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+      color: #fff;
+      padding: 2pt 8pt;
+      border-radius: 10pt;
+      font-size: 9pt;
+      margin-right: 4pt;
+    }
+    .note {
+      background: #fff8e1;
+      border: 1pt solid #ffb300;
+      padding: 10pt 14pt;
+      border-radius: 4pt;
+      font-size: 11pt;
+      color: #5d4037;
+      margin: 12pt 0;
+    }
+    strong { color: #3d4f6f; font-weight: bold; }
+    em { color: #555; font-style: normal; background: #fff9e6; padding: 0 3pt; border-radius: 2pt; }
+    code {
+      background: #f0f0f0;
+      padding: 1pt 4pt;
+      border-radius: 2pt;
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 10pt;
+    }
+    hr { border: none; border-top: 1pt solid #d4d8e0; margin: 16pt 0; }
+    table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 11pt; }
+    th {
+      background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+      color: #fff;
+      padding: 7pt 10pt;
+      text-align: left;
+    }
+    td { padding: 6pt 10pt; border: 0.5pt solid #d4d8e0; vertical-align: top; }
+    tr:nth-child(even) td { background: #f8f9fc; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('q').forEach(function (q) {
+        var html = q.innerHTML;
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        html = html.replace(/``(.+?)``/g, '<code>$1</code>');
+        q.innerHTML = html;
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <h1>网易云音乐一面面试题 · 面试口述版</h1>
+  <p class="meta">来源：题目截图整理 · 答案综合公开技术资料与常见面试表述 · 仅供复习参考</p>
+
+  <div class="note"><strong>说明：</strong>第 11 题在原截图中仅显示到「数据库的 ACID 特性中，原子性 (A) 和…」，下文按<strong>完整 ACID 四特性</strong>作答；若现场追问「原子性与其他特性关系 / 如何实现」，可侧重文中加粗段落。</div>
+
+  <h2>目录（Java 基础 / 并发 · 数据库）</h2>
+  <p>Q1 String 不可变 · Q2 String 三兄弟 · Q3 equals 与 hashCode · Q4 synchronized 与 volatile · Q5 线程状态 · Q6 死锁 · Q7 CopyOnWriteArrayList · Q8 CountDownLatch 与 CyclicBarrier · Q9 三范式 · Q10 SQL 注入与 PreparedStatement · Q11 ACID</p>
+
+  <hr>
+
+  <h3>Q1：Java 中的 String 为什么设计成不可变的？有什么好处？<span class="tag">Java 基础</span></h3>
+  <q>**设计原因：** ``String`` 内部用 ``final`` 修饰类、``char[]/byte[]``（JDK9+ 压缩字符串）等设计，创建后内容不可改，拼接等操作本质是**新建对象**而非原地修改。<br><br>
+    **好处我一般会答四条：**<br>
+    **第一，字符串常量池。** 相同字面量可以复用，节省堆内存；若 ``String`` 可变，池里共享引用会被间接改掉，常量池就不可靠了。<br>
+    **第二，安全。** 典型例子是网络、文件路径、权限相关参数用 ``String`` 传入，若可变可能被外部代码篡改。<br>
+    **第三，哈希稳定。** ``String`` 作 ``HashMap`` 键时，``hashCode`` 可缓存；若内容可变，哈希表语义会乱。<br>
+    **第四，并发友好。** 多线程**只读共享** ``String`` 不需要额外同步（对比可变对象要小心发布与可见性）。<br><br>
+    **收口：** 不可变是一种权衡：写时多分配对象，但换内存与安全、语义清晰；大量拼接场景用 ``StringBuilder`` 即可。</q>
+
+  <h3>Q2：说说 String、StringBuilder、StringBuffer 的区别和适用场景？<span class="tag">Java 基础</span></h3>
+  <q>**核心区别：** ``String`` **不可变**，每次 ``+`` 拼接（尤其循环里）会产生大量中间对象；``StringBuilder`` 与 ``StringBuffer`` 都是**可变字符序列**，在缓冲区上改，适合拼接。<br><br>
+    **``StringBuilder`` vs ``StringBuffer``：** 二者 API 类似；``StringBuffer`` 方法带 **``synchronized``**，线程安全但单线程下更重；``StringBuilder`` **非线程安全**，一般更快。<br><br>
+    **适用场景：** 少量拼接、可读性优先 → ``String`` 或编译期能优化的拼接；**单线程大量拼接** → ``StringBuilder``；**多线程共享同一缓冲区拼接**（少见）→ ``StringBuffer`` 或加外部锁的 ``StringBuilder``。<br><br>
+    **面试补一句：** JDK 对字符串 ``+`` 有时会优化为 ``StringBuilder``，但**循环内**仍建议显式 ``StringBuilder``，避免反复创建构建器。</q>
+
+  <h3>Q3：equals() 和 hashCode() 有什么关系？为什么重写 equals() 时必须重写 hashCode()？<span class="tag">Java 基础</span></h3>
+  <q>**约定关系：** ``Object`` 的约定是：若两个对象通过 ``equals`` 认为相等，则它们的 ``hashCode`` **必须相同**；反过来 ``hashCode`` 相同不要求 ``equals`` 一定为真（哈希碰撞）。<br><br>
+    **为什么要一起重写：** 以 ``HashMap`` / ``HashSet`` 为例，先用 ``hashCode`` 定位桶，再用 ``equals`` 比较键。若只重写 ``equals`` 不重写 ``hashCode``，逻辑相等的对象可能落到不同桶里，表现为**「放进 Set 还能重复」「get 不到 put 的键」**等 bug。<br><br>
+    **口述收口：** 保证**相等对象哈希一致**；``hashCode`` 还应尽量均匀，减少碰撞；若用 IDE 生成 ``equals``，一般同步生成 ``hashCode``（常用 Objects.hash / Arrays 辅助）。</q>
+
+  <h3>Q4：synchronized 和 volatile 各解决什么问题？能不能互相替代？<span class="tag">并发</span></h3>
+  <q>**volatile：** 保证**可见性**（写后立即对读线程可见），并禁止对 volatile 变量的某些**指令重排序**（建立 happens-before）；**不保证**复合操作的原子性，例如 ``i++``。<br><br>
+    **synchronized：** 通过监视器锁保证**互斥**（同一时刻只有一个线程进临界区），顺带带来**可见性**与**有序性**（在锁的语义下）。<br><br>
+    **能否替代：** **不能简单替代。** volatile 适合**单一变量**的状态标志、一次性发布（在合适模式下）；需要**多步原子**或**临界区代码块**必须用锁或原子类。反过来，为了可见性滥用 synchronized 可能降低并发度。实际项目里还有 ``java.util.concurrent`` 原子类、读写锁等选型。<br><br>
+    **一句话：** volatile 解决「看见最新值 + 有限定序」；synchronized 解决「互斥 + 同步块」——问题域不同。</q>
+
+  <h3>Q5：Java 线程的生命周期有哪些状态？线程从 RUNNABLE 变成 BLOCKED 的原因有哪些？<span class="tag">并发</span></h3>
+  <q>**状态（``Thread.State``）：** ``NEW``（已创建未 start）、``RUNNABLE``（可运行/正在运行，取决于调度器）、``BLOCKED``、``WAITING``、``TIMED_WAITING``、``TERMINATED``。<br><br>
+    **RUNNABLE → BLOCKED：** 典型是**等待监视器锁**：进入 ``synchronized`` 代码块/方法时，锁被别的线程持有，当前线程进入 ``BLOCKED``，直到拿到锁。<br><br>
+    **易混点（口述可主动澄清）：** 调 ``wait()`` 会进 ``WAITING``（释放锁），不是 ``BLOCKED``；``sleep``、``join(超时)`` 等常是 ``TIMED_WAITING``。有的资料把 I/O 阻塞也口语上说成「阻塞」，但 JVM 线程状态里 I/O 往往仍显示为 ``RUNNABLE``（平台级阻塞），**和 BLOCKED 等状态区分**问清楚面试官指的是哪一种。</q>
+
+  <h3>Q6：什么是死锁？怎么检测和避免死锁？<span class="tag">并发</span></h3>
+  <q>**死锁：** 多个线程互相持有对方需要的资源（锁），又等待对方释放，导致**永久等待**。<br><br>
+    **必要条件（四选齐才可能）：** 互斥、占有且等待、不可抢占、循环等待。<br><br>
+    **检测：** 开发环境用 **jstack** 线程栈、JVisualVM / JConsole 看死锁检测；代码里可记录锁获取顺序与等待图做分析。生产上更多是告警 + dump。<br><br>
+    **避免：** **统一加锁顺序**（破坏循环等待）；缩小锁粒度与持锁时间；尽量用 **``tryLock`` + 超时**；考虑 **无锁/原子类**；避免嵌套锁。数据库场景还有按主键排序更新等习惯。<br><br>
+    **银行家算法等：** 偏教材与特定系统，面试口述点到「资源分配避免不安全状态」即可。</q>
+
+  <h3>Q7：CopyOnWriteArrayList 相比 ArrayList 有什么优缺点？适合什么场景？<span class="tag">并发</span></h3>
+  <q>**原理：** **写时复制**：写操作（add/set 等）时复制底层数组，在新副本上改，再替换引用；读操作大多无锁，读当前数组快照。<br><br>
+    **优点：** **读多写少**时读性能高；**迭代器弱一致性**，遍历时不抛 ``ConcurrentModificationException``（遍历的是快照）。<br><br>
+    **缺点：** 写要复制数组，**写放大、内存开销**；数据量大时复制成本高；**实时性弱**，读可能短暂看不到最新写入。<br><br>
+    **适合场景：** 监听器列表、配置项、黑名单等**读远多于写**、且能接受短暂一致性的场景。**不适合**写多读少或大列表频繁写。</q>
+
+  <h3>Q8：CountDownLatch 和 CyclicBarrier 有什么区别？各适合什么场景？<span class="tag">并发</span></h3>
+  <q>**CountDownLatch：** **一次性**计数器，一个或多个线程等待，直到计数减到 0；**不能重置**。<br><br>
+    **CyclicBarrier：** 多个线程互相等待，**全部到达屏障点**再一起继续；**可循环使用**（``reset``），还可带 ``Runnable`` 在栅栏处执行一次任务。<br><br>
+    **对比：** Latch 强调「主从」或「等多件事完成」；Barrier 强调「对等线程同步阶段」。**场景举例：** 多线程下载分段后合并、服务启动等多依赖用 Latch；分阶段并行计算、分轮迭代用 Barrier。<br><br>
+    **实现差异：** Latch 基于 AQS；Barrier 也是并发包工具，语义是「互相等待」而不是单纯倒计时。</q>
+
+  <h3>Q9：说说数据库的三范式，第一范式、第二范式、第三范式分别是什么？<span class="tag">数据库</span></h3>
+  <q>**第一范式 1NF：** 字段是**原子**的，不可再分（业务上不可再拆的粒度）；表里每一列都是不可分割的基本数据项。<br><br>
+    **第二范式 2NF：** 在 1NF 基础上，**非主属性完全依赖于主键**，不能存在**部分依赖**（联合主键时不能只依赖其中一部分）。<br><br>
+    **第三范式 3NF：** 在 2NF 基础上，**非主属性不传递依赖于主键**，即不能存在 A→B→C 这种通过中间属性传递依赖。<br><br>
+    **口述收尾：** 实际工程会为了性能做**反范式**（冗余、宽表），但面试问范式先答定义，再补一句「线上会权衡查询性能与一致性维护成本」。</q>
+
+  <h3>Q10：什么是 SQL 注入？怎么防止？为什么使用 PreparedStatement 能防止 SQL 注入？<span class="tag">数据库</span></h3>
+  <q>**SQL 注入：** 用户输入被拼进 SQL 字符串，攻击者构造 ``' OR 1=1 --`` 等片段改变语义，导致越权查询、删表等。<br><br>
+    **防止：** **参数化查询/预编译**（首选）、**严格校验与转义**、最小权限账号、ORM 合理用法、避免动态拼接 SQL。<br><br>
+    **PreparedStatement 为何有效：** SQL **结构先固定**，占位符位置由数据库驱动与协议绑定；用户输入作为**参数值**传入，而不是字符串拼进 SQL，解析器把数据当字面量处理，**一般无法跳出参数边界改变语句结构**。<br><br>
+    **补刀：** 若仍把用户输入拼进 ``ORDER BY``、表名等**标识符位置**，预编译也防不住，需要白名单映射。</q>
+
+  <h3>Q11：数据库的 ACID 特性（原题截图从「原子性 (A)」起被截断）<span class="tag">数据库</span></h3>
+  <q>**ACID** 是事务的四个特性：**原子性 Atomicity、一致性 Consistency、隔离性 Isolation、持久性 Durability**。<br><br>
+    **原子性 (A)：** 事务要么**全部提交**，要么**全部回滚**，没有中间态。实现上常靠 **undo log** 等回滚信息。<br><br>
+    **一致性 (C)：** 事务前后数据库满足**约束与业务规则**（外键、唯一、业务不变量）。往往依赖 A、I、D 与应用层共同保证。<br><br>
+    **隔离性 (I)：** 并发事务**互不干扰**到「可接受的」程度；通过锁、**MVCC**、隔离级别（读已提交、可重复读、串行化等）控制脏读、不可重复读、幻读。<br><br>
+    **持久性 (D)：** 一旦提交，修改**不会因宕机丢失**。常用 **redo log**、刷盘策略等。<br><br>
+    **若追问「原子性 (A) 和别的是什么关系」：** 可答 **一致性** 常被视为目标，**原子性+隔离性** 等帮助从不一致中间态恢复或避免；**持久性** 与原子性在故障恢复里一起谈（提交与日志）。<br><br>
+    **MySQL/InnoDB 口述：** redo/undo、两阶段提交（若涉及分布式可略提）、MVCC 与隔离级别——与岗位深度匹配即可。</q>
+
+  <hr>
+  <p class="meta">打印建议：浏览器打印 → 背景图形；页边距适中。祝面试顺利。</p>
+
+</body>
+</html>
