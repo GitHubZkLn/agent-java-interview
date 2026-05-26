@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Agent 面试题库 - 大厂面经汇总</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* 左侧导航 */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .nav-section {
+            padding: 16px 0;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 20px;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            font-weight: 500;
+            border-left-color: #667eea;
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #667eea;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* 问题卡片 */
+        .question-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .question-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .answer-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 16px;
+            border-left: 4px solid #667eea;
+        }
+
+        .answer-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .answer-title::before {
+            content: "💡";
+            margin-right: 8px;
+        }
+
+        .answer-content {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.8;
+        }
+
+        .answer-content p {
+            margin-bottom: 10px;
+        }
+
+        .answer-content strong {
+            color: #2d3748;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* 来源标签 */
+        .source-tag {
+            display: inline-flex;
+            align-items: center;
+            background: #edf2f7;
+            color: #4a5568;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .source-tag::before {
+            content: "📌";
+            margin-right: 4px;
+        }
+
+        /* 算法题卡片 */
+        .algorithm-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .algorithm-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .algorithm-title::before {
+            content: "💻";
+            margin-right: 8px;
+        }
+
+        .algorithm-difficulty {
+            margin-left: auto;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .algorithm-hint {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            body {
+                flex-direction: column;
+            }
+        }
+
+        /* 回到顶部 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧导航 -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1>🎯 Java Agent 面试题库</h1>
+            <p>大厂面经 · 分类整理</p>
+        </div>
+        <div class="nav-section">
+            <div class="nav-title">核心模块</div>
+            <a href="#agent-core" class="nav-item">
+                <span class="nav-icon">🤖</span>
+                Agent 核心问题
+                <span class="nav-badge">12</span>
+            </a>
+            <a href="#agent-memory" class="nav-item">
+                <span class="nav-icon">🧠</span>
+                记忆系统设计
+                <span class="nav-badge">8</span>
+            </a>
+            <a href="#rag-system" class="nav-item">
+                <span class="nav-icon">📚</span>
+                RAG 系统
+                <span class="nav-badge">15</span>
+            </a>
+            <a href="#multi-agent" class="nav-item">
+                <span class="nav-icon">👥</span>
+                多 Agent 协作
+                <span class="nav-badge">10</span>
+            </a>
+            <a href="#mcp-protocol" class="nav-item">
+                <span class="nav-icon">🔌</span>
+                MCP 与协议
+                <span class="nav-badge">6</span>
+            </a>
+            <div class="nav-title">Java 基础</div>
+            <a href="#java-basics" class="nav-item">
+                <span class="nav-icon">☕</span>
+                Java 基础
+                <span class="nav-badge">10</span>
+            </a>
+            <a href="#java-concurrency" class="nav-item">
+                <span class="nav-icon">⚡</span>
+                并发与线程
+                <span class="nav-badge">8</span>
+            </a>
+            <a href="#spring" class="nav-item">
+                <span class="nav-icon">🌱</span>
+                Spring 框架
+                <span class="nav-badge">6</span>
+            </a>
+            <div class="nav-title">存储中间件</div>
+            <a href="#mysql" class="nav-item">
+                <span class="nav-icon">🗄️</span>
+                MySQL
+                <span class="nav-badge">8</span>
+            </a>
+            <a href="#redis" class="nav-item">
+                <span class="nav-icon">⚡</span>
+                Redis
+                <span class="nav-badge">12</span>
+            </a>
+            <a href="#mq" class="nav-item">
+                <span class="nav-icon">📨</span>
+                消息队列
+                <span class="nav-badge">4</span>
+            </a>
+            <div class="nav-title">系统设计</div>
+            <a href="#system-design" class="nav-item">
+                <span class="nav-icon">🏗️</span>
+                系统设计
+                <span class="nav-badge">6</span>
+            </a>
+            <a href="#algorithm" class="nav-item">
+                <span class="nav-icon">💻</span>
+                算法题汇总
+                <span class="nav-badge">5</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Agent 核心问题 -->
+            <section id="agent-core" class="section">
+                <div class="section-header">
+                    <div class="section-icon">🤖</div>
+                    <div>
+                        <h2 class="section-title">Agent 核心问题</h2>
+                        <p class="section-subtitle">大模型 Agent 开发核心面试题</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">在 Agent 知识闭环中，如何设计决定哪些信息进入向量数据库（长期记忆）、哪些进入上下文窗口（短期记忆）、哪些直接转化为模型权重的元记忆？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>这是一个关于分层记忆架构设计的经典问题。</strong></p>
+                            <p>我的设计思路是采用<span class="highlight">三层记忆架构</span>：</p>
+                            <p><strong>1. 上下文窗口（工作记忆）</strong>：只存放当前对话的上下文、当前任务的中间状态、以及通过 Attention Sink 锚定的关键信息。一般限制在 4K-8K tokens。</p>
+                            <p><strong>2. 向量数据库（长期记忆）</strong>：存放经过提炼的事实性知识、用户画像、历史交互模式、成功的工具调用经验等。容量可达百万级。</p>
+                            <p><strong>3. 模型权重（内化知识）</strong>：通过微调将高频、通用、稳定的知识固化到模型权重中，如通用推理模式、常用工具调用规范等。</p>
+                            <p><strong>核心判断标准：</strong></p>
+                            <p>• <span class="highlight">频次</span>：出现 3 次以上的模式 → 进入长期记忆</p>
+                            <p>• <span class="highlight">时效性</span>：超过 7 天未使用 → 从工作记忆降级</p>
+                            <p>• <span class="highlight">通用性</span>：跨用户适用的知识 → 考虑权重化</p>
+                            <p>• <span class="highlight">事实性</span>：需要精确回忆的 → 长期记忆；需要即时推理的 → 工作记忆</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">当对话轮数较多且上下文窗口严重不足时，如何在不丢失初始 Attention Sink 的前提下保持生成的连贯性？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>这是一个工程实践中的关键问题。</strong>我主要采用以下策略：</p>
+                            <p><strong>1. Attention Sink 锚定机制：</strong>在对话开始时明确设置关键实体（如用户名、项目名）的向量表示，在压缩时始终保留。</p>
+                            <p><strong>2. 增量压缩而非全量丢弃：</strong>使用<span class="highlight">summarization + selective retention</span>：对历史对话做摘要，保留关键实体和决策节点的完整信息。</p>
+                            <p><strong>3. 分层压缩策略：</strong>将对话分为"核心事实层"（始终保留）、"推理过程层"（摘要保留）、"中间结果层"（可丢弃）。</p>
+                            <p><strong>4. 语义压缩：</strong>用小模型对历史对话做语义压缩，提取核心意图和关键信息。</p>
+                            <p><strong>5. 层级索引：</strong>建立关键信息的索引表，压缩后仍能快速检索。</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">详细讲讲你设计的 Agent 是如何实现的？在"推理-行动"循环中，如何设计来纠正逻辑塌缩或无效工具调用？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>我的 Agent 系统采用 ReAct + Self-Correction 架构：</strong></p>
+                            <p><strong>核心循环：</strong>Thought → Action → Observation → Reflection → Decision</p>
+                            <p><strong>防止逻辑塌缩的机制：</strong></p>
+                            <p>1. <span class="highlight">步数熔断器</span>：设置最大推理步数（如 15 步），超限则强制输出当前最优解。</p>
+                            <p>2. <span class="highlight">重复检测</span>：维护已执行动作的 hash 表，连续 3 次相似动作触发告警。</p>
+                            <p>3. <span class="highlight">状态验证</span>：每个 action 后验证状态变化是否符合预期，不符合则回退。</p>
+                            <p>4. <span class="highlight">置信度阈值</span>：工具调用置信度低于 0.7 时，要求人工确认或切换策略。</p>
+                            <p>5. <span class="highlight">反思机制</span>：每次推理后让模型评估"这个推理是否合理"，有问题则回退。</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：字节 Agent 开发面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">在电商或导购场景下，用户的请求往往高度模糊，Agent 如何精准理解这种需求？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>电商场景的模糊需求处理是核心能力，我的方案：</strong></p>
+                            <p><strong>1. 主动澄清策略：</strong></p>
+                            <p>• 预设澄清意图识别：当 query 包含模糊词（"好看的"、"合适的"）时触发</p>
+                            <p>• 区分"反问"vs"强行推断"：高风险决策（如购买）反问，低风险（如浏览）可推断</p>
+                            <p><strong>2. 历史画像辅助：</strong></p>
+                            <p>• 结合用户历史行为（浏览、收藏、购买）构建偏好向量</p>
+                            <p>• 模糊词映射到历史偏好（如"显瘦"→ 用户常购版型）</p>
+                            <p><strong>3. 渐进式披露：</strong></p>
+                            <p>• 不一次性问完，先问最有区分度的问题</p>
+                            <p>• 用最少问题定位需求（一般 2-3 个）</p>
+                            <p><strong>4. 置信度决策树：</strong>置信度 > 0.85 → 直接推荐；0.6-0.85 → 推荐 + 说明；< 0.6 → 反问</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">针对包含 3 个以上工具调用且高频请求的任务，通过什么方式可以压低系统整体的端到端延迟？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>降低 Agent 工具调用延迟的实战经验：</strong></p>
+                            <p><strong>1. 并行化调用：</strong></p>
+                            <p>• 无依赖的工具调用并行执行（如同时查库存、查物流、查优惠）</p>
+                            <p>• 使用 asyncio + batch API</p>
+                            <p><strong>2. 工具预热：</strong></p>
+                            <p>• 高频工具保持长连接</p>
+                            <p>• 热点数据缓存（如商品信息）</p>
+                            <p><strong>3. 预测性调用：</strong></p>
+                            <p>• 根据用户意图预测下一步工具，提前调用</p>
+                            <p>• 构建工具调用概率模型</p>
+                            <p><strong>4. 轻量化路由：</strong></p>
+                            <p>• 用小模型做意图识别和工具路由，减少 LLM 调用</p>
+                            <p>• 规则 + 小模型混合策略</p>
+                            <p><strong>5. 异步化处理：</strong>非关键路径工具异步调用，主流程不等待</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q6</span>
+                        <span class="question-text">如何衡量 Agent 的 Planning 能力 vs Hallucination Rate？请列举具体的量化评估指标或自动化评估框架。</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Planning 能力评估指标：</strong></p>
+                            <p>1. <span class="highlight">任务完成率</span>：Agent 能否独立完成给定任务</p>
+                            <p>2. <span class="highlight">路径最优性</span>：实际执行路径 vs 最优路径的比值</p>
+                            <p>3. <span class="highlight">规划步数准确率</span>：预测步数 vs 实际步数的偏差</p>
+                            <p>4. <span class="highlight">工具调用准确率</span>：正确选择工具的比例</p>
+                            <p><strong>Hallucination Rate 评估：</strong></p>
+                            <p>1. <span class="highlight">事实错误率</span>：输出中与事实不符的比例</p>
+                            <p>2. <span class="highlight">自我一致性得分</span>：同一问题多次回答的一致性</p>
+                            <p>3. <span class="highlight">引用准确性</span>：引用内容与原文的匹配度</p>
+                            <p><strong>自动化评估框架：</strong></p>
+                            <p>• G-Eval：利用 LLM 做自动化评估</p>
+                            <p>• RAGAS：专门评估 RAG 系统的幻觉率</p>
+                            <p>• Self-Evaluation：Agent 自我评估置信度</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q7</span>
+                        <span class="question-text">Token 过长导致的 Attention 稀释现象为什么会导致 Agent 的指令遵循能力下降？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Attention 稀释的原理与影响：</strong></p>
+                            <p>1. <span class="highlight">计算资源分散</span>：Attention 计算量 O(n²)，token 越长，每个 token 分到的注意力权重越平均</p>
+                            <p>2. <span class="highlight">关键信息被淹没</span>：重要指令（如"不要做什么"）的注意力权重被稀释</p>
+                            <p>3. <span class="highlight">位置编码衰减</span>：长序列下早期 token 的位置信息表达能力下降</p>
+                            <p>4. <span class="highlight">实验数据</span>：研究表明，超过 32K tokens 时，指令遵循准确率下降约 30%</p>
+                            <p><strong>解决方案：</strong></p>
+                            <p>• Sparse Attention（只关注关键 token）</p>
+                            <p>• Information Distillation（压缩冗余信息）</p>
+                            <p>• Hierarchical Attention（分层处理）</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q8</span>
+                        <span class="question-text">面对模型在 Agent 执行过程中出现的循环调用或陷入思维死循环问题，有哪些解决方法？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>死循环是 Agent 落地的核心难题，我的解决方案：</strong></p>
+                            <p><strong>1. 熔断机制：</strong></p>
+                            <p>• 步数限制：max_steps = f(任务复杂度)</p>
+                            <p>• 时间限制：单次执行不超过 30s</p>
+                            <p>• 成本限制：token 消耗超阈值则停止</p>
+                            <p><strong>2. 状态记忆检测：</strong></p>
+                            <p>• 维护历史状态的 hash，如果 N 步内状态重复 → 死循环</p>
+                            <p>• 相似度检测：当前状态与历史状态相似度 > 0.9 → 触发</p>
+                            <p><strong>3. 决策多样性检测：</strong></p>
+                            <p>• 记录历史决策，如果连续 3 次决策相似 → 提示重新思考</p>
+                            <p><strong>4. 回退与重试：</strong></p>
+                            <p>• 检测到死循环时，回退到上一步，用更明确的 prompt 重试</p>
+                            <p><strong>5. 外部干预：</strong></p>
+                            <p>• 高风险场景强制人工确认</p>
+                            <p>• 置信度低于阈值时暂停，等待指令</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- 记忆系统设计 -->
+            <section id="agent-memory" class="section">
+                <div class="section-header">
+                    <div class="section-icon">🧠</div>
+                    <div>
+                        <h2 class="section-title">Agent 记忆系统设计</h2>
+                        <p class="section-subtitle">上下文、长期记忆、工作记忆设计</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">上下文窗口满了如果需要压缩，怎么去压缩？如何筛选有效信息和垃圾信息，保证正确率最大？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>上下文压缩是工程落地的关键问题。</strong></p>
+                            <p><strong>压缩策略：</strong></p>
+                            <p>1. <span class="highlight">重要性评分</span>：用轻量级模型对每轮对话打分，保留高分内容</p>
+                            <p>2. <span class="highlight">实体保留</span>：始终保留关键实体（人名、日期、关键决策）</p>
+                            <p>3. <span class="highlight">时间衰减</span>：越近的对话权重越高，历史对话逐步降权</p>
+                            <p>4. <span class="highlight">意图聚类</span>：将相似意图的对话合并，只保留核心摘要</p>
+                            <p><strong>垃圾信息识别：</strong></p>
+                            <p>• 重复信息：与已有内容相似度 > 0.8 → 丢弃</p>
+                            <p>• 无效闲聊：不含关键实体的对话 → 可丢弃</p>
+                            <p>• 错误纠正：被后续对话否定的信息 → 标记删除</p>
+                            <p><strong>保证正确率的方法：</strong></p>
+                            <p>• 保守压缩：只压缩置信度 > 0.9 的部分</p>
+                            <p>• 双缓存：保留原始上下文快照，支持回溯</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：字节 Agent 开发面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">会话记忆功能如何实现？一次性记忆和永久性记忆分别如何实现？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>三层记忆架构设计：</strong></p>
+                            <p><strong>1. 一次性记忆（会话级）</strong></p>
+                            <p>• 存储位置：内存 + Redis Session</p>
+                            <p>• 生命周期：会话结束即销毁</p>
+                            <p>• 实现：简单的 KV 存储，key = session_id，value = 对话历史</p>
+                            <p><strong>2. 短期记忆（用户级）</strong></p>
+                            <p>• 存储位置：向量数据库（用户维度索引）</p>
+                            <p>• 生命周期：30 天无交互后降级或删除</p>
+                            <p>• 内容：用户偏好、近期任务、历史交互摘要</p>
+                            <p><strong>3. 永久性记忆（系统级）</strong></p>
+                            <p>• 存储位置：知识图谱 + 结构化数据库</p>
+                            <p>• 内容：事实性知识、通用规则、成功案例</p>
+                            <p>• 更新：需要显式触发，评估后写入</p>
+                            <p><strong>记忆流转：</strong>一次性 → 短期 → 永久（需要评估晋升）</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">Agent 中长短期记忆如何设计？各自存什么？什么时候触发读取？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>长短期记忆设计：</strong></p>
+                            <p><strong>短期记忆（Working Memory）：</strong></p>
+                            <p>• 存储：当前对话上下文、当前任务状态、中间推理结果</p>
+                            <p>• 触发：每次对话开始时自动加载</p>
+                            <p>• 容量：限制 8K tokens，超出时压缩</p>
+                            <p><strong>长期记忆（Persistent Memory）：</strong></p>
+                            <p>• 存储：用户画像、历史偏好、跨会话知识、工具调用经验</p>
+                            <p>• 触发：意图识别相关时检索</p>
+                            <p>• 索引：按用户 ID + 实体类型复合索引</p>
+                            <p><strong>触发读取时机：</strong></p>
+                            <p>1. <span class="highlight">会话开始</span>：加载用户长期记忆，初始化上下文</p>
+                            <p>2. <span class="highlight">任务开始</span>：检索相关历史任务经验</p>
+                            <p>3. <span class="highlight">工具调用前</span>：加载相似任务的调用经验</p>
+                            <p>4. <span class="highlight">任务结束</span>：评估是否需要写入长期记忆</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">多轮对话中，如果不同轮次的记忆发生冲突，如何处理？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>记忆冲突处理策略：</strong></p>
+                            <p><strong>1. 时间戳优先级</strong>：最新信息覆盖旧信息（适用于用户主动更正）</p>
+                            <p><strong>2. 置信度评估</strong>：</p>
+                            <p>• 明确声明 > 模糊暗示</p>
+                            <p>• 具体数值 > 模糊描述</p>
+                            <p>• 重复确认 > 单次提及</p>
+                            <p><strong>3. 来源可靠性</strong>：</p>
+                            <p>• 外部知识库 > Agent 推断 > 用户闲聊</p>
+                            <p>• 认证来源 > 普通来源</p>
+                            <p><strong>4. 冲突标记</strong>：</p>
+                            <p>• 将冲突信息都保留，标记时间戳</p>
+                            <p>• 输出时说明"根据某时间点的信息..."</p>
+                            <p><strong>5. 主动澄清</strong>：当冲突无法解决时，询问用户确认</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">你们上下文是怎么管理的？上下文是共享的吗？具体会共享哪些信息？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>上下文管理方案：</strong></p>
+                            <p><strong>管理策略：</strong></p>
+                            <p>1. <span class="highlight">会话级别隔离</span>：每个用户会话独立的上下文</p>
+                            <p>2. <span class="highlight">Agent 级别独立</span>：每个 Agent 维护自己的上下文</p>
+                            <p>3. <span class="highlight">全局共享层</span>：共享基础配置、公共知识</p>
+                            <p><strong>共享信息：</strong></p>
+                            <p>• 系统提示词（通用指令）</p>
+                            <p>• 公共知识库引用</p>
+                            <p>• 当前任务背景</p>
+                            <p>• 已确认的事实（避免重复确认）</p>
+                            <p><strong>隔离信息：</strong></p>
+                            <p>• Agent 私有推理过程</p>
+                            <p>• 各 Agent 的中间状态</p>
+                            <p>• 敏感用户信息</p>
+                            <p><strong>实现方式：</strong>Redis 存储会话上下文 + 消息队列同步共享信息</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- RAG 系统 -->
+            <section id="rag-system" class="section">
+                <div class="section-header">
+                    <div class="section-icon">📚</div>
+                    <div>
+                        <h2 class="section-title">RAG 系统</h2>
+                        <p class="section-subtitle">检索增强生成核心面试题</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">RAG 这块，怎么判断召回"够用了"？有没有一个明确的评估标准？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>RAG 召回质量评估的实战经验：</strong></p>
+                            <p><strong>定量指标：</strong></p>
+                            <p>1. <span class="highlight">Recall@K</span>：Top-K 召回结果中包含正确答案的比例</p>
+                            <p>2. <span class="highlight">MRR（Mean Reciprocal Rank）</span>：正确答案平均排名的倒数</p>
+                            <p>3. <span class="highlight">NDCG</span>：考虑排序质量的召回指标</p>
+                            <p><strong>"够用"的标准：</strong></p>
+                            <p>• 简单问答场景：Recall@3 > 90%</p>
+                            <p>• 复杂推理场景：Recall@10 > 85% + MRR > 0.7</p>
+                            <p>• 严格事实场景：必须 Recall@1 命中</p>
+                            <p><strong>人工评估阈值：</strong></p>
+                            <p>• 标注 100 条样本，召回数满足率 > 85%</p>
+                            <p>• 召回内容相关性平均分 > 4/5</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">向量检索你们是怎么评估效果的？Embedding 模型你们有做过 A/B 测试吗？指标是怎么设计的？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>向量检索效果评估：</strong></p>
+                            <p><strong>离线指标：</strong></p>
+                            <p>• Recall@K：召回率</p>
+                            <p>• MRR：排序质量</p>
+                            <p>• Latency：P99 < 50ms</p>
+                            <p><strong>A/B 测试设计：</strong></p>
+                            <p>1. <span class="highlight">分组策略</span>：流量 50/50 划分，用户维度哈希分流</p>
+                            <p>2. <span class="highlight">核心指标</span>：</p>
+                            <p>• 任务完成率（是否找到答案）</p>
+                            <p>• 用户满意度评分</p>
+                            <p>• 平均对话轮次</p>
+                            <p>3. <span class="highlight">辅助指标</span>：</p>
+                            <p>• 首 token 延迟</p>
+                            <p>• Token 消耗成本</p>
+                            <p>4. <span class="highlight">测试周期</span>：至少 2 周，覆盖完整用户周期</p>
+                            <p>5. <span class="highlight">统计显著性</span>：p-value < 0.05，置信度 > 95%</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">如果向量召回和关键词召回结果冲突，怎么决策？混合检索是并行召回还是分阶段？为什么这么设计？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>混合检索设计：</strong></p>
+                            <p><strong>冲突决策策略：</strong></p>
+                            <p>1. <span class="highlight">加权融合</span>：Score = α × vector_score + (1-α) × BM25_score</p>
+                            <p>2. <span class="highlight">RRF（Reciprocal Rank Fusion）</span>：1/rank1 + 1/rank2 融合</p>
+                            <p>3. <span class="highlight">场景自适应</span>：精确查询偏 BM25，语义查询偏向量</p>
+                            <p><strong>并行召回 vs 分阶段：</strong></p>
+                            <p>采用<span class="highlight">并行召回 + 结果融合</span>：</p>
+                            <p>• 优势：同时利用两种召回的优点</p>
+                            <p>• 劣势：计算资源翻倍</p>
+                            <p>• 适用场景：精确查询 + 语义相似查询</p>
+                            <p>分阶段适用于：先粗筛（向量），再精排（关键词）</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">Query 改写如果改错了怎么办？有没有遇到"召回正确但生成胡说"的情况？你怎么处理？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Query 改写错误的处理：</strong></p>
+                            <p>1. <span class="highlight">回退策略</span>：检测到改写异常时，使用原始 query 召回</p>
+                            <p>2. <span class="highlight">一致性校验</span>：改写后 query 与原始 query 做语义相似度检测</p>
+                            <p>3. <span class="highlight">多版本保留</span>：同时保留改写和原始 query 的召回结果</p>
+                            <p><strong>"召回正确但生成胡说"的问题：</strong></p>
+                            <p>这是 RAG 的核心难题！我的处理方案：</p>
+                            <p>1. <span class="highlight">严格引用溯源</span>：强制模型引用召回内容，限制自由发挥</p>
+                            <p>2. <span class="highlight">置信度阈值</span>：召回内容相关性 < 0.7 时，明确告知"知识库无相关信息"</p>
+                            <p>3. <span class="highlight">事实核查层</span>：生成后用小模型核查关键事实点</p>
+                            <p>4. <span class="highlight">拒答机制</span>：超出知识库范围的 query 主动拒答而非编造</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">长文档为什么一定要切 chunk 再做向量化？不切会有什么问题？Chunk 切分时为什么要有重叠区域？比例一般怎么确定？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Chunk 切分的必要性：</strong></p>
+                            <p>1. <span class="highlight">向量维度限制</span>：模型有 max_tokens 限制，长文档无法整体向量化</p>
+                            <p>2. <span class="highlight">语义精度</span>：短文本语义更精确，长文本会稀释核心信息</p>
+                            <p>3. <span class="highlight">召回粒度</span>：小块召回更精准，大块会引入无关信息</p>
+                            <p><strong>不切的问题：</strong></p>
+                            <p>• 召回结果包含大量无关上下文</p>
+                            <p>• 召回准确率下降</p>
+                            <p>• 计算资源浪费</p>
+                            <p><strong>重叠区域设计：</strong></p>
+                            <p>• 目的：避免边界信息丢失（同一语义被切分）</p>
+                            <p>• 比例：通常 10%-20% 重叠</p>
+                            <p>• 策略：按句子切分 + 50-100 tokens 重叠</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q6</span>
+                        <span class="question-text">稠密向量和稀疏向量的区别是什么？各自适合什么场景？为什么需要 Rerank 模型？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>稠密向量 vs 稀疏向量：</strong></p>
+                            <p><strong>稠密向量：</strong></p>
+                            <p>• 维度固定（如 768/1024）</p>
+                            <p>• 语义相似度高</p>
+                            <p>• 适合：语义搜索、近义词理解</p>
+                            <p><strong>稀疏向量：</strong></p>
+                            <p>• 高维（如 5万维），大部分为 0</p>
+                            <p>• 精确关键词匹配</p>
+                            <p>• 适合：精确术语搜索</p>
+                            <p><strong>Rerank 模型的作用：</strong></p>
+                            <p>向量检索追求召回速度，用近似最近邻（ANN），会有精度损失</p>
+                            <p>Rerank 用<span class="highlight">Cross-Encoder 精排</span>：</p>
+                            <p>• 重新计算 query-doc 的精确相似度</p>
+                            <p>• 考虑词项匹配、语义匹配的多维度</p>
+                            <p>• 放在召回后，提升排序准确性</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q7</span>
+                        <span class="question-text">为什么在复杂的 Agent 闭环场景中，仅靠 RAG 无法彻底解决幻觉问题？模型幻觉在电商这种强事实性场景里怎么治理？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>RAG 的局限性：</strong></p>
+                            <p>1. 召回本身有损失，无法 100% 准确</p>
+                            <p>2. 模型会过度泛化，即使有上下文也可能"自行发挥"</p>
+                            <p>3. 知识库本身可能过时或不完整</p>
+                            <p>4. 生成阶段仍有概率产生幻觉</p>
+                            <p><strong>电商场景幻觉治理方案：</strong></p>
+                            <p>1. <span class="highlight">严格的事实核查</span>：</p>
+                            <p>• 价格、库存、活动规则 → 必须实时查询数据库</p>
+                            <p>• 强事实性内容：模型只负责组织语言，不负责生成数据</p>
+                            <p>2. <span class="highlight">置信度分级响应</span>：</p>
+                            <p>• 高置信度：直接回答</p>
+                            <p>• 低置信度："根据当前活动规则..." + 建议核实</p>
+                            <p>3. <span class="highlight">黑名单机制</span>：</p>
+                            <p>• 不参与活动的商家/商品明确排除</p>
+                            <p>4. <span class="highlight">人工审核</span>：高风险内容（涉及金额）必须人工确认</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q8</span>
+                        <span class="question-text">HyDE 在 query 模糊时是如何提升召回效果的？超长上下文模型出现后，RAG 架构的必要性是否会下降？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>HyDE 原理：</strong></p>
+                            <p>先用 LLM 根据模糊 query 生成一个"假设性答案"，然后用这个答案去召回</p>
+                            <p>优势：答案中包含更多关键词，提升召回匹配度</p>
+                            <p>适用：query 模糊、意图不明确的场景</p>
+                            <p><strong>超长上下文 vs RAG：</strong></p>
+                            <p>超长上下文（如 200K）≠ RAG 会被替代，原因：</p>
+                            <p>1. <span class="highlight">成本</span>：长上下文推理成本是 RAG 的 5-10 倍</p>
+                            <p>2. <span class="highlight">时效性</span>：知识库更新 vs 模型重新训练</p>
+                            <p>3. <span class="highlight">精确召回</span>：RAG 可以精确到 chunk 级别，长上下文会"大海捞针"</p>
+                            <p>4. <span class="highlight">工程成熟度</span>：RAG 生态更成熟，延迟更低</p>
+                            <p><strong>结论：</strong>超长上下文更适合"需要全局理解"的场景，RAG 仍是主流方案</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q9</span>
+                        <span class="question-text">如何评测 RAG 系统的准确率？IVF 和 HNSW 的差异是什么？向量检索的准召率如何保障？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>RAG 评测体系：</strong></p>
+                            <p><strong>端到端评测：</strong></p>
+                            <p>• 答案准确率（人工标注）</p>
+                            <p>• 引用召回率（答案是否引用了正确文档）</p>
+                            <p>• 幻觉率（事实错误比例）</p>
+                            <p><strong>召回链路评测：</strong></p>
+                            <p>• Precision@K、Recall@K</p>
+                            <p>• MRR、NDCG</p>
+                            <p><strong>IVF vs HNSW：</strong></p>
+                            <p>• IVF：聚类 + 局部搜索，内存占用小，适合大数据量</p>
+                            <p>• HNSW：图索引，召回率高，延迟低，但内存占用大</p>
+                            <p>• 实际选择：根据数据量和召回率要求</p>
+                            <p><strong>准召率保障：</strong></p>
+                            <p>1. 定期用标注数据评估</p>
+                            <p>2. 监控线上召回满意度</p>
+                            <p>3. A/B 测试优化参数</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：京东大模型实习面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q10</span>
+                        <span class="question-text">RAG 中如果没有召回到相关知识，如何约束模型避免胡编？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>防止"无知胡说"的工程实践：</strong></p>
+                            <p>1. <span class="highlight">置信度检测</span>：</p>
+                            <p>• 召回内容相关性 < 0.5 → 触发拒答</p>
+                            <p>• 模型生成前先评估召回内容质量</p>
+                            <p>2. <span class="highlight">Prompt 约束</span>：</p>
+                            <p>• 明确指令："如果知识库中没有相关信息，请如实告知"</p>
+                            <p>• 添加示例：few-shot 展示"不知道就说不知道"</p>
+                            <p>3. <span class="highlight">知识边界标记</span>：</p>
+                            <p>• 强制区分"知识库信息"和"模型知识"</p>
+                            <p>• 生成时必须声明信息来源</p>
+                            <p>4. <span class="highlight">拒答模板</span>：</p>
+                            <p>• 提供友好的拒答话术，而非直接说"不知道"</p>
+                            <p>• 引导用户换一种问法</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- 多 Agent 协作 -->
+            <section id="multi-agent" class="section">
+                <div class="section-header">
+                    <div class="section-icon">👥</div>
+                    <div>
+                        <h2 class="section-title">多 Agent 协作</h2>
+                        <p class="section-subtitle">Multi-Agent 架构与协作机制</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">在多 Agent 协作系统中，不同 Agent 之间的记忆如何实现隔离与共享？如何避免不同工具间的上下文污染？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>记忆隔离与共享设计：</strong></p>
+                            <p><strong>隔离策略：</strong></p>
+                            <p>1. <span class="highlight">Agent 私有存储</span>：每个 Agent 有独立的向量数据库命名空间</p>
+                            <p>2. <span class="highlight">上下文隔离</span>：Agent 间通过消息队列传递，而非共享内存</p>
+                            <p>3. <span class="highlight">工具作用域</span>：定义工具的可见性范围</p>
+                            <p><strong>共享机制：</strong></p>
+                            <p>1. <span class="highlight">共享知识库</span>：公共事实、通用知识全局可见</p>
+                            <p>2. <span class="highlight">消息总线</span>：通过 Kafka 传递结构化消息</p>
+                            <p>3. <span class="highlight">主 Agent 协调</span>：主 Agent 管理共享状态</p>
+                            <p><strong>上下文污染防控：</strong></p>
+                            <p>• 消息传递前做脱敏处理</p>
+                            <p>• 每个 Agent 有独立的 system prompt</p>
+                            <p>• 关键决策点做状态校验</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">从技术层面来讲，你在设计这个平台的 Multi-Agent 架构时是怎么设计的？Deep Research 能力是如何实现的？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Multi-Agent 架构设计：</strong></p>
+                            <p><strong>架构模式：</strong></p>
+                            <p>1. <span class="highlight">Hub-Spoke 模式</span>：主 Agent 协调，多个子 Agent 执行专项任务</p>
+                            <p>2. <span class="highlight">流水线模式</span>：Agent 按顺序处理，每个 Agent 完成特定阶段</p>
+                            <p><strong>Deep Research 实现：</strong></p>
+                            <p>• <span class="highlight">多轮检索</span>：生成 → 检索 → 评估 → 再生成 → 再检索...</p>
+                            <p>• <span class="highlight">判断机制</span>：设置终止条件（信息饱和度阈值）</p>
+                            <p>• <span class="highlight">质量评估</span>：每轮检索后评估信息完整性</p>
+                            <p>• <span class="highlight">置信度收敛</span>：连续 2 轮新增信息 < 10% 则停止</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">多 Agent 协同是通过什么机制实现的？状态以及 Agent 之间同步的数据是存在哪里的？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>多 Agent 协同机制：</strong></p>
+                            <p><strong>通信机制：</strong></p>
+                            <p>1. <span class="highlight">消息队列</span>：Kafka/RabbitMQ 做异步通信</p>
+                            <p>2. <span class="highlight">共享状态存储</span>：Redis 存储共享状态</p>
+                            <p>3. <span class="highlight">服务调用</span>：Agent 间通过 API 调用</p>
+                            <p><strong>状态存储：</strong></p>
+                            <p>• <span class="highlight">Redis</span>：实时状态、会话上下文</p>
+                            <p>• <span class="highlight">MySQL</span>：持久化任务状态、历史记录</p>
+                            <p>• <span class="highlight">向量数据库</span>：Agent 共享知识</p>
+                            <p><strong>同步策略：</strong></p>
+                            <p>• 事件驱动：状态变更发布事件，其他 Agent 订阅</p>
+                            <p>• 最终一致性：允许短暂不一致，保证最终正确</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">你了解哪些 Agent 开发的框架？框架里有哪些组件？第一个 AI Agent 系统是多 Agent 系统还是单 Agent 系统？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>主流 Agent 框架：</strong></p>
+                            <p>1. <span class="highlight">LangGraph</span>：图结构组织 Agent 流程，状态管理强大</p>
+                            <p>2. <span class="highlight">AutoGen</span>：微软出品，支持多 Agent 对话</p>
+                            <p>3. <span class="highlight">CrewAI</span>：角色扮演风格的多 Agent 框架</p>
+                            <p>4. <span class="highlight">Dify</span>：国产，低代码 Agent 开发平台</p>
+                            <p>5. <span class="highlight">Coze</span>：字节出品，插件生态丰富</p>
+                            <p><strong>框架核心组件：</strong></p>
+                            <p>• LLM Core：大模型调用</p>
+                            <p>• Memory：记忆管理</p>
+                            <p>• Tools：工具注册与调用</p>
+                            <p>• Planning：任务规划</p>
+                            <p>• orchestration：流程编排</p>
+                            <p><strong>单 Agent vs 多 Agent：</strong></p>
+                            <p>• 简单任务：单 Agent 足够</p>
+                            <p>• 复杂任务：多 Agent 协作，职责分离</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：字节 Agent 开发面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">Think-Execute 循环机制的 Prompt 工程设计是怎么做的？Think 和 Execute 的方法是框架自带的还是自己实现的？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Think-Execute 设计：</strong></p>
+                            <p><strong>Prompt 设计要点：</strong></p>
+                            <p>1. <span class="highlight">Think Prompt</span>：</p>
+                            <p>• 引导模型分析任务、拆解步骤</p>
+                            <p>• 要求输出推理过程而非直接执行</p>
+                            <p>• 包含"检查点"要求模型自我验证</p>
+                            <p>2. <span class="highlight">Execute Prompt</span>：</p>
+                            <p>• 明确的工具调用指令</p>
+                            <p>• 输出格式规范</p>
+                            <p>• 异常处理指引</p>
+                            <p><strong>实现方式：</strong></p>
+                            <p>• 基础框架（LangGraph）提供循环机制</p>
+                            <p>• 自定义节点类型实现 Think 和 Execute</p>
+                            <p>• 状态机控制流程转换</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q6</span>
+                        <span class="question-text">GraphRAG 在处理 Agent 复杂关联查询时的优势在哪里？任务执行远大于单次 Token 限制时，如何设计以支持断点继续生成？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>GraphRAG 优势：</strong></p>
+                            <p>1. <span class="highlight">关系建模</span>：将实体关系建模为图，支持多跳推理</p>
+                            <p>2. <span class="highlight">社区检索</span>：利用图社区发现召回相关子图</p>
+                            <p>3. <span class="highlight">全局感知</span>：支持"全公司有多少..."类型的全局查询</p>
+                            <p><strong>断点续生成设计：</strong></p>
+                            <p>1. <span class="highlight">Checkpoint 保存</strong>：定期保存生成状态（token 数、已生成内容）</p>
+                            <p>2. <span class="highlight">增量生成</strong>：从 checkpoint 继续，不重复计算</p>
+                            <p>3. <span class="highlight">任务队列化</strong>：大任务拆分为子任务队列</p>
+                            <p>4. <span class="highlight">幂等设计</strong>：确保中断后可安全重试</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- MCP 与协议 -->
+            <section id="mcp-protocol" class="section">
+                <div class="section-header">
+                    <div class="section-icon">🔌</div>
+                    <div>
+                        <h2 class="section-title">MCP 与协议</h2>
+                        <p class="section-subtitle">MCP、Agent Skills、A2A 协议</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">MCP 和传统 Agent Skills 的区别是什么？如何实现在多智能体环境中动态发现并注册跨协议工具？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>MCP vs Agent Skills：</strong></p>
+                            <p><strong>MCP（Model Context Protocol）：</strong></p>
+                            <p>• 标准化协议，工具定义统一</p>
+                            <p>• 支持双向通信（不仅调用，还能推送）</p>
+                            <p>• 强类型定义，可自动生成调用代码</p>
+                            <p>• 适合多 Agent 协作场景</p>
+                            <p><strong>Agent Skills：</strong></p>
+                            <p>• Prompt-based，定义相对松散</p>
+                            <p>• 渐进式披露，适合简单任务</p>
+                            <p>• 实现成本低</p>
+                            <p><strong>动态发现机制：</strong></p>
+                            <p>1. <span class="highlight">服务注册中心</span>：工具提供者自注册</p>
+                            <p>2. <span class="highlight">协议适配器</span>：统一不同协议的工具格式</p>
+                            <p>3. <span class="highlight">元数据索引</span>：工具描述、能力标签索引</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">MCP 底层是如何实现的？Agent Skills 的渐进式披露是怎么实现的？原理是什么？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>MCP 实现原理：</strong></p>
+                            <p>1. <span class="highlight">协议层</span>：基于 JSON-RPC 2.0 的通信协议</p>
+                            <p>2. <span class="highlight">传输层</span>：支持 stdio、HTTP/SSE 等多种传输方式</p>
+                            <p>3. <span class="highlight">Schema 层</span>：工具输入输出用 JSON Schema 定义</p>
+                            <p>4. <span class="highlight">发现机制</span>：通过 manifest 文件声明可用工具</p>
+                            <p><strong>渐进式披露原理：</strong></p>
+                            <p>• 初始只展示常用/高优先级工具</p>
+                            <p>• 根据用户行为动态解锁更多工具</p>
+                            <p>• 实现方式：</p>
+                            <p>  - 前端控制：UI 分层展示</p>
+                            <p>  - 后端控制：权限 + 置信度触发</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：字节 Agent 开发面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">FastApi 常用的包都了解吗？OpenClaw 用过吗？A2A 协议知道吗？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>FastApi 常用包：</strong></p>
+                            <p>• Pydantic：数据验证</p>
+                            <p>• uvicorn：ASGI 服务器</p>
+                            <p>• httpx：异步 HTTP 客户端</p>
+                            <p>• websockets：WebSocket 支持</p>
+                            <p>• sqlalchemy：ORM</p>
+                            <p><strong>OpenClaw：</strong></p>
+                            <p>• Browser 自动化框架</p>
+                            <p>• 核心：DOM 状态机 + 可视化反馈</p>
+                            <p>• 优势：稳定的元素定位，不依赖 XPath</p>
+                            <p><strong>A2A 协议：</strong></p>
+                            <p>• Agent-to-Agent 通信协议</p>
+                            <p>• 定义 Agent 间的消息格式、状态同步</p>
+                            <p>• 支持多 Agent 协作的标准化</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：字节 Agent 开发面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">当候选工具超过 100 个时，如何设计路由策略？怎么解决检索过程中的召回偏差？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>大规模工具路由：</strong></p>
+                            <p><strong>路由策略：</strong></p>
+                            <p>1. <span class="highlight">层次化分类</span>：先分类再选择，减少候选集</p>
+                            <p>2. <span class="highlight">语义聚类</span>：用向量将工具聚类，query 找到最近类</p>
+                            <p>3. <span class="highlight">规则 + ML 混合</span>：规则快速过滤 + 模型精排</p>
+                            <p>4. <span class="highlight">工具摘要</span>：用小模型生成工具摘要，加速匹配</p>
+                            <p><strong>召回偏差解决：</strong></p>
+                            <p>• 增加同义词、近义词扩展</p>
+                            <p>• 多角度 embedding（功能描述、参数、场景）</p>
+                            <p>• 人工标注正负样本，持续优化</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- Java 基础 -->
+            <section id="java-basics" class="section">
+                <div class="section-header">
+                    <div class="section-icon">☕</div>
+                    <div>
+                        <h2 class="section-title">Java 基础</h2>
+                        <p class="section-subtitle">Java 核心基础知识</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">Java 中 HashMap 的底层结构是怎样的？JDK 1.8 之后做了哪些改进？链表转红黑树的阈值是多少？为什么设置为这个值？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>HashMap 底层结构：</strong></p>
+                            <p>JDK 1.8 之前：数组 + 链表</p>
+                            <p>JDK 1.8 及之后：数组 + 链表 + 红黑树</p>
+                            <p><strong>JDK 1.8 改进：</strong></p>
+                            <p>1. 引入红黑树，解决链表过长导致的查询退化 O(n) → O(logn)</p>
+                            <p>2. 优化 hash 算法：(key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16)</p>
+                            <p>3. 扩容机制优化：尾插法替代头插法，避免死循环</p>
+                            <p>4. 容量为 2 的幂次方，优化取模运算</p>
+                            <p><strong>链表转红黑树阈值：</strong></p>
+                            <p>• 转换阈值：<span class="highlight">8</span></p>
+                            <p>• 红黑树退链表阈值：<span class="highlight">6</span></p>
+                            <p>• 设计原因：根据泊松分布，链表长度超过 8 的概率极低（0.00000006）</p>
+                            <p>• 留 6 作为缓冲，避免频繁转换</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">ConcurrentHashMap 是如何保证线程安全的？synchronized 和 volatile 各解决什么问题？为什么不能互相替代？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>ConcurrentHashMap 线程安全机制：</strong></p>
+                            <p>1. <span class="highlight">JDK 1.7</span>：Segment 分段锁，每个 Segment 包含若干桶</p>
+                            <p>2. <span class="highlight">JDK 1.8</span>：取消 Segment，改用 CAS + synchronized</p>
+                            <p>• 空桶：CAS 插入</p>
+                            <p>• 有桶：synchronized 锁头节点</p>
+                            <p>• 锁粒度细化到桶级别</p>
+                            <p><strong>synchronized vs volatile：</strong></p>
+                            <p>• <strong>volatile</strong>：保证可见性、有序性，不保证原子性</p>
+                            <p>• <strong>synchronized</strong>：保证可见性、原子性、有序性（可重入）</p>
+                            <p><strong>不能替代的原因：</strong></p>
+                            <p>• volatile 不保证原子性，i++ 这种操作无法保证</p>
+                            <p>• synchronized 可以修饰代码块/方法，volatile 只能修饰变量</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：网易云音乐面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">Java 中 == 和 equals() 方法的区别是什么？equals() 和 hashCode() 有什么关系？为什么重写 equals() 时必须重写 hashCode()？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>== vs equals()：</strong></p>
+                            <p>• <strong>==</strong>：比较引用地址（基本类型比较值）</p>
+                            <p>• <strong>equals()</strong>：默认比较地址，可重写比较内容</p>
+                            <p><strong>equals() 和 hashCode() 关系：</strong></p>
+                            <p>• 约定：相等的对象必须有相等的 hashCode</p>
+                            <p>• 散列表依赖 hashCode 定位桶位置</p>
+                            <p><strong>必须同时重写的原因：</strong></p>
+                            <p>假设不重写 hashCode：</p>
+                            <p>1. 两个相等的对象（equals 返回 true）</p>
+                            <p>2. 可能 hashCode 不同</p>
+                            <p>3. 散列表查找时走不同桶，永远找不到</p>
+                            <p>4. 违背了"相等对象必须相等哈希"的契约</p>
+                            <p>5. 导致 HashSet、HashMap 等无法正常工作</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：网易云音乐面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">Java 中的 String 为什么设计成不可变的？有什么好处？说说 String、StringBuilder、StringBuffer 的区别和适用场景。</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>String 不可变原因及好处：</strong></p>
+                            <p>1. <span class="highlight">字符串常量池优化</span>：相同字符串复用，节省内存</p>
+                            <p>2. <span class="highlight">线程安全</span>：不可变对象天然线程安全</p>
+                            <p>3. <span class="highlight">安全性</span>：网络连接、文件路径等关键信息不会被意外修改</p>
+                            <p>4. <span class="highlight">哈希缓存</span>：String 的 hashCode 可以缓存</p>
+                            <p>5. <span class="highlight">类加载器安全性</span>：防止类加载时被篡改</p>
+                            <p><strong>三者对比：</strong></p>
+                            <p>• <strong>String</strong>：不可变，适用于字符串常量</p>
+                            <p>• <strong>StringBuilder</strong>：可变，非线程安全，性能最好，适用于单线程</p>
+                            <p>• <strong>StringBuffer</strong>：可变，线程安全（synchronized），适用于多线程，但性能较差</p>
+                            <p><strong>使用原则：</strong>优先 StringBuilder，需要线程安全用 StringBuffer</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：网易云音乐面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">介绍一下 JVM 的内存结构，各个区域分别存储什么？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>JVM 内存结构：</strong></p>
+                            <p><strong>1. 程序计数器</strong>：当前线程执行的字节码行号，线程私有</p>
+                            <p><strong>2. 虚拟机栈</strong>：方法调用栈帧，存储局部变量表、操作数栈等，线程私有</p>
+                            <p><strong>3. 本地方法栈</strong>：Native 方法调用，线程私有</p>
+                            <p><strong>4. 堆（Heap）</strong>：对象实例、数组，线程共享</p>
+                            <p>• 新生代（Eden + Survivor×2）</p>
+                            <p>• 老年代</p>
+                            <p><strong>5. 方法区</strong>：类信息、常量、静态变量，线程共享</p>
+                            <p>• JDK 1.7：永久代</p>
+                            <p>• JDK 1.8+：元空间（Metaspace），使用直接内存</p>
+                            <p><strong>6. 运行时常量池</strong>：字面量、符号引用</p>
+                            <p><strong>7. 直接内存</strong>：NIO 使用，不属于 JVM 运行时数据区</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q6</span>
+                        <span class="question-text">MySQL 的 Binlog 和 Redo Log 有什么区别？它们的应用场景分别是什么？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Binlog vs Redo Log：</strong></p>
+                            <p><strong>Binlog（归档日志）：</strong></p>
+                            <p>• 存储位置：MySQL 服务层，所有引擎共享</p>
+                            <p>• 内容：逻辑日志，记录 SQL 语句</p>
+                            <p>• 用途：主从复制、数据恢复</p>
+                            <p>• 写入时机：事务提交后</p>
+                            <p><strong>Redo Log（重做日志）：</strong></p>
+                            <p>• 存储位置：InnoDB 引擎特有</p>
+                            <p>• 内容：物理日志，记录页修改</p>
+                            <p>• 用途：崩溃恢复、事务持久性</p>
+                            <p>• 写入时机：事务执行中（两阶段提交）</p>
+                            <p><strong>关键区别：</strong></p>
+                            <p>• Binlog 用于备份恢复、主从；Redo Log 用于崩溃恢复</p>
+                            <p>• Binlog 可以追加；Redo Log 是循环写</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q7</span>
+                        <span class="question-text">在 RR 隔离级别下，MySQL 真的完全解决幻读问题了吗？生产环境一条 SQL 明明用到了索引但执行依然很慢可能是什么原因？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>RR 隔离级别与幻读：</strong></p>
+                            <p><strong>MySQL RR 的实现机制：</strong></p>
+                            <p>• MVCC：快照读，避免脏读、不可重复读</p>
+                            <p>• Next-Key Lock：当前读加锁，避免幻读</p>
+                            <p><strong>但 RR 仍可能幻读的情况：</strong></p>
+                            <p>1. gap lock 被优化（如唯一索引等值查询）</p>
+                            <p>2. 混合使用快照读和当前读</p>
+                            <p>3. 极端并发场景下的边界情况</p>
+                            <p><strong>SQL 用索引但慢的原因：</strong></p>
+                            <p>1. <span class="highlight">回表过多</span>：select 字段不在索引中</p>
+                            <p>2. <span class="highlight">数据分布不均</span>：索引区分度低（如性别）</p>
+                            <p>3. <span class="highlight">统计信息过时</span>：导致优化器选错执行计划</p>
+                            <p>4. <span class="highlight">隐式类型转换</span>：字符串索引用数字查询</p>
+                            <p>5. <span class="highlight">锁竞争</span>：其他事务持有锁</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- 并发与线程 -->
+            <section id="java-concurrency" class="section">
+                <div class="section-header">
+                    <div class="section-icon">⚡</div>
+                    <div>
+                        <h2 class="section-title">并发与线程</h2>
+                        <p class="section-subtitle">多线程、并发编程核心知识</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">线程池的核心参数有哪些？核心线程数、最大线程数、队列以及拒绝策略一般如何配置？有什么具体的应用场景？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>线程池核心参数：</strong></p>
+                            <p>1. <strong>corePoolSize</strong>：核心线程数</p>
+                            <p>2. <strong>maximumPoolSize</strong>：最大线程数</p>
+                            <p>3. <strong>keepAliveTime</strong>：非核心线程空闲存活时间</p>
+                            <p>4. <strong>unit</strong>：时间单位</p>
+                            <p>5. <strong>workQueue</strong>：任务队列</p>
+                            <p>6. <strong>threadFactory</strong>：线程工厂</p>
+                            <p>7. <strong>handler</strong>：拒绝策略</p>
+                            <p><strong>配置策略：</strong></p>
+                            <p>• CPU 密集型：corePoolSize = CPU + 1</p>
+                            <p>• IO 密集型：corePoolSize = CPU × 2（或用压测确定）</p>
+                            <p>• 队列选择：任务量小用 LinkedBlockingQueue；大流量用 SynchronousQueue</p>
+                            <p><strong>拒绝策略：</strong></p>
+                            <p>• AbortPolicy：抛异常（默认）</p>
+                            <p>• CallerRunsPolicy：用调用者线程执行</p>
+                            <p>• DiscardOldestPolicy：丢弃最老的</p>
+                            <p>• DiscardPolicy：丢弃最新的</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">Java 线程的生命周期有哪些状态？线程从 RUNNABLE 变成 BLOCKED 的原因有哪些？什么是死锁？怎么检测和避免死锁？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>线程生命周期状态：</strong></p>
+                            <p>NEW → RUNNABLE → BLOCKED/WAITING/TIMED_WAITING → TERMINATED</p>
+                            <p><strong>RUNNABLE → BLOCKED 的原因：</strong></p>
+                            <p>• 等待获取 synchronized 锁</p>
+                            <p>• 调用 Object.wait() 后等待 notify</p>
+                            <p>• 调用 Thread.join() 等待其他线程</p>
+                            <p><strong>死锁概念：</strong></p>
+                            <p>多个线程互相持有对方需要的资源，形成循环等待</p>
+                            <p><strong>死锁检测：</strong></p>
+                            <p>• jstack、jConsole 工具</p>
+                            <p>• ThreadMXBean.findDeadlockedThreads()</p>
+                            <p><strong>避免死锁：</strong></p>
+                            <p>1. 加锁顺序一致</p>
+                            <p>2. 设置锁超时</p>
+                            <p>3. 减少锁粒度</p>
+                            <p>4. 使用可重入锁（ReentrantLock）</p>
+                            <p>5. 避免在持有锁时调用外部方法</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：网易云音乐面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">CopyOnWriteArrayList 相比 ArrayList 有什么优缺点？适合什么场景？CountDownLatch 和 CyclicBarrier 有什么区别？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>CopyOnWriteArrayList vs ArrayList：</strong></p>
+                            <p><strong>优点：</strong></p>
+                            <p>• 线程安全，读操作无锁</p>
+                            <p>• 读性能高（无锁）</p>
+                            <p><strong>缺点：</strong></p>
+                            <p>• 写操作需要复制整个数组</p>
+                            <p>• 内存开销大</p>
+                            <p>• 不保证实时一致性</p>
+                            <p><strong>适用场景：</strong>读多写少的并发场景，如缓存</p>
+                            <p><strong>CountDownLatch vs CyclicBarrier：</strong></p>
+                            <p>• <strong>CountDownLatch</strong>：倒计时闩，一到期放行，不可重置</p>
+                            <p>• <strong>CyclicBarrier</strong>：循环栅栏，所有线程到达后一起放行，可重置</p>
+                            <p><strong>使用场景：</strong></p>
+                            <p>• CountDownLatch：主线程等待多个子任务完成</p>
+                            <p>• CyclicBarrier：多线程互相等待，然后一起执行下一步</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：网易云音乐面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">JDK 21 有了解吗？知道虚拟线程吗？Java 网络 IO 模型有哪几种？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>JDK 21 新特性：</strong></p>
+                            <p>• 虚拟线程（正式发布）</p>
+                            <p>• Sequenced Collections</p>
+                            <p>• Record Patterns</p>
+                            <p>• String Templates（预览）</p>
+                            <p><strong>虚拟线程：</strong></p>
+                            <p>• 轻量级线程，由 JVM 管理</p>
+                            <p>• 百万级创建能力（传统线程只能千级）</p>
+                            <p>• 消除阻塞开销，提高吞吐量</p>
+                            <p>• 语法与普通线程相同</p>
+                            <p><strong>Java IO 模型：</strong></p>
+                            <p>1. <span class="highlight">BIO</span>：同步阻塞，线程等待 IO</p>
+                            <p>2. <span class="highlight">NIO</span>：同步非阻塞，Selector 多路复用</p>
+                            <p>3. <span class="highlight">AIO</strong>：异步非阻塞，事件驱动</p>
+                            <p><strong>选择原则：</strong></p>
+                            <p>• 连接数多但活跃连接少 → NIO</p>
+                            <p>• 需要高并发处理 → 虚拟线程 + 同步代码</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+            </section>
+
+            <!-- Spring 框架 -->
+            <section id="spring" class="section">
+                <div class="section-header">
+                    <div class="section-icon">🌱</div>
+                    <div>
+                        <h2 class="section-title">Spring 框架</h2>
+                        <p class="section-subtitle">Spring Boot、IoC、AOP 核心知识</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">Spring Boot 中的依赖注入是如何实现的？@Autowired 和 @Resource 注解的区别是什么？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>依赖注入实现原理：</strong></p>
+                            <p>1. <span class="highlight">扫描阶段</strong>：扫描 @Component、@Service 等注解的类</p>
+                            <p>2. <span class="highlight">解析阶段</strong>：解析 Bean 定义，注册到 BeanDefinitionRegistry</p>
+                            <p>3. <span class="highlight">实例化阶段</strong>：根据 BeanDefinition 实例化 Bean</p>
+                            <p>4. <span class="highlight">注入阶段</strong>：处理 @Autowired、@Inject 等注解</p>
+                            <p>5. <span class="highlight">初始化阶段</strong>：执行 InitializingBean、@PostConstruct 等</p>
+                            <p><strong>@Autowired vs @Resource：</strong></p>
+                            <p>• <strong>@Autowired</strong>：Spring 特有，按类型匹配 byType，支持 required、qualifier</p>
+                            <p>• <strong>@Resource</strong>：JDK 提供，按名称匹配 byName，名称未指定则按类型</p>
+                            <p>• <strong>推荐</strong>：@Autowired 更灵活，@Resource 更明确</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">Spring 注解的底层原理是什么？AOP 在工程中的具体使用逻辑是什么？什么是 Java 的反射机制？使用场景有哪些？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Spring 注解底层原理：</strong></p>
+                            <p>• 核心：<span class="highlight">反射 + BeanPostProcessor</span></p>
+                            <p>• 注解本身只是元数据标记</p>
+                            <p>• 通过反射读取注解信息</p>
+                            <p>• BeanPostProcessor 在 Bean 生命周期中处理注解逻辑</p>
+                            <p><strong>AOP 工程使用场景：</strong></p>
+                            <p>• 日志记录（@Around 记录入参出参）</p>
+                            <p>• 事务管理（@Transactional）</p>
+                            <p>• 权限校验（@PreAuthorize）</p>
+                            <p>• 性能监控（统计方法耗时）</p>
+                            <p>• 异常处理（统一返回格式）</p>
+                            <p><strong>反射机制：</strong></p>
+                            <p>• 程序在运行时动态获取类的信息、调用方法、操作属性</p>
+                            <p>• 核心类：Class、Method、Field、Constructor</p>
+                            <p>• 场景：Spring DI、MyBatis 映射、Jackson 序列化、单元测试 mock</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">什么是 IOC 控制反转？底层原理如何实现？Spring 的启动过程分为哪些阶段？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>IOC 控制反转：</strong></p>
+                            <p>• 将对象的创建、依赖管理从应用代码转移到框架</p>
+                            <p>• 传统：对象自己创建依赖；IOC：容器注入依赖</p>
+                            <p><strong>IOC 容器实现：</strong></p>
+                            <p>1. <span class="highlight">BeanFactory</strong>：顶层接口，定义 getBean() 方法</p>
+                            <p>2. <span class="highlight">DefaultListableBeanFactory</strong>：核心实现类</p>
+                            <p>3. <span class="highlight">三级缓存</strong>：解决循环依赖</p>
+                            <p>• singletonObjects：一级缓存，成品 Bean</p>
+                            <p>• earlySingletonObjects：二级缓存，提前曝光Bean</p>
+                            <p>• singletonFactories：三级缓存，工厂</p>
+                            <p><strong>Spring 启动阶段：</strong></p>
+                            <p>1. 资源定位（classpath、文件）</p>
+                            <p>2. BeanDefinition 加载解析</p>
+                            <p>3. BeanDefinitionRegistry 注册</p>
+                            <p>4. BeanFactoryPostProcessor 处理</p>
+                            <p>5. Bean 实例化</p>
+                            <p>6. 属性填充（依赖注入）</p>
+                            <p>7. 初始化</p>
+                            <p>8. Bean 销毁</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+            </section>
+
+            <!-- MySQL -->
+            <section id="mysql" class="section">
+                <div class="section-header">
+                    <div class="section-icon">🗄️</div>
+                    <div>
+                        <h2 class="section-title">MySQL</h2>
+                        <p class="section-subtitle">数据库核心面试题</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">数据库的三范式是什么？LEFT JOIN 和 INNER JOIN 的区别是什么？为什么要使用 WHERE 条件替代 LEFT JOIN 的过滤？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>数据库三范式：</strong></p>
+                            <p>• <strong>1NF</strong>：字段原子性，不可再分</p>
+                            <p>• <strong>2NF</strong>：满足1NF + 非主键字段完全依赖主键</p>
+                            <p>• <strong>3NF</strong>：满足2NF + 非主键字段不传递依赖主键</p>
+                            <p><strong>JOIN 区别：</strong></p>
+                            <p>• <strong>INNER JOIN</strong>：只保留两边都匹配的记录</p>
+                            <p>• <strong>LEFT JOIN</strong>：保留左表全部记录，右表没有匹配的为 NULL</p>
+                            <p><strong>WHERE vs ON 过滤：</strong></p>
+                            <p>• ON 条件：决定是否连接（JOIN 阶段）</p>
+                            <p>• WHERE 条件：决定是否保留（过滤阶段）</p>
+                            <p>• 对于 LEFT JOIN，在 ON 中过滤右表会保留左表所有行；在 WHERE 中过滤会导致左表行被丢弃</p>
+                            <p><strong>最佳实践：</strong></p>
+                            <p>• 连接条件放在 ON</p>
+                            <p>• 业务过滤放在 WHERE</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">什么是 SQL 注入？怎么防止？为什么使用 PreparedStatement 能防止 SQL 注入？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>SQL 注入原理：</strong></p>
+                            <p>攻击者在输入中注入恶意 SQL 语句，破坏原有 SQL 结构</p>
+                            <p>示例：username = "admin' --" 可能导致密码校验被绕过</p>
+                            <p><strong>PreparedStatement 防注入原理：</strong></p>
+                            <p>1. 预编译 SQL 模板，参数用占位符 ? 表示</p>
+                            <p>2. 参数被当作<span class="highlight">数据</span>而非 SQL 代码处理</p>
+                            <p>3. 特殊字符被转义，不会被解释执行</p>
+                            <p><strong>其他防注入措施：</strong></p>
+                            <p>• 输入过滤（白名单）</p>
+                            <p>• 最小权限原则（不给应用 DBA 权限）</p>
+                            <p>• WAF（Web 应用防火墙）</p>
+                            <p>• ORM 框架（Hibernate、MyBatis 参数化查询）</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：网易云音乐面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">什么是数据库的死锁？MySQL 中怎么查看和解决死锁？分布式系统中的 CAP 定理和 BASE 理论是什么？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>MySQL 死锁：</strong></p>
+                            <p>• 多个事务互相持有对方需要的锁，形成循环等待</p>
+                            <p><strong>查看死锁：</strong></p>
+                            <p>• SHOW ENGINE INNODB STATUS</p>
+                            <p>• information_schema.INNODB_TRX</p>
+                            <p><strong>解决策略：</strong></p>
+                            <p>• InnoDB 自动检测并回滚最小事务undo量的事务</p>
+                            <p>• 设置锁超时：innodb_lock_wait_timeout</p>
+                            <p><strong>CAP 定理：</strong></p>
+                            <p>• Consistency：一致性</p>
+                            <p>• Availability：可用性</p>
+                            <p>• Partition tolerance：分区容错性</p>
+                            <p>• 只能同时满足两个</p>
+                            <p><strong>BASE 理论：</strong></p>
+                            <p>• Basically Available：基本可用</p>
+                            <p>• Soft state：软状态</p>
+                            <p>• Eventually consistent：最终一致</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- Redis -->
+            <section id="redis" class="section">
+                <div class="section-header">
+                    <div class="section-icon">⚡</div>
+                    <div>
+                        <h2 class="section-title">Redis</h2>
+                        <p class="section-subtitle">缓存、中间件核心知识</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">Redis 为什么性能这么快？Redis 和 MySQL 如何保证数据一致性？强一致性在所有场景下都是必须的吗？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Redis 高性能原因：</strong></p>
+                            <p>1. <span class="highlight">内存存储</span>：纯内存操作，O(1) 复杂度</p>
+                            <p>2. <span class="highlight">单线程模型</span>：避免上下文切换和锁竞争</p>
+                            <p>3. <span class="highlight">IO 多路复用</span>：epoll 监听多个连接</p>
+                            <p>4. <span class="highlight">高效数据结构</strong>：SDS、跳表、压缩列表等</p>
+                            <p>5. <span class="highlight">自定义协议</strong>：RESP 协议简洁高效</p>
+                            <p><strong>Redis-MySQL 一致性策略：</strong></p>
+                            <p>• Cache Aside：读时先缓存再DB，写时先DB再删缓存</p>
+                            <p>• Read Through：缓存自动加载DB</p>
+                            <p>• Write Through：写缓存时同步写DB</p>
+                            <p>• Write Behind：异步写DB</p>
+                            <p><strong>强一致性必要性：</strong></p>
+                            <p>• 金融交易：必须强一致</p>
+                            <p>• 商品库存：最终一致可接受</p>
+                            <p>• 点赞数、浏览量：允许短暂不一致</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">Redis 除了做缓存，还有哪些常见的使用场景？使用 Redis 做分布式锁有哪些常见的"坑"？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Redis 常见场景：</strong></p>
+                            <p>1. <span class="highlight">分布式锁</span>：SETNX + EXPIRE 或 Redisson</p>
+                            <p>2. <span class="highlight">Session 共享</span>：多服务器共享用户会话</p>
+                            <p>3. <span class="highlight">计数器</span>：incrby 原子递增（点赞、浏览量）</p>
+                            <p>4. <span class="highlight">限流</span>：滑动窗口、令牌桶</p>
+                            <p>5. <span class="highlight">消息队列</span>：Stream、Pub/Sub</p>
+                            <p>6. <span class="highlight">排行榜</span>：ZSET 实现</p>
+                            <p>7. <span class="highlight">分布式 ID</strong>：incr 原子ID</p>
+                            <p><strong>分布式锁"坑"：</strong></p>
+                            <p>1. <span class="highlight">原子性问题</span>：SETNX 和 EXPIRE 非原子，需用 SET NX EX</p>
+                            <p>2. <span class="highlight">锁续期</span>：任务超时需续期，Redisson 用 watch dog</p>
+                            <p>3. <span class="highlight">可重入</span>：需存储线程标识</p>
+                            <p>4. <span class="highlight">主从切换</strong>：用 RedLock 多节点</p>
+                            <p>5. <span class="highlight">误删</strong>：只删除自己的锁，判断 UUID</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">Redis 中常见的数据结构有哪些？Set 的底层就是哈希吗？Set 的扩容机制了解吗？Zset 底层数据结构是什么？跳表是怎样的数据结构？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Redis 数据结构：</strong></p>
+                            <p>String、List、Hash、Set、Zset、Bitmap、HyperLogLog、Stream</p>
+                            <p><strong>Set 底层：</strong></p>
+                            <p>• 小数据量：IntSet（整数集合）</p>
+                            <p>• 大数据量：Hash 表（key 存 member，value 存 1）</p>
+                            <p>• 扩容：负载因子 > 1.25 时扩容</p>
+                            <p><strong>Zset 底层：</strong></p>
+                            <p>• 压缩列表（ziplist）：元素少时（< 128 或总字节 < 64KB）</p>
+                            <p>• 跳表（skiplist）+ 哈希表：数据量大时</p>
+                            <p><strong>跳表原理：</strong></p>
+                            <p>• 多层链表，上层是下层的快速通道</p>
+                            <p>• 查找：O(log n)，类似二分</p>
+                            <p>• 插入：随机决定层数</p>
+                            <p>• 优势：比红黑树实现简单，并发友好</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">Redis 的持久化机制了解吗？分布式 Redis 如何实现主从同步？扩容从节点的话会做哪些操作？Redis 中很多没有过期时间的 key 怎么排查处理？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>Redis 持久化：</strong></p>
+                            <p>1. <span class="highlight">RDB</span>：定时快照，fork 子进程生成 .rdb 文件</p>
+                            <p>2. <span class="highlight">AOF</strong>：记录每个写命令，可配置同步策略</p>
+                            <p>3. <span class="highlight">混合持久化</strong>：RDB + AOF，重启时先加载 RDB 再追 AOF</p>
+                            <p><strong>主从同步机制：</strong></p>
+                            <p>• 全量同步：RDB + 复制积压缓冲区</p>
+                            <p>• 增量同步：基于 offset 同步命令</p>
+                            <p><strong>从节点扩容：</strong></p>
+                            <p>1. 配置主节点地址</p>
+                            <p>2. 主节点后台生成 RDB</p>
+                            <p>3. 传输 RDB 到从节点</p>
+                            <p>4. 从节点加载并同步增量数据</p>
+                            <p><strong>无过期 key 排查：</strong></p>
+                            <p>• SCAN + TTL 遍历</p>
+                            <p>• bigkeys 命令查找大 key</p>
+                            <p>• MEMORY USAGE 分析</p>
+                            <p>• 定期清理或转存到其他存储</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">在高并发场景下，如何保证秒杀业务的高可用性和不超卖？针对突发流量，除了令牌桶算法，还有哪些限流算法？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>秒杀高可用方案：</strong></p>
+                            <p>1. <span class="highlight">前端限流</span>：验证码、答题分散流量</p>
+                            <p>2. <span class="highlight">网关限流</span>：限制进入系统的总量</p>
+                            <p>3. <span class="highlight">Redis 原子扣减</strong>：DECR 原子操作，防止超卖</p>
+                            <p>4. <span class="highlight">消息队列削峰</strong>：异步下单，平滑处理</p>
+                            <p>5. <span class="highlight">多级缓存</strong>：本地缓存 + Redis + DB</p>
+                            <p>6. <span class="highlight">服务降级</strong>：非核心服务降级，保证核心链路</p>
+                            <p><strong>限流算法：</strong></p>
+                            <p>1. <span class="highlight">计数器</span>：简单，但不平滑</p>
+                            <p>2. <span class="highlight">滑动窗口</span>：比计数器精确</p>
+                            <p>3. <span class="highlight">漏桶</strong>：以固定速率处理，突发能力差</p>
+                            <p>4. <span class="highlight">令牌桶</strong>：允许突发，有一定容错</p>
+                            <p>5. <span class="highlight">自适应限流</strong>：根据系统负载动态调整</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q6</span>
+                        <span class="question-text">Redis 作为配置中心，如果出现主从延迟，会不会导致流量错配？Proxy 是拉配置的，那配置更新延迟怎么控制？有没有一致性问题？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>主从延迟风险：</strong></p>
+                            <p>• 可能导致读取配置时获取旧值</p>
+                            <p>• 解决方案：强制读主库，或接受最终一致</p>
+                            <p><strong>配置更新延迟控制：</strong></p>
+                            <p>1. <span class="highlight">Push 机制</strong>：配置变更时主动推送到 Proxy</p>
+                            <p>2. <span class="highlight">心跳检测</strong>：Proxy 定期拉取短连接检测</p>
+                            <p>3. <span class="highlight">版本号控制</strong>：配置携带版本号，Proxy 比对更新</p>
+                            <p><strong>一致性问题：</strong></p>
+                            <p>• 多 Proxy 可能收到配置的时间不同</p>
+                            <p>• 解决方案：</p>
+                            <p>  - 灰度发布：逐步更新</p>
+                            <p>  - 配置标记：开启/关闭配置项</p>
+                            <p>  - 向后兼容：新旧配置共存</p>
+                            <p>• 大多数场景：最终一致性可接受</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- 消息队列 -->
+            <section id="mq" class="section">
+                <div class="section-header">
+                    <div class="section-icon">📨</div>
+                    <div>
+                        <h2 class="section-title">消息队列</h2>
+                        <p class="section-subtitle">MQ 核心面试题</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">MQ 会丢消息吗？怎么处理丢消息问题？MQ 消息积压怎么办？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>消息丢失场景：</strong></p>
+                            <p>1. 生产者发送时网络故障</p>
+                            <p>2. Broker 宕机</p>
+                            <p>3. 消费者处理失败未确认</p>
+                            <p><strong>解决方案：</strong></p>
+                            <p>1. <span class="highlight">生产者确认</strong>：开启 publisher confirm，消息持久化后再确认</p>
+                            <p>2. <span class="highlight">Broker 持久化</strong>：同步刷盘，副本机制</p>
+                            <p>3. <span class="highlight">消费者确认</strong>：手动 ACK，处理成功再确认</p>
+                            <p>4. <span class="highlight">消息表</strong>：业务表记录消息状态，定时补偿</p>
+                            <p><strong>消息积压处理：</strong></p>
+                            <p>1. 扩容消费者并行消费</p>
+                            <p>2. 批量重放：跳过过期消息</p>
+                            <p>3. 消费者端限流：保护下游</p>
+                            <p>4. 临时队列：新建消费者组</p>
+                            <p>5. 上游停止发送：降级入口</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：Java 面试面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">RocketMQ 和 Kafka 各有什么特点？在订单系统中应该选哪个？为什么？消息队列怎么保证消息顺序性？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>RocketMQ vs Kafka：</strong></p>
+                            <p><strong>RocketMQ：</strong></p>
+                            <p>• 阿里巴巴开源，Java 开发</p>
+                            <p>• 延迟消息、定时消息支持好</p>
+                            <p>• 事务消息支持完善</p>
+                            <p>• 单机吞吐量略低于 Kafka</p>
+                            <p><strong>Kafka：</strong></p>
+                            <p>• 高吞吐量、日志场景擅长</p>
+                            <p>• 生态成熟，社区活跃</p>
+                            <p>• 延迟消息支持弱</p>
+                            <p><strong>订单系统选型：</strong></p>
+                            <p>选 RocketMQ，因为需要事务消息、延迟消息</p>
+                            <p><strong>保证顺序性：</strong></p>
+                            <p>1. <span class="highlight">消息分区</strong>：相同 key 的消息发到同一分区</p>
+                            <p>2. <span class="highlight">单线程消费</strong>：同一分区单消费者</p>
+                            <p>3. <span class="highlight">存储有序</strong>：Broker 保证分区内有序</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- 系统设计 -->
+            <section id="system-design" class="section">
+                <div class="section-header">
+                    <div class="section-icon">🏗️</div>
+                    <div>
+                        <h2 class="section-title">系统设计</h2>
+                        <p class="section-subtitle">系统设计核心问题</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">设计一个智能导购助手 Agent？描述其感知、规划、记忆和执行四大模块在分布式架构下的协同逻辑。</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>智能导购 Agent 架构设计：</strong></p>
+                            <p><strong>1. 感知模块（Perception）：</strong></p>
+                            <p>• 多模态输入处理：文本、图像、语音</p>
+                            <p>• 意图识别：分类用户意图（比价、咨询、购买）</p>
+                            <p>• 实体抽取：提取商品、品牌、属性等</p>
+                            <p>• 技术：NLU 模型 + 规则引擎</p>
+                            <p><strong>2. 规划模块（Planning）：</strong></p>
+                            <p>• 任务拆解：将复杂需求拆为子任务</p>
+                            <p>• 工具选择：RAG 检索工具、执行工具</p>
+                            <p>• 执行计划生成：ReAct 循环</p>
+                            <p>• 技术：LLM + Tool Registry</p>
+                            <p><strong>3. 记忆模块（Memory）：</strong></p>
+                            <p>• 短期：当前对话上下文（Redis）</p>
+                            <p>• 长期：用户偏好、商品知识（向量DB）</p>
+                            <p>• 工作：任务中间状态</p>
+                            <p><strong>4. 执行模块（Action）：</strong></p>
+                            <p>• 工具调用：商品查询、价格计算、下单</p>
+                            <p>• 结果整合：多工具结果聚合</p>
+                            <p>• 响应生成：自然语言回复</p>
+                            <p><strong>分布式协同：</strong></p>
+                            <p>• API Gateway：统一入口</p>
+                            <p>• 消息队列：模块间异步通信</p>
+                            <p>• 配置中心：动态更新规则</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">设计直播间用户在线人数实时更新系统，从实时性、准确性、高可用、高扩展方面考虑。</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>直播间人数系统设计：</strong></p>
+                            <p><strong>实时性方案：</strong></p>
+                            <p>1. <span class="highlight">WebSocket 长连接</strong>：实时推送人数变化</p>
+                            <p>2. <span class="highlight">消息队列</strong>：用户进出消息异步处理</p>
+                            <p>3. <span class="highlight">Redis 计数</strong>：INCR/DECR 原子操作</p>
+                            <p><strong>准确性方案：</strong></p>
+                            <p>1. <span class="highlight">去重机制</strong>：维护在线用户 Set</p>
+                            <p>2. <span class="highlight">心跳检测</strong>：30s 无心跳认为离线</p>
+                            <p>3. <span class="highlight">定时校准</strong>：周期性比对 DB 和缓存</p>
+                            <p><strong>高可用：</strong></p>
+                            <p>• 多机房部署</p>
+                            <p>• Redis Cluster 集群</p>
+                            <p>• 熔断降级：人数展示降级为"热门"</p>
+                            <p><strong>高扩展：</strong></p>
+                            <p>• 房间维度分桶</p>
+                            <p>• 服务无状态化</p>
+                            <p>• 水平扩展消费者</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">大模型高并发调用时，如何做限流、降级和成本控制？大规模文档解析任务中，多线程和多进程如何选择？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>大模型高并发方案：</strong></p>
+                            <p><strong>限流策略：</strong></p>
+                            <p>1. <span class="highlight">token 限流</strong>：限制每分钟 token 消耗</p>
+                            <p>2. <span class="highlight">并发数限流</strong>：限制同时调用的请求数</p>
+                            <p>3. <span class="highlight">用户维度限流</strong>：防止单用户刷量</p>
+                            <p><strong>降级策略：</strong></p>
+                            <p>1. <span class="highlight">模型降级</strong>：GPT-4 → GPT-3.5</p>
+                            <p>2. <span class="highlight">返回缓存</strong>：相同问题直接返回历史答案</p>
+                            <p>3. <span class="highlight">拒绝服务</strong>：高峰期直接返回"稍后再试"</p>
+                            <p><strong>成本控制：</strong></p>
+                            <p>• Prompt 压缩：减少 token 消耗</p>
+                            <p>• 批量处理：积攒请求一起调用</p>
+                            <p>• 缓存复用：相同 embedding 复用</p>
+                            <p><strong>多线程 vs 多进程：</strong></p>
+                            <p>• <strong>CPU 密集型</strong>：多进程（Python GIL 限制）</p>
+                            <p>• <strong>IO 密集型</strong>：多线程或异步</p>
+                            <p>• 文档解析：通常 IO 密集（文件读写），选多线程</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">如果检索结果中存在冲突信息，如何设计自动选择或融合逻辑？人机回路是怎么设计的？什么情况下必须人工介入？</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>冲突信息处理：</strong></p>
+                            <p>1. <span class="highlight">多版本保留</strong>：同时展示不同来源</p>
+                            <p>2. <span class="highlight">置信度排序</strong>：按来源可靠性排序</p>
+                            <p>3. <span class="highlight">时间衰减</strong>：新数据优先</p>
+                            <p>4. <span class="highlight">投票机制</strong>：多数来源一致的结论优先</p>
+                            <p><strong>人机回路设计：</strong></p>
+                            <p>1. <span class="highlight">规则触发</strong>：满足某条件时转人工</p>
+                            <p>2. <span class="highlight">用户主动</strong>：用户说"转人工"</p>
+                            <p>3. <span class="highlight">满意度反馈</strong>：用户差评触发人工</p>
+                            <p><strong>必须人工介入的场景：</strong></p>
+                            <p>• 涉及金钱操作（退款、投诉）</p>
+                            <p>• 法律合规问题</p>
+                            <p>• Agent 多次无法解决的重复问题</p>
+                            <p>• 敏感信息处理</p>
+                            <p>• 模型置信度低于阈值</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+            <!-- 算法题汇总 -->
+            <section id="algorithm" class="section">
+                <div class="section-header">
+                    <div class="section-icon">💻</div>
+                    <div>
+                        <h2 class="section-title">算法题汇总</h2>
+                        <p class="section-subtitle">高频面试算法题</p>
+                    </div>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q1</span>
+                        <span class="question-text">手撕：第 K 大元素（要求时间复杂度 O(n)）</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">参考代码</div>
+                        <div class="answer-content">
+                            <p><strong>快速选择算法：</strong></p>
+                            <p>基于快速排序的 partition 思想，平均 O(n)，最坏 O(n²)</p>
+                            <p>思路：找到第 k 大的数，相当于找到排序后第 n-k 小的位置</p>
+                        </div>
+                    </div>
+                    <div class="algorithm-card">
+                        <div class="algorithm-title">
+                            快速选择模板
+                            <span class="algorithm-difficulty">高频</span>
+                        </div>
+                        <div class="algorithm-hint">
+                            <pre style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-top: 10px;">
+int findKthLargest(vector<int>& nums, int k) {
+    int left = 0, right = nums.size() - 1;
+    while (true) {
+        int pos = partition(nums, left, right);
+        if (pos == k - 1) return nums[pos];
+        else if (pos > k - 1) right = pos - 1;
+        else left = pos + 1;
+    }
+}
+
+int partition(vector<int>& nums, int l, int r) {
+    int pivot = nums[l];
+    while (l < r) {
+        while (l < r && nums[r] <= pivot) r--;
+        nums[l] = nums[r];
+        while (l < r && nums[l] > pivot) l++;
+        nums[r] = nums[l];
+    }
+    nums[l] = pivot;
+    return l;
+}
+                            </pre>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q2</span>
+                        <span class="question-text">手撕：最小覆盖子串</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">解题思路</div>
+                        <div class="answer-content">
+                            <p><strong>滑动窗口 + 哈希表</strong></p>
+                            <p>1. 用哈希表记录 T 中字符出现次数</p>
+                            <p>2. 用滑动窗口遍历 S，维护窗口内字符计数</p>
+                            <p>3. 当窗口内包含所有 T 的字符时，收缩左边界</p>
+                            <p>4. 记录最小窗口</p>
+                            <p>时间复杂度：O(|S| + |T|)</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q3</span>
+                        <span class="question-text">手撕：螺旋矩阵</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">解题思路</div>
+                        <div class="answer-content">
+                            <p><strong>模拟遍历</strong></p>
+                            <p>定义四个边界：上、下、左、右</p>
+                            <p>按顺时针顺序遍历：右→下→左→上</p>
+                            <p>每遍历完一条边，缩小对应边界</p>
+                            <p>当边界相遇时停止</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：字节 Agent 开发面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q4</span>
+                        <span class="question-text">手撕：最短路径</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">解题思路</div>
+                        <div class="answer-content">
+                            <p><strong>Dijkstra 算法</strong>（无负权边）</p>
+                            <p>1. 使用优先队列维护最短距离</p>
+                            <p>2. 每次取出未访问节点中距离最小的</p>
+                            <p>3. 用该节点更新其邻居节点的距离</p>
+                            <p>时间复杂度：O((V+E) log V)</p>
+                            <p><strong>Bellman-Ford 算法</strong>（可处理负权边）</p>
+                            <p>对所有边进行 V-1 次松弛操作</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Q5</span>
+                        <span class="question-text">简单说一下快速排序的实现逻辑和思想</span>
+                    </div>
+                    <div class="answer-section">
+                        <div class="answer-title">口述高分答案</div>
+                        <div class="answer-content">
+                            <p><strong>快速排序核心思想：分治法 + 原地分区</strong></p>
+                            <p><strong>步骤：</strong></p>
+                            <p>1. <span class="highlight">选择基准</strong>：通常选第一个或随机选</p>
+                            <p>2. <span class="highlight">分区（partition）</strong>：将数组分为两部分</p>
+                            <p>  - 左侧：小于等于基准</p>
+                            <p>  - 右侧：大于基准</p>
+                            <p>3. <span class="highlight">递归排序</strong>：对左右两部分递归执行</p>
+                            <p><strong>partition 实现：</strong></p>
+                            <p>• 双指针法：从两端向中间推进</p>
+                            <p>• 挖坑法：基准挖出，两端交替填坑</p>
+                            <p><strong>复杂度：</strong></p>
+                            <p>• 平均：O(n log n)</p>
+                            <p>• 最坏（有序数组）：O(n²)</p>
+                            <p>• 空间：O(log n) 递归栈</p>
+                            <p><strong>优化：</strong>随机基准、三数取中、尾递归优化</p>
+                        </div>
+                    </div>
+                    <span class="source-tag">来源：互联网大厂面经</span>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- 回到顶部 -->
+    <a href="#" class="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">↑</a>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 高亮当前导航
+        const sections = document.querySelectorAll('.section');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === '#' + current) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -14,11 +14,13 @@
 ```text
 .
 ├── README.md
-└── html版本/
-    ├── Java / Spring / JUC 面试资料
-    ├── MySQL / Redis / ES / Kafka / 云原生资料
-    ├── AI Agent / RAG / 知识库 Agent 资料
-    └── 字节 AI Lab、网易云音乐等公司面经
+├── html版本/
+│   ├── Java / Spring / JUC 面试资料
+│   ├── MySQL / Redis / ES / Kafka / 云原生资料
+│   ├── AI Agent / RAG / 知识库 Agent 资料
+│   └── 字节 AI Lab、网易云音乐等公司面经
+└── company-experience/
+    └── 大厂Agent开发面经_口述高分答案.html
 ```
 
 ## 资料导航
@@ -63,6 +65,7 @@
 | --- | --- |
 | [字节AILab二面_面试口述版.html](html版本/字节AILab二面_面试口述版.html) | 字节 AI Lab 二面相关准备，覆盖自我介绍、项目、RAG、LangChain、部署、向量库、知识库、训练与算法。 |
 | [网易云音乐一面面试题_面试口述版.html](html版本/网易云音乐一面面试题_面试口述版.html) | 网易云音乐一面题，侧重 Java 基础、并发与数据库。 |
+| [大厂Agent开发面经_口述高分答案.html](company-experience/大厂Agent开发面经_口述高分答案.html) | 字节、京东、网易等大厂 Agent 开发实习/社招面经，涵盖 RAG、Multi-Agent、MCP、记忆系统设计等核心问题及高分口述答案。 |
 
 ## 推荐复习路线
 
