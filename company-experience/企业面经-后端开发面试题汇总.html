@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android / 后端开发面试题汇总</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1f2937;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            animation: shimmer 8s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .page-header .subtitle {
+            font-size: 1rem;
+            color: #93c5fd;
+            position: relative;
+        }
+
+        .page-header .tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .page-header .tag {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e7ff;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .category-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .category-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .category-count {
+            background: #e5e7eb;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            border: 1px solid #e5e7eb;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            transform: translateY(-1px);
+        }
+
+        .card-question {
+            padding: 18px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .card-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .card-number.orange { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .card-number.green { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .card-number.yellow { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .card-number.teal { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .card-number.cyan { background: linear-gradient(135deg, #0061ff, #60efff); }
+        .card-number.pink { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+        .card-number.purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+
+        .question-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            padding-top: 3px;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: #9ca3af;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .card.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .card.open .card-number {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, border-color 0.3s;
+            border-top: 0 solid #f3f4f6;
+            background: #fafafa;
+        }
+
+        .card.open .card-answer {
+            max-height: 3000px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .answer-content {
+            padding: 20px 22px 20px 64px;
+            font-size: 0.93rem;
+            color: #374151;
+            line-height: 1.9;
+        }
+
+        .answer-content p {
+            margin-bottom: 10px;
+        }
+
+        .answer-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .answer-content ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .answer-content li {
+            margin-bottom: 5px;
+        }
+
+        .answer-content strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .answer-content .highlight {
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 0.85em;
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        .answer-content code {
+            background: #f1f5f9;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-family: "SF Mono", "Fira Code", monospace;
+            font-size: 0.88em;
+            color: #be123c;
+        }
+
+        .algorithm-card {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0d1f3c 100%);
+            border: none;
+            color: white;
+        }
+
+        .algorithm-card .question-text {
+            color: white;
+        }
+
+        .algorithm-card .card-number {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+        }
+
+        .algorithm-card .answer-content {
+            background: rgba(255,255,255,0.05);
+            color: #d1d5db;
+        }
+
+        .algorithm-card .answer-content strong {
+            color: #fbbf24;
+        }
+
+        .algorithm-card .answer-content code {
+            background: rgba(255,255,255,0.1);
+            color: #6ee7b7;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .footer-line {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 auto 16px;
+            border-radius: 2px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            text-decoration: none;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102,126,234,0.5);
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 10px 0 30px;
+        }
+
+        @media (max-width: 640px) {
+            .page-header h1 { font-size: 1.6rem; }
+            .card-question { padding: 14px 16px; }
+            .answer-content { padding: 16px 16px 16px 16px; font-size: 0.88rem; }
+            .question-text { font-size: 0.93rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="page-header">
+            <h1>Android / 后端开发面试题</h1>
+            <p class="subtitle">操作系统 &middot; 数据库 &middot; Java 基础 &middot; Android &middot; 计算机网络 &middot; 数据结构 &middot; 框架原理</p>
+            <div class="tags">
+                <span class="tag">8 大模块</span>
+                <span class="tag">50+ 核心题目</span>
+                <span class="tag">深度答案解析</span>
+            </div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#eff6ff;">
+                    <span style="font-size:1.4rem;">&#x1F4BB;</span>
+                </div>
+                <span class="category-title">操作系统</span>
+                <span class="category-count">6 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q1</div>
+                    <div class="question-text">进程与线程的区别是什么？各自有什么优缺点？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>根本区别：</strong>进程是资源分配的基本单位，线程是 CPU 调度的基本单位。一个进程可以包含多个线程，同一进程内的线程共享进程的地址空间（堆、全局变量等），但每个线程有自己的栈、寄存器和程序计数器。</p>
+                        <p><strong>进程的优点：</strong>独立性高，一个进程崩溃不会影响其他进程；编程调试相对简单。</p>
+                        <p><strong>进程的缺点：</strong>创建、切换、销毁开销大；进程间通信（IPC）需要额外机制。</p>
+                        <p><strong>线程的优点：</strong>创建/切换开销小；共享地址空间，通信方便；能充分利用多核 CPU 并行能力。</p>
+                        <p><strong>线程的缺点：</strong>一个线程崩溃可能导致整个进程崩溃；需要同步机制保护共享数据，否则易引发线程安全问题。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q2</div>
+                    <div class="question-text">什么是虚拟内存？什么是缺页中断？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>虚拟内存：</strong>是一种内存管理技术，它为每个进程提供独立的、连续的地址空间（虚拟地址空间），由操作系统通过硬件（MMU）和磁盘上的交换空间（Swap）将虚拟地址映射到物理内存或磁盘，使得程序可以使用比物理内存更大的地址空间，同时实现进程间的内存隔离。</p>
+                        <p><strong>缺页中断（Page Fault）：</strong>当 CPU 访问的虚拟地址在页表中标记为"不在内存"时，硬件触发缺页中断。操作系统介入后将所需页面从磁盘调入物理内存，更新页表后重新执行引发缺页的指令。如果物理内存已满，还需要先进行页面置换（LRU/FIFO 等算法）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q3</div>
+                    <div class="question-text">TCP 三次握手和四次挥手过程是怎样的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>三次握手（建立连接）：</strong></p>
+                        <ul>
+                            <li><strong>第一次：</strong>客户端发送 <code>SYN</code> 包（SYN=1, seq=x），进入 <code>SYN_SENT</code> 状态</li>
+                            <li><strong>第二次：</strong>服务端收到后发送 <code>SYN+ACK</code> 包（SYN=1, ACK=1, ack=x+1, seq=y），进入 <code>SYN_RCVD</code> 状态</li>
+                            <li><strong>第三次：</strong>客户端发送 <code>ACK</code> 包（ACK=1, ack=y+1, seq=x+1），双方进入 <code>ESTABLISHED</code> 状态</li>
+                        </ul>
+                        <p>三次握手的目的是同步双方的序列号，确认双方的接收和发送能力都正常。</p>
+                        <p><strong>四次挥手（断开连接）：</strong></p>
+                        <ul>
+                            <li><strong>第一次：</strong>主动关闭方发送 <code>FIN</code> 包（FIN=1, seq=u），进入 <code>FIN_WAIT_1</code></li>
+                            <li><strong>第二次：</strong>被动关闭方发送 <code>ACK</code> 包（ack=u+1），进入 <code>CLOSE_WAIT</code>；主动方收到后进入 <code>FIN_WAIT_2</code></li>
+                            <li><strong>第三次：</strong>被动关闭方处理完数据后发送 <code>FIN</code> 包（FIN=1, seq=v），进入 <code>LAST_ACK</code></li>
+                            <li><strong>第四次：</strong>主动关闭方发送 <code>ACK</code> 包（ack=v+1），进入 <code>TIME_WAIT</code>；等待 2MSL 后进入 <code>CLOSED</code>；被动方收到后立即进入 <code>CLOSED</code></li>
+                        </ul>
+                        <p>TIME_WAIT 等待 2MSL 的目的是确保被动关闭方收到了最后的 ACK，且让本连接的报文在网络中完全消失。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q4</div>
+                    <div class="question-text">HTTP 1.0 / 1.1 / 2.0 / 3.0 的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>HTTP 1.0：</strong>默认使用短连接（Connection: close），每个请求-响应需要单独建立 TCP 连接；无状态无连接；支持 GET/POST/HEAD 方法。</p>
+                        <p><strong>HTTP 1.1：</strong>默认使用持久连接（Connection: keep-alive），同一个 TCP 连接可以发送多个请求；引入管道化（pipelining）机制；新增 PUT/DELETE/OPTIONS/PATCH 等方法；支持断点续传（Range 头）；支持虚拟主机（Host 头）；缓存控制更强（ETag、Cache-Control）。</p>
+                        <p><strong>HTTP 2.0：</strong>基于 SPDY 协议；引入<strong>多路复用</strong>（一个 TCP 连接上并行多个请求-响应，无队头阻塞）；二进制分帧层取代明文文本；头部压缩（HPACK 算法）；服务端推送（Server Push）；请求优先级。</p>
+                        <p><strong>HTTP 3.0：</strong>基于 QUIC 协议（UDP 实现）；彻底解决 TCP 队头阻塞问题（连接迁移通过 Connection ID 实现）；0-RTT / 1-RTT 快速建立连接；前向纠错（FEC）；内置 TLS 1.3。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q5</div>
+                    <div class="question-text">什么是乐观锁和悲观锁？分别在什么场景下使用？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>悲观锁：</strong>假设数据访问时一定会发生冲突，因此每次操作数据前都先加锁（如 <code>synchronized</code>、<code>ReentrantLock</code>、数据库 <code>SELECT FOR UPDATE</code>）。其他线程必须等待锁释放后才能访问数据。</p>
+                        <p><strong>使用场景：</strong>写操作多、并发冲突概率高的场景（如库存扣减、账户余额修改、订单状态更新）。悲观锁能保证数据一致性，但会增加锁开销和死锁风险。</p>
+                        <p><strong>乐观锁：</strong>假设数据访问时冲突概率很低，因此不先加锁，而是在更新数据时检查版本号或 CAS（Compare-And-Swap）。通常在表中增加一个 <code>version</code> 字段，更新时 <code>WHERE version = oldVersion</code>，若影响行数为 0 则说明冲突，需要重试。</p>
+                        <p><strong>使用场景：</strong>读操作多、并发冲突概率低的场景（如用户资料修改、点赞计数、浏览量更新）。乐观锁性能高、无死锁风险，但冲突严重时重试开销大。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q6</div>
+                    <div class="question-text">什么是线程安全？实现线程安全有哪几种机制？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>线程安全：</strong>多个线程并发访问某个类/对象/函数时，不需要额外的同步控制，调用结果始终正确。核心问题是竞态条件（Race Condition）和可见性（Visibility）问题。</p>
+                        <p><strong>实现线程安全的主要机制：</strong></p>
+                        <ul>
+                            <li><strong>互斥锁：</strong><code>synchronized</code>、<code>ReentrantLock</code>、<code>ReadWriteLock</code>，通过阻塞线程实现原子性</li>
+                            <li><strong>原子类：</strong><code>java.util.concurrent.atomic</code> 包下的 AtomicInteger、AtomicReference 等，利用 CAS 指令实现无锁原子操作</li>
+                            <li><strong>volatile：</strong>保证变量的可见性和禁止指令重排序，但不保证复合操作的原子性</li>
+                            <li><strong>ThreadLocal：</strong>为每个线程提供独立的变量副本，从根本上避免共享</li>
+                            <li><strong>不变模式：</strong>对象创建后状态不可变（如 String、final 字段），天然线程安全</li>
+                            <li><strong>线程安全集合：</strong><code>ConcurrentHashMap</code>、<code>CopyOnWriteArrayList</code>、<code>BlockingQueue</code> 等</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fff7ed;">
+                    <span style="font-size:1.4rem;">&#x1F3AF;</span>
+                </div>
+                <span class="category-title">排序算法题</span>
+                <span class="category-count">1 题</span>
+            </div>
+
+            <div class="card algorithm-card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q1</div>
+                    <div class="question-text">需要对 10G 的数据进行排序，内存只有 2G，需要采用什么排序算法？为什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>核心思路：</strong>采用<strong>外部排序</strong>（External Sorting）算法——多路归并排序。</p>
+                        <p><strong>具体步骤：</strong></p>
+                        <ul>
+                            <li><strong>第一步 — 分片（分割）：</strong>将 10G 数据分成若干个小块，每个小块的大小不超过可用内存（2G / 2 = 1G，留 1G 给归并开销），例如每块 1G。</li>
+                            <li><strong>第二步 — 内部排序：</strong>每次读入 1G 数据到内存，用快速排序 / 归并排序等算法在内存中将该块排好序，写回磁盘，形成多个已排序的<strong>归并段</strong>（run）。</li>
+                            <li><strong>第三步 — 多路归并：</strong>使用<strong>k 路归并</strong>算法（通常 k = 内存能容纳的缓冲区数量，如 8 路或 16 路），从 k 个归并段中各取一个元素进行胜者树/堆比较，选出最小/最大元素写入输出文件，然后补充该段的下一个元素。循环直到所有归并段处理完毕。</li>
+                        </ul>
+                        <p><strong>为什么不用其他算法？</strong></p>
+                        <ul>
+                            <li>快排/归并等标准排序算法都是<strong>内部排序</strong>，要求数据能一次性装入内存，10G > 2G 无法直接使用。</li>
+                            <li>计数排序/基数排序虽然线性时间，但需要额外 O(N) 空间，对于 10G 级别的数据同样无法在内存中放下。</li>
+                            <li>多路归并在减少磁盘 I/O 次数的同时，通过增大 k 可以减少归并趟数，是外部排序的标准做法。</li>
+                        </ul>
+                        <p><strong>优化技巧：</strong>可以采用<strong>替换选择算法</strong>（Replacement Selection）生成更大的归并段，减少归并段数量，从而降低 I/O 次数。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#ecfdf5;">
+                    <span style="font-size:1.4rem;">&#x1F4BE;</span>
+                </div>
+                <span class="category-title">数据库</span>
+                <span class="category-count">6 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q1</div>
+                    <div class="question-text">事务隔离级别有哪些？MySQL 默认隔离级别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>SQL 标准定义了四种事务隔离级别（从低到高）：</p>
+                        <ul>
+                            <li><strong>读未提交（Read Uncommitted）：</strong>最低级别，允许脏读（Dirty Read）—— 事务 A 可以读到事务 B 未提交的数据。隔离性最差，但性能最高。</li>
+                            <li><strong>读已提交（Read Committed）：</strong>只能读到已提交的数据，解决了脏读问题。但可能出现不可重复读（Non-Repeatable Read）—— 同一事务内两次读取同一行数据结果不同，因为期间另一个事务修改并提交了这条数据。</li>
+                            <li><strong>可重复读（Repeatable Read）：</strong>MySQL InnoDB 的默认级别。同一事务内多次读取同一数据结果一致，解决了不可重复读。但可能出现幻读（Phantom Read）—— 同一事务内两次查询结果集数量不同，因为期间另一个事务插入了新行。</li>
+                            <li><strong>串行化（Serializable）：</strong>最高隔离级别，事务强制串行执行，完全避免幻读，但并发性能最差。</li>
+                        </ul>
+                        <p><strong>MySQL InnoDB 默认隔离级别是 RR（可重复读）</strong>，并且通过 MVCC + Next-Key Lock 在大多数场景下解决了幻读问题，因此实际表现优于标准 SQL 的 RR 定义。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q2</div>
+                    <div class="question-text">MVCC 是什么？是如何实现的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>MVCC（Multi-Version Concurrency Control，多版本并发控制）</strong>是一种并发控制机制，核心思想是为每个读操作生成数据的一个"快照"（snapshot），使读写操作互不阻塞，从而提高数据库并发能力。</p>
+                        <p><strong>InnoDB 中的 MVCC 实现（核心依赖三个要素）：</strong></p>
+                        <ul>
+                            <li><strong>隐藏列：</strong>InnoDB 为每行数据自动添加两个隐藏列 —— <code>DB_TRX_ID</code>（最近修改该行的事务 ID）和 <code>DB_ROLL_PTR</code>（指向undo log 链表的指针）。</li>
+                            <li><strong>Undo Log（undo log 链）：</strong>每次修改数据时，旧版本数据会被写入 Undo Log，并通过 <code>DB_ROLL_PTR</code> 形成一条版本链（ReadView 链）。当事务需要读取旧版本时，沿链表向前查找。</li>
+                            <li><strong>ReadView（读视图）：</strong>每个事务在快照读（SELECT，不加锁）时生成一个 ReadView，记录当前活跃事务 ID 列表（<code>m_ids</code>）和最小活跃事务 ID（<code>min_trx_id</code>）。根据 ReadView 判断可见哪个版本：
+                                <ul>
+                                    <li>如果数据的 <code>trx_id < min_trx_id</code>，则该数据对当前事务可见</li>
+                                    <li>如果 <code>trx_id</code> 在 <code>m_ids</code> 中，说明是其他活跃事务修改的，不可见，需沿版本链往前找</li>
+                                    <li>如果 <code>trx_id >= min_trx_id</code> 且不在 <code>m_ids</code>，说明已提交，可见</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p><strong>快照读 vs 当前读：</strong>快照读基于 MVCC（如普通 SELECT）；当前读读取最新数据且加锁（如 <code>SELECT FOR UPDATE</code>、<code>INSERT/UPDATE/DELETE</code>）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q3</div>
+                    <div class="question-text">索引失效的场景有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>常见索引失效场景：</strong></p>
+                        <ul>
+                            <li><strong>使用函数或表达式：</strong><code>WHERE YEAR(create_time) = 2026</code> —— 对索引列使用函数会导致索引失效。应改为 <code>WHERE create_time >= '2026-01-01' AND create_time < '2027-01-01'</code>。</li>
+                            <li><strong>类型转换：</strong>字符串列与数字比较（如 <code>WHERE phone = 13800138000</code>），MySQL 会隐式将字符串转数字，无法使用索引。</li>
+                            <li><strong>LIKE 前缀通配：</strong><code>WHERE name LIKE '%张'</code> —— 以通配符开头的 LIKE 无法使用 B+Tree 索引。<code>WHERE name LIKE '张%'</code> 可以使用索引。</li>
+                            <li><strong>OR 连接不同类型列：</strong><code>WHERE age = 20 OR name = 'Tom'</code> —— 如果 age 是数字、name 是字符串，OR 可能导致索引失效。应改用 UNION。</li>
+                            <li><strong>NOT NULL / IS NOT NULL：</strong>在某些情况下，<code>IS NOT NULL</code> 无法使用索引（取决于优化器判断）。建议尽量给列设置默认值，避免使用 <code>IS NOT NULL</code>。</li>
+                            <li><strong>NOT IN / NOT EXISTS：</strong>负向查询通常无法利用 B+Tree 索引，可以用 <code>EXISTS</code> 或改写为范围查询。</li>
+                            <li><strong>LIKE + OR + 非索引列：</strong><code>WHERE name LIKE '张%' OR age > 30</code>，如果 age 无索引，可能全表扫描。</li>
+                            <li><strong>使用复合索引时不遵循最左前缀原则：</strong>对于复合索引 (A, B, C)，如果查询只有 WHERE B = ? 或 WHERE C = ?，无法使用索引。</li>
+                            <li><strong>优化器选择不走索引：</strong>当返回数据量超过全表的 20%~30% 时，优化器认为全表扫描更快，此时即使有索引也可能失效。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q4</div>
+                    <div class="question-text">SQL 优化的手段有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>1. 索引优化</strong></p>
+                        <ul>
+                            <li>为 WHERE、JOIN、ORDER BY、GROUP BY 的列建立合适索引</li>
+                            <li>遵循最左前缀原则，避免冗余索引</li>
+                            <li>使用覆盖索引（Covering Index），使查询只需扫描索引无需回表</li>
+                        </ul>
+                        <p><strong>2. SQL 语句优化</strong></p>
+                        <ul>
+                            <li>避免 <code>SELECT *</code>，只查询需要的字段</li>
+                            <li>避免在 WHERE 条件中对索引列使用函数、运算、类型转换</li>
+                            <li>使用 EXPLAIN 分析执行计划，关注 type（最好达到 ref/range）、Extra（避免 Using filesort/Using temporary）</li>
+                            <li>批量插入代替循环单条插入</li>
+                            <li>合理使用 LIMIT 避免大结果集</li>
+                        </ul>
+                        <p><strong>3. 表结构优化</strong></p>
+                        <ul>
+                            <li>字段类型尽量小（能用 INT 就不用 BIGINT，能用 TINYINT 就不用 INT）</li>
+                            <li>合理的字段属性（NOT NULL + 默认值）</li>
+                            <li>适当拆分大表（垂直分表 / 水平分表）</li>
+                            <li>冷热数据分离（历史表归档）</li>
+                        </ul>
+                        <p><strong>4. 架构层优化</strong></p>
+                        <ul>
+                            <li>读写分离（主从复制）</li>
+                            <li>引入缓存层（Redis）减少数据库压力</li>
+                            <li>分库分表（ShardingSphere / MyCat）</li>
+                            <li>适当冗余（反范式化设计，避免 JOIN）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q5</div>
+                    <div class="question-text">数据库主从同步原理是什么？主从延迟的原因有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>主从同步原理（MySQL Replication）：</strong></p>
+                        <ul>
+                            <li>主库的所有写操作（DML/DDL）记录到<strong>binlog</strong>（Binary Log）中，binlog 有三种格式：Statement、Row、Mixed。</li>
+                            <li>从库开启一个 <strong>I/O Thread</strong>，连接到主库，请求主库发送 binlog 日志。</li>
+                            <li>主库的 <strong>Binlog Dump Thread</strong> 读取 binlog 并发送给从库的 I/O Thread。</li>
+                            <li>从库 I/O Thread 将接收到的 binlog 内容写入本地的<strong>relay log</strong>（中继日志）。</li>
+                            <li>从库的 <strong>SQL Thread</strong>（也叫 DQL Thread / applier）读取 relay log，按照顺序在从库上重放（replay）这些 SQL 语句，从而实现数据同步。</li>
+                        </ul>
+                        <p><strong>主从延迟的原因：</strong></p>
+                        <ul>
+                            <li><strong>从库配置低：</strong>从库机器性能比主库差，处理能力不足</li>
+                            <li><strong>大事务：</strong>主库一次性执行大量数据修改，binlog 内容多，从库重放耗时长</li>
+                            <li><strong>主从库网络延迟：</strong>binlog 传输耗时</li>
+                            <li><strong>从库并发回放能力弱：</strong>SQL Thread 是单线程顺序执行 relay log，在 MySQL 5.7 前是个严重瓶颈（5.7 引入并行复制 MTS）</li>
+                            <li><strong>长事务 / DDL：</strong>ALTER TABLE、OPTIMIZE TABLE 等操作会锁表或产生大量日志</li>
+                            <li><strong>从库负载高：</strong>从库同时承担读请求和同步任务，CPU/IO 争抢</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q6</div>
+                    <div class="question-text">分库分表后如何实现主键 ID 的生成？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>分库分表后，由于多个表/库无法依靠单个数据库的 AUTO_INCREMENT 来保证全局唯一性，需要专门的 ID 生成方案：</p>
+                        <p><strong>1. UUID / GUID</strong></p>
+                        <ul>
+                            <li>优点：本地生成，无中心节点，无性能瓶颈</li>
+                            <li>缺点：UUID 是无序的（无序 UUID 写入 B+Tree 会造成大量页分裂）；存储空间大（36 个字符 / 128bit）；可读性差，无法根据 ID 排序</li>
+                        </ul>
+                        <p><strong>2. 雪花算法（Snowflake）—— 最常用</strong></p>
+                        <ul>
+                            <li>64 位 Long 类型：1 位符号 + 41 位时间戳 + 10 位机器 ID + 12 位序列号</li>
+                            <li>优点：趋势递增（利于 B+Tree 写入）、高性能（本地生成）、无中心依赖</li>
+                            <li>缺点：依赖机器时钟，如果时钟回拨会导致 ID 重复</li>
+                            <li>实现：Twitter Snowflake、美团的 Leaf、百度UidGenerator等</li>
+                        </ul>
+                        <p><strong>3. 分布式 ID 生成服务（中心化）</strong></p>
+                        <ul>
+                            <li>独立服务（如 ZK / Redis / MongoDB）统一发号</li>
+                            <li>Redis INCR：利用原子性 <code>INCR</code> 命令，按业务前缀 + 自增数组成 ID</li>
+                            <li>优点：ID 连续性好、可控性强</li>
+                            <li>缺点：依赖外部服务，存在网络延迟和单点问题</li>
+                        </ul>
+                        <p><strong>4. 号段模式</strong></p>
+                        <ul>
+                            <li>从数据库批量获取一段 ID（如 1000~1999），客户端在内存中分配，用完再申请新号段</li>
+                            <li>Leaf（美团）等开源方案采用此模式，兼具性能和可用性</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fef2f2;">
+                    <span style="font-size:1.4rem;">&#x2615;</span>
+                </div>
+                <span class="category-title">Java / Android 基础</span>
+                <span class="category-count">6 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number green">Q1</div>
+                    <div class="question-text">HashMap 的实现原理和数据结构是怎样的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>JDK 1.7 之前：数组 + 链表（Entry[] table）</strong></p>
+                        <p>HashMap 内部维护一个 Entry 类型的数组（也叫哈希表）。当调用 <code>put(key, value)</code> 时，先用 <code>key.hashCode()</code> 计算哈希值，再通过 <code>hash(key) & (length - 1)</code> 计算数组下标。如果该位置已有元素（哈希冲突），则以链表头插法插入。查找时先定位下标，再遍历链表比较 key。</p>
+                        <p><strong>JDK 1.8 及之后：数组 + 链表 + 红黑树</strong></p>
+                        <p>当链表长度超过阈值（<code>TREEIFY_THRESHOLD = 8</code>）且数组长度 >= 64 时，链表会转换为红黑树（O(log n) 查找），以提升查找性能。当红黑树节点数 <= 6 时退化为链表。使用尾插法代替头插法，避免多线程下扩容时出现环形链表导致死循环。</p>
+                        <p><strong>关键参数：</strong></p>
+                        <ul>
+                            <li><code>capacity</code>：table 数组大小，默认 16，每次扩容翻倍</li>
+                            <li><code>loadFactor</code>：负载因子，默认 0.75。用于判断何时扩容（threshold = capacity * loadFactor）</li>
+                            <li><code>size</code>：实际元素数量</li>
+                        </ul>
+                        <p><strong>put 流程：</strong>计算 hash → 定位下标 → 遍历链表/红黑树 → 找到 key 则覆盖 value；未找到则在尾部插入 → 判断是否需要扩容。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number green">Q2</div>
+                    <div class="question-text">ConcurrentHashMap 的底层实现原理是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>JDK 1.7：分段锁（Segment）</strong></p>
+                        <p>ConcurrentHashMap 由 Segment 数组构成，每个 Segment 继承自 ReentrantLock，内部维护一个 HashEntry 数组。默认有 16 个 Segment，支持最多 16 个线程并发写（每个 Segment 一把锁）。读操作不加锁，通过 volatile 保证可见性。</p>
+                        <p><strong>JDK 1.8 及之后：CAS + synchronized + Node 数组</strong></p>
+                        <p>摒弃了分段锁，改为数组 + 链表 + 红黑树的结构，使用 <strong>CAS（Compare-And-Swap）</strong> 乐观锁进行无锁更新，用 <strong>synchronized</strong> 加锁来保证写操作或链表/红黑树转换时的线程安全。</p>
+                        <p><strong>具体实现：</strong></p>
+                        <ul>
+                            <li><strong>put 流程：</strong>计算 hash 定位数组下标 → 如果该位置为 null，用 CAS 写入数据 → 如果不为 null，用 synchronized 锁住该位置头节点，再遍历链表/红黑树插入或覆盖</li>
+                            <li><strong>get 流程：</strong>无锁，直接读取（Node 的 value 和 next 用 volatile 修饰，保证可见性），O(1) 时间复杂度</li>
+                            <li><strong>size：</strong>不再用分段锁统计，改用 LongAdder 累加，减少并发更新冲突</li>
+                        </ul>
+                        <p>JDK 1.8 的设计在保证线程安全的同时，提升了并发度（synchronized 已做过大幅优化），整体性能优于 1.7 的分段锁。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number green">Q3</div>
+                    <div class="question-text">Activity 的启动模式有哪些？如何处理 Activity 的生命周期？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Activity 的四种启动模式（launchMode）：</strong></p>
+                        <ul>
+                            <li><strong>standard（标准模式）：</strong>每次启动都创建新的 Activity 实例并压入任务栈，可多次实例化。</li>
+                            <li><strong>singleTop（栈顶复用模式）：</strong>启动时如果栈顶正好是该 Activity，则复用并调用 <code>onNewIntent()</code>；否则创建新实例。</li>
+                            <li><strong>singleTask（栈内复用模式）：</strong>启动时在任务栈中查找该 Activity，如果已存在则将其上所有 Activity 出栈（clearTop），并调用 <code>onNewIntent()</code>；否则创建新实例。</li>
+                            <li><strong>singleInstance（单实例模式）：</strong>整个系统中只有唯一一个实例，独立占据一个任务栈，其他应用启动该 Activity 会调用已有实例。</li>
+                        </ul>
+                        <p><strong>Activity 完整生命周期：</strong></p>
+                        <p><code>onCreate()</code> → <code>onStart()</code> → <code>onResume()</code> → <code>onPause()</code> → <code>onStop()</code> → <code>onDestroy()</code></p>
+                        <p>从 A 跳转到 B：A.onPause() → B.onCreate() → B.onStart() → B.onResume() → A.onStop()</p>
+                        <p><strong>生命周期处理要点：</strong></p>
+                        <ul>
+                            <li><strong>onCreate / onDestroy：</strong>配对，做初始化（绑定数据、注册监听）和资源释放（解注册、停止动画）。</li>
+                            <li><strong>onStart / onStop：</strong>配对，与用户可见性相关。</li>
+                            <li><strong>onResume / onPause：</strong>配对，与用户可交互性相关。onPause 中暂停正在进行的操作（如视频播放）。</li>
+                            <li><strong>onSaveInstanceState：</strong>在 Activity 被意外销毁前（如配置改变、系统内存不足）保存数据。</li>
+                            <li><strong>onRestoreInstanceState：</strong>恢复被保存的数据。</li>
+                            <li>配置改变（如屏幕旋转）：默认会销毁重建；可通过 <code>android:configChanges</code> 属性自行处理。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number green">Q4</div>
+                    <div class="question-text">Android 中线程间如何通信？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>1. Handler + Looper + MessageQueue（最核心的方式）</strong></p>
+                        <p>每个线程有一个 Looper 和一个 MessageQueue。Handler 负责发送（<code>sendMessage / post</code>）和接收（<code>handleMessage</code>）消息。子线程通过 Handler 将消息发送到主线程的 MessageQueue，主线程的 Looper 不断循环取出消息并分发给 Handler 处理，实现线程间通信。</p>
+                        <p><strong>2. runOnUiThread()</strong></p>
+                        <p>Activity 提供的方法，如果当前线程是主线程则直接执行；否则将 Runnable post 到主线程消息队列。</p>
+                        <p><strong>3. View.post()</strong></p>
+                        <p>将 Runnable post 到 View 所在线程的消息队列，常用于在子线程中安全地操作 UI。</p>
+                        <p><strong>4. AsyncTask</strong></p>
+                        <p>已废弃的方案，封装了 Handler + Thread，内部使用 <code>publishProgress()</code> 通知 UI 线程更新进度。</p>
+                        <p><strong>5. BroadcastReceiver</strong></p>
+                        <p>应用内广播（LocalBroadcastManager）可用于组件间的线程通信。</p>
+                        <p><strong>6. EventBus / RxBus</strong></p>
+                        <p>基于发布-订阅模式，通过注解配置即可实现任意线程间的通信和解耦。</p>
+                        <p><strong>7. Kotlin Coroutines + Flow</strong></p>
+                        <p>现代 Android 开发的主流方案，通过协程实现线程切换，Flow 处理异步数据流，线程间通信非常轻量。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number green">Q5</div>
+                    <div class="question-text">View 的绘制流程是怎样的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>View 的绘制流程从根视图 DecorView 开始，按顺序经历三个核心阶段：</p>
+                        <p><strong>1. measure（测量）— 确定 View 的尺寸</strong></p>
+                        <ul>
+                            <li>从根视图自顶向下递归 measure，每个 View 需要调用 <code>setMeasuredDimension()</code> 设置测量后的宽高</li>
+                            <li>View 的 measure 行为由 <code>onMeasure()</code> 方法控制</li>
+                            <li>父 View 的 MeasureSpec（父容器约束 + 子 View 的 LayoutParams）决定子 View 的测量模式</li>
+                        </ul>
+                        <p><strong>2. layout（布局）— 确定 View 的位置</strong></p>
+                        <ul>
+                            <li>从根视图自顶向下 layout，调用每个子 View 的 <code>layout(l, t, r, b)</code> 确定其在父容器中的位置</li>
+                            <li>View 的 layout 行为由 <code>onLayout()</code> 方法控制</li>
+                            <li>自定义 ViewGroup 必须重写 <code>onLayout()</code> 来摆放子 View</li>
+                        </ul>
+                        <p><strong>3. draw（绘制）— 将 View 绘制到画布上</strong></p>
+                        <p><code>draw()</code> 按顺序执行以下步骤：</p>
+                        <ul>
+                            <li>绘制背景（<code>drawBackground()</code>）</li>
+                            <li>绘制自身（<code>onDraw()</code>）—— View 的具体内容</li>
+                            <li>绘制子 View（<code>dispatchDraw()</code>）—— ViewGroup 遍历子 View 进行绘制</li>
+                            <li>绘制装饰（前景、滚动条等，<code>onDrawForeground()</code>）</li>
+                        </ul>
+                        <p><strong>触发时机：</strong>调用 <code>requestLayout()</code> 会触发 measure + layout + draw；调用 <code>invalidate()</code> 只触发 draw。DecorView 的绘制由 ViewRootImpl 发起，在下一帧的 Choreographer 垂直同步信号到来时执行。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number green">Q6</div>
+                    <div class="question-text">设计模式在 Android 中有哪些应用？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>创建型模式：</strong></p>
+                        <ul>
+                            <li><strong>单例模式：</strong>Application 对象（Android 中的全局上下文）、LayoutInflater、EventBus 等</li>
+                            <li><strong>Builder 模式：</strong>AlertDialog、NotificationCompat、OkHttpClient 配置</li>
+                            <li><strong>工厂方法模式：</strong>View 的 <code>View.inflate()</code>、Fragment 的 <code>newInstance()</code></li>
+                        </ul>
+                        <p><strong>结构型模式：</strong></p>
+                        <ul>
+                            <li><strong>适配器模式：</strong>RecyclerView.Adapter、ListView.Adapter，将数据适配到视图</li>
+                            <li><strong>装饰器模式：</strong>Java I/O 流（BufferedInputStream 装饰 FileInputStream）</li>
+                            <li><strong>代理模式：</strong>AMS（ActivityManagerService）对 Activity 的管理；AIDL 自动生成的 Stub/Proxy</li>
+                        </ul>
+                        <p><strong>行为型模式：</strong></p>
+                        <ul>
+                            <li><strong>观察者模式：</strong>View.setOnClickListener、Adapter 的 notifyDataSetChanged、LiveData</li>
+                            <li><strong>策略模式：</strong>View.setLayerType 的不同渲染策略；插值器（Interpolator）</li>
+                            <li><strong>命令模式：</strong>Handler.post() 将 Runnable 封装为消息命令</li>
+                            <li><strong>模板方法模式：</strong>Activity/Fragment 生命周期框架；AsyncTask 的执行流程</li>
+                            <li><strong>责任链模式：</strong>ViewGroup 的事件分发（dispatchTouchEvent）</li>
+                        </ul>
+                        <p><strong>架构层面：</strong></p>
+                        <ul>
+                            <li><strong>MVC/MVP/MVVM：</strong>Android 架构演进；LiveData + ViewModel 实现 MVVM</li>
+                            <li><strong>装饰器模式 + 动态代理：</strong>Retrofit 框架对接口的代理</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fffbeb;">
+                    <span style="font-size:1.4rem;">&#x1F310;</span>
+                </div>
+                <span class="category-title">计算机网络</span>
+                <span class="category-count">7 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q1</div>
+                    <div class="question-text">TCP 与 UDP 的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>连接性：</strong>TCP 是面向连接的协议，传输前需要三次握手建立连接，传输后四次挥手断开连接；UDP 是无连接的，发送数据前不需要建立连接。</p>
+                        <p><strong>可靠性：</strong>TCP 提供可靠传输，通过序列号、确认应答（ACK）、超时重传、流量控制（滑动窗口）、拥塞控制确保数据无差错、不丢失、不重复且按序到达；UDP 则不保证可靠性，发送完数据报后不关心是否到达。</p>
+                        <p><strong>传输效率：</strong>TCP 头部最小 20 字节，且有拥塞控制、流量控制等机制，开销较大；UDP 头部仅 8 字节，无额外控制，开销小，传输效率高。</p>
+                        <p><strong>速度：</strong>TCP 慢（需要连接建立、拥塞避免）；UDP 快（直接发送）。</p>
+                        <p><strong>双工性：</strong>TCP 是全双工（双方可同时收发）；UDP 支持一对一、一对多、多对一、多对多。</p>
+                        <p><strong>分片：</strong>TCP 不关心分片（由 IP 层分片，TCP 通过 MSS 控制）；UDP 的数据包如果超过 MTU（1500字节）会在 IP 层分片。</p>
+                        <p><strong>使用场景：</strong>TCP 用于 HTTP/HTTPS、FTP、SMTP、SSH、数据库连接等需要可靠传输的场景；UDP 用于实时音视频（RTC/RTMP/WebRTC）、DNS、DHCP、VoIP、游戏状态同步等允许少量丢包但要求低延迟的场景。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q2</div>
+                    <div class="question-text">TCP/IP 网络模型分为哪几层？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>TCP/IP 模型分为四层（从下到上）：</p>
+                        <ul>
+                            <li><strong>应用层（Application Layer）：</strong>HTTP、HTTPS、FTP、SMTP、POP3、DNS、SSH、Telnet 等应用协议直接为用户提供服务。数据单元：报文（Message）。</li>
+                            <li><strong>传输层（Transport Layer）：</strong>提供端到端的可靠/不可靠数据传输服务。核心协议：TCP（面向连接、可靠、字节流）、UDP（无连接、不可靠、数据报）。数据单元： segment（TCP）/ datagram（UDP）。</li>
+                            <li><strong>网络层（Internet Layer / Network Layer）：</strong>负责 IP 寻址和路由转发，将数据包从源主机发送到目标主机。核心协议：IP（IPv4/IPv6）、ICMP、ARP、RARP。数据单元：数据包（Packet）。</li>
+                            <li><strong>网络接口层 / 链路层（Link Layer）：</strong>负责相邻节点之间的帧传输，处理物理地址（MAC 地址）、帧封装、媒体访问控制（MAC）。对应 OSI 模型的数据链路层 + 物理层。数据单元：帧（Frame）。</li>
+                        </ul>
+                        <p>如果与 OSI 七层模型对应：TCP/IP 四层 ≈ OSI 的应用层（合并应用+表示+会话）+ 传输层 + 网络层 + 网络接口层（合并数据链路+物理）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q3</div>
+                    <div class="question-text">HTTP 协议有哪些特点？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>1. 无状态（Stateless）</strong></p>
+                        <p>HTTP 协议本身不保存客户端状态，每个请求都是独立的。服务器不记得之前客户端发过什么请求。这带来了无状态性，但通过 Cookie + Session 机制可以在应用层维护会话状态。</p>
+                        <p><strong>2. 无连接（Non-connection）</strong></p>
+                        <p>HTTP 1.0 默认每完成一个请求就关闭 TCP 连接。HTTP 1.1 引入 keep-alive，支持持久连接，在一个 TCP 连接上可以发送多个请求-响应。</p>
+                        <p><strong>3. 灵活可扩展</strong></p>
+                        <p>HTTP 是文本型协议，支持通过 Header 字段灵活扩展，可以携带任意类型的数据（通过 Content-Type 标记），如 HTML、图片、JSON、XML、音视频等。</p>
+                        <p><strong>4. 请求-响应模式</strong></p>
+                        <p>通信模型为严格的"客户端发起请求，服务端返回响应"，服务端不能主动推送数据（WebSocket、Server-Sent Events 是补充方案）。</p>
+                        <p><strong>5. 明文传输（HTTP 1.x）</strong></p>
+                        <p>HTTP 1.x 在网络上以明文传输数据，不加密，存在安全风险，因此 HTTPS（HTTP over TLS/SSL）应运而生。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q4</div>
+                    <div class="question-text">HTTPS 是如何实现加密的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>HTTPS = HTTP + TLS/SSL，是 HTTP 的安全版本，通过加密保障数据机密性、完整性和身份认证。</p>
+                        <p><strong>TLS 握手过程（以 RSA 密钥交换为例）：</strong></p>
+                        <ul>
+                            <li>客户端向服务器发送 <code>ClientHello</code>，包含支持的 TLS 版本、加密套件列表、随机数（Client Random）</li>
+                            <li>服务器返回 <code>ServerHello</code>（确定 TLS 版本和加密套件、随机数 Server Random）+ <strong>证书</strong>（包含服务器公钥和 CA 签名）</li>
+                            <li>客户端验证证书有效性（检查证书链、可信 CA、域名、有效期）</li>
+                            <li>客户端生成<strong>预主密钥（Pre-Master Secret）</strong>，用服务器公钥加密后发送给服务器</li>
+                            <li>双方用 Client Random + Server Random + Pre-Master Secret 通过 PRF 算法导出相同的<strong>会话密钥（对称密钥）</strong></li>
+                            <li>之后通信使用对称加密（ AES / ChaCha20），用会话密钥加密数据</li>
+                        </ul>
+                        <p><strong>为什么混合加密？</strong>非对称加密（RSA/ECDHE）用于安全传输对称密钥（Pre-Master Secret），保证密钥交换的安全；对称加密（AES）用于实际数据传输，性能高。</p>
+                        <p><strong>HTTPS 的作用：</strong>机密性（加密传输内容）、完整性（MAC 校验防止篡改）、身份认证（证书验证服务器身份）、抗重放攻击（nonce + 序列号）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q5</div>
+                    <div class="question-text">Session 和 Cookie 的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Cookie：</strong></p>
+                        <ul>
+                            <li>存储在<strong>客户端</strong>（浏览器 / App 本地）的键值对文本文件，大小限制通常为 4KB 左右（单条），由浏览器自动在同源请求中携带 Cookie 头</li>
+                            <li>可设置过期时间（Expires/Max-Age），也可为会话级（浏览器关闭后失效）</li>
+                            <li>用途：会话管理（Session ID）、用户偏好设置、追踪分析、广告推荐</li>
+                        </ul>
+                        <p><strong>Session：</strong></p>
+                        <ul>
+                            <li>存储在<strong>服务器端</strong>的数据结构，保存用户的会话信息（如登录状态、用户信息）</li>
+                            <li>每个 Session 有一个唯一标识（Session ID），服务器通过 Session ID 找到对应的会话数据</li>
+                            <li>Session 数据存储方式多样：内存（单机）、Redis（分布式）、数据库等</li>
+                            <li>需要配合 Cookie（或 URL 重写）将 Session ID 传给客户端</li>
+                        </ul>
+                        <p><strong>二者的关系：</strong>Session 依赖 Cookie 传递 Session ID。客户端携带 Session ID，服务器根据 ID 找到对应 Session 数据完成身份识别。</p>
+                        <p><strong>对比：</strong></p>
+                        <ul>
+                            <li>Cookie 存客户端，安全性低（可被伪造），存储量大；Session 存服务端，安全性高，但占服务器内存</li>
+                            <li>跨域：Cookie 支持域名/路径限制和 Subdomain 属性；Session 通过 Redis 等中间件可跨服务共享</li>
+                            <li>移动端：App 无法使用 Cookie，通常在 HTTP Header 中手动携带 token（如 JWT）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q6</div>
+                    <div class="question-text">DNS 的解析过程是怎样的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>DNS 递归查询的完整过程：</strong></p>
+                        <p>以访问 <code>www.example.com</code> 为例：</p>
+                        <ul>
+                            <li><strong>第一步：浏览器缓存 / 系统缓存</strong> — 浏览器先检查自身 DNS 缓存（Chrome 约 1 分钟）；若无，检查操作系统的 DNS 缓存和 hosts 文件。</li>
+                            <li><strong>第二步：本地 DNS 解析器（Local DNS Resolver）</strong> — 操作系统将查询请求发送给配置的 DNS 服务器（通常由 ISP 或路由器提供，如 114.114.114.114 或 8.8.8.8）。</li>
+                            <li><strong>第三步：根域名服务器（Root DNS）</strong> — 如果 Local DNS 没有缓存，它会向全球 13 组根域名服务器发起查询，询问 <code>.com</code> 顶级域的权威服务器地址。</li>
+                            <li><strong>第四步：顶级域名服务器（TLD DNS，如 .com）</strong> — 根服务器返回 .com TLD 的地址，TLD DNS 收到查询后，返回 <code>example.com</code> 权威服务器地址。</li>
+                            <li><strong>第五步：权威域名服务器（Authoritative DNS）</strong> — TLD 返回 example.com 的 NS 记录，Local DNS 继续向 example.com 的权威 DNS 查询 <code>www.example.com</code> 的 IP 地址。</li>
+                            <li><strong>第六步：返回结果并缓存</strong> — 权威 DNS 返回 <code>www.example.com</code> 对应的 IP 地址（如 93.184.216.34），Local DNS 将结果返回给客户端，并将结果缓存（TTL 时间内有效）。</li>
+                        </ul>
+                        <p><strong>DNS 记录类型：</strong>A（IPv4）、AAAA（IPv6）、CNAME（别名）、MX（邮件）、NS（域名服务器）、TXT、SRV 等。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number yellow">Q7</div>
+                    <div class="question-text">ARP 协议的作用是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>ARP（Address Resolution Protocol，地址解析协议）</strong>的作用是根据 IP 地址解析出对应的 MAC（物理）地址。</p>
+                        <p><strong>为什么需要 ARP？</strong></p>
+                        <p>在局域网中，数据链路层以 MAC 地址为硬件标识进行帧传输。当发送方需要向同一网段内的目标 IP 发送数据时，必须知道目标主机的 MAC 地址才能封装以太网帧。而上层（网络层）只知道目标的 IP 地址，所以需要 ARP 在 IP 和 MAC 之间建立映射。</p>
+                        <p><strong>ARP 工作流程：</strong></p>
+                        <ul>
+                            <li><strong>广播请求：</strong>发送方广播一个 ARP 请求包（目标 MAC 地址 ff:ff:ff:ff:ff:ff），询问"谁拥有 IP xxx，请告诉我你的 MAC 地址"</li>
+                            <li><strong>单播响应：</strong>拥有该 IP 的主机收到请求后，单播回复一个 ARP 响应包，告诉发送方自己的 MAC 地址</li>
+                            <li><strong>缓存结果：</strong>发送方将 IP-MAC 映射缓存到 ARP 表中（通常有老化时间，如 20 分钟），后续直接使用</li>
+                        </ul>
+                        <p><strong>ARP 欺骗：</strong>ARP 是无认证协议，任何主机都可以响应 ARP 请求，攻击者可发送伪造 ARP 响应将虚假 MAC 绑定到真实 IP，实现中间人攻击（Man-in-the-Middle）。防御手段包括：ARP 防火墙、交换机端口安全、静态 ARP 绑定。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#f0fdf4;">
+                    <span style="font-size:1.4rem;">&#x1F3C6;</span>
+                </div>
+                <span class="category-title">数据结构与算法</span>
+                <span class="category-count">7 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q1</div>
+                    <div class="question-text">常用数据结构的特点和适用场景是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <ul>
+                            <li><strong>数组：</strong>连续内存空间，支持 O(1) 随机访问，O(n) 插入/删除。适用于需要频繁按下标访问、元素数量固定的场景（查找多、增删少）。</li>
+                            <li><strong>链表（单向/双向）：</strong>非连续内存，通过指针连接。插入/删除 O(1)（已知位置），查找 O(n)。适用于频繁增删、内存不连续的场景，如 LRU 缓存（双向链表 + HashMap）。</li>
+                            <li><strong>栈（Stack）：</strong>LIFO，适合做括号匹配、表达式求值、函数调用栈、浏览器前进/后退。</li>
+                            <li><strong>队列（Queue）：</strong>FIFO，适合做任务调度、宽度优先搜索（BFS）、消息队列、打印机队列。</li>
+                            <li><strong>哈希表（HashMap/HashSet）：</strong>平均 O(1) 查找/插入/删除，适用于快速查找、等值查询。缺点是哈希冲突时性能退化，且不支持范围查询和有序遍历（JDK 8+ 用红黑树优化冲突链）。</li>
+                            <li><strong>树（二叉树/BST/AVL/红黑树）：</strong>适合需要有序查找、范围查询的场景。O(log n) 查找/插入/删除（BST 平衡时）。B+ 树是 MySQL 索引的实现结构。</li>
+                            <li><strong>堆（二叉堆/优先级队列）：</strong>O(1) 获取最大/最小值，O(log n) 插入/删除。适用于 top-k 问题、定时器、合并有序文件。</li>
+                            <li><strong>图（邻接矩阵/邻接表）：</strong>适合表达实体间的关系网络，如社交网络、路由算法、拓扑排序。</li>
+                            <li><strong>布隆过滤器（Bloom Filter）：</strong>空间效率极高的概率数据结构，适用于缓存穿透防护、黑名单系统、去重判断。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q2</div>
+                    <div class="question-text">哈希冲突有哪些解决方法？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>1. 开放寻址法（Open Addressing）</strong></p>
+                        <p>发生冲突时，按照某种探测策略寻找下一个空槽位。</p>
+                        <ul>
+                            <li><strong>线性探测（Linear Probing）：</strong>依次检查下一个位置（h(key)+1, h(key)+2...），简单但容易产生"聚集"问题。</li>
+                            <li><strong>二次探测（Quadratic Probing）：</strong>探测间隔为平方数（h(key)+1², h(key)+2²...），减少聚集但可能有二次聚集。</li>
+                            <li><strong>双重哈希（Double Hashing）：</strong>使用两个哈希函数 h1(key) 和 h2(key)，探测位置为 h1(key) + i*h2(key)，效果最好。</li>
+                        </ul>
+                        <p>开放寻址法的负载因子（n/m）通常要保持在 0.7 以下，否则性能急剧下降。</p>
+                        <p><strong>2. 链地址法（Separate Chaining）</strong></p>
+                        <p>每个哈希槽位维护一个链表（或其他数据结构），所有哈希到同一槽位的元素挂在同一个链表上。JDK HashMap 在链表超过 8 且数组长度 >= 64 时会转为红黑树。链地址法对负载因子的容忍度更高，删除操作简单。</p>
+                        <p><strong>3. 再哈希法（Rehashing）</strong></p>
+                        <p>准备若干个哈希函数，发生冲突时换一个哈希函数重新计算，直到找到空槽。函数数量有限，实际中较少单独使用。</p>
+                        <p><strong>4. 建立公共溢出区</strong></p>
+                        <p>将所有冲突的元素统一放到一个公共溢出区，查找时先查主表，再查溢出区。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q3</div>
+                    <div class="question-text">B 树和 B+ 树的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>B 树（B-Tree）是一种自平衡的多路搜索树，每个节点可以有多个子节点和多个键值。</strong></p>
+                        <p><strong>B+ 树是 B 树的变体，在 MySQL InnoDB 引擎中被用作索引结构。</strong></p>
+                        <p><strong>核心区别：</strong></p>
+                        <ul>
+                            <li><strong>数据存储位置：</strong>B 树的每个节点都存储数据（B+ 树非叶子节点也存数据但利用率低）；B+ 树<strong>只有叶子节点存储真实数据</strong>（完整的行数据或行指针），非叶子节点只存储索引键（索引列的值）。</li>
+                            <li><strong>叶子节点的链表：</strong>B+ 树的叶子节点通过双向链表或单向链表串联起来（按 key 有序），适合范围查询（Range Scan）；B 树叶子节点之间无链表连接，范围查询需要中序遍历。</li>
+                            <li><strong>查询稳定性：</strong>B+ 树所有查询都要走到叶子节点（O(log n) 稳定）；B 树可能在非叶子节点找到数据就返回，路径长度不固定。</li>
+                            <li><strong>磁盘 I/O：</strong>B+ 树的非叶子节点只存 key，不存完整数据，因此单节点能容纳更多键（fanout 更大），树高更低，磁盘 I/O 更少，更适合数据库索引场景。</li>
+                            <li><strong>插入/删除：</strong>B+ 树的结构变化通常只影响叶子节点，向上调整路径短，相对更稳定。</li>
+                        </ul>
+                        <p><strong>MySQL InnoDB 使用 B+ 树作为索引结构</strong>：主键索引（聚簇索引）的叶子节点存储完整行数据；非主键索引（二级索引）的叶子节点存储主键 ID（回表）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q4</div>
+                    <div class="question-text">布隆过滤器的原理是什么？有哪些应用场景？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>原理：</strong></p>
+                        <p>布隆过滤器由一个长度为 m 的位数组（初始全为 0）和 k 个独立的哈希函数组成（每个哈希函数输出范围 0~m-1）。当插入一个元素时，用 k 个哈希函数计算 k 个数组下标，将这 k 个位置的 bit 置为 1。查询时，计算 k 个下标，如果所有 k 个位置都是 1，则判断元素"可能存在"；只要有一个位置为 0，则元素"一定不存在"。</p>
+                        <p><strong>误判率（False Positive）：</strong></p>
+                        <p>布隆过滤器存在假阳性（false positive）—— 可能将不存在的元素误判为存在（因为不同元素的 bit 位可能恰好重合）。但绝不会产生假阴性（false negative）—— 已存在的元素不会被误判为不存在。</p>
+                        <p>误判率公式：<code>p ≈ (1 - e^(-kn/m))^k</code>，其中 n 是已插入元素数，m 是数组长度。空间 m 越大、哈希函数 k 越优，误判率越低。</p>
+                        <p><strong>典型应用场景：</strong></p>
+                        <ul>
+                            <li><strong>缓存穿透防护：</strong>查询前先过布隆过滤器，若判断不存在直接返回，避免无效查询打到数据库</li>
+                            <li><strong>黑名单/白名单：</strong>如垃圾邮件地址过滤、恶意 URL 拦截</li>
+                            <li><strong>重复检测：</strong>如爬虫 URL 去重、用户行为日志去重、订单重复提交检测</li>
+                            <li><strong>倒排索引：</strong>新闻/文章检索中快速判断文档是否包含某个词</li>
+                            <li><strong>比特币/区块链：</strong>快速判断交易是否已存在（SPV 节点）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q5</div>
+                    <div class="question-text">如何解决 Top K 问题？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>Top K 问题：在一组数据中找出最大/最小的 K 个元素。根据数据规模和 K 的大小，有多种解法：</p>
+                        <p><strong>方法一：排序后取 K 个 — O(n log n)</strong></p>
+                        <p>将所有数据排序，取前/后 K 个。适用于数据量不大、一次性的场景。</p>
+                        <p><strong>方法二：堆（优先队列）— O(n log k) — 最常用</strong></p>
+                        <p>求 Top K 大：使用小顶堆（大小为 K）。遍历数据，元素入堆；如果堆大小超过 K，弹出堆顶（最小的）。最终堆中就是最大的 K 个元素。空间 O(K)，时间 O(n log K)，适合流式数据和海量数据。</p>
+                        <p>求 Top K 小：使用大顶堆，逻辑相反。</p>
+                        <p><strong>方法三：快速选择（QuickSelect）— O(n) 平均时间</strong></p>
+                        <p>类似快速排序的思想，选取一个 pivot 将数据分为大于 pivot 和小于 pivot 两部分。如果 pivot 的位置恰好是 K，则左半部分即为 Top K。期望时间 O(n)，最坏 O(n²)，可通过随机选 pivot 优化。</p>
+                        <p><strong>方法四：计数器/桶思想 — O(n)</strong></p>
+                        <p>适用于数据范围已知且较小的情况（如统计最高频的 K 个词），用 HashMap 计数后按频率排序或用桶按频率索引。</p>
+                        <p><strong>分布式解法（海量数据场景）：</strong></p>
+                        <ul>
+                            <li>将数据 hash 到 N 台机器，每台机器求各自的 Top K，本地排序后合并</li>
+                            <li>或者将 K*N 个候选数据汇总到一台机器再排序取 Top K</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q6</div>
+                    <div class="question-text">什么场景下用链表？什么场景下用数组？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>用数组的场景：</strong></p>
+                        <ul>
+                            <li>需要频繁按下标随机访问（O(1)），访问次数远多于插入/删除</li>
+                            <li>数据总量预先可知，且不需要频繁扩缩容</li>
+                            <li>需要良好的空间局部性（CPU 缓存友好），追求极致访问性能</li>
+                            <li>需要通过下标做数学运算、模拟连续内存地址（如邻接矩阵表示图）</li>
+                        </ul>
+                        <p><strong>用链表的场景：</strong></p>
+                        <ul>
+                            <li>需要频繁在任意位置插入/删除节点（O(1)，已知节点时）</li>
+                            <li>数据总量不确定或经常动态变化</li>
+                            <li>不需要按值随机访问，只从头/尾顺序遍历</li>
+                            <li>需要节省内存（不需要预分配连续大块内存）</li>
+                            <li>实现栈、队列、LRU 缓存、哈希冲突链、图的邻接表等数据结构</li>
+                        </ul>
+                        <p><strong>补充对比：</strong></p>
+                        <ul>
+                            <li><strong>访问方式：</strong>数组支持随机访问 O(1)；链表只能顺序访问 O(n)</li>
+                            <li><strong>空间开销：</strong>数组是连续内存，可能浪费或需扩容；链表节点有额外指针开销（32位系统 4 字节/指针，64位 8 字节）</li>
+                            <li><strong>CPU 缓存：</strong>数组由于连续内存，CPU 缓存行预加载命中率高（cache-friendly）；链表节点分散，容易 cache miss</li>
+                            <li><strong>多线程：</strong>数组元素访问的确定性使得加锁粒度更细；链表的插入/删除虽然 O(1)，但需要先定位节点（O(n)），且要考虑并发安全</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number teal">Q7</div>
+                    <div class="question-text">一致性哈希算法的原理是什么？解决了什么问题？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>问题背景：</strong></p>
+                        <p>在分布式系统中，数据需要分片到多台机器。传统哈希（<code>hash(key) % N</code>）的问题是：当增加或减少机器时，几乎所有 key 的映射关系都会改变（rehash），导致大量缓存失效，引发"雪崩"效应。</p>
+                        <p><strong>一致性哈希（Consistent Hashing）的原理：</strong></p>
+                        <ul>
+                            <li>将整个哈希值空间组织成一个<strong>环</strong>（Hash Ring），范围通常是 0 ~ 2³²-1（或更大的 2⁶⁴）</li>
+                            <li>每个服务器节点计算一个哈希值，映射到环上的一个位置（节点 Node）</li>
+                            <li>每个数据 key 也计算哈希值，映射到环上，从该位置<strong>沿顺时针方向</strong>找到的第一个节点就是该 key 所属的节点</li>
+                            <li>每个节点负责环上从上一个节点到自身这一段的 key</li>
+                        </ul>
+                        <p><strong>解决了什么问题：</strong></p>
+                        <p>当新增/移除节点时，只有该节点附近的少量 key 需要迁移，其他节点不受影响。</p>
+                        <p><strong>虚拟节点（Virtual Nodes）：</strong></p>
+                        <p>为解决数据倾斜问题（节点在环上分布不均匀），引入虚拟节点：每个物理节点计算多个哈希值，映射到环上多个位置（虚拟节点），数据根据虚拟节点路由，物理节点负责其所有虚拟节点的数据，从而实现更均衡的负载分布。Redis Cluster 即使用一致性哈希（配合槽分片 16384 个槽）。</p>
+                        <p><strong>应用场景：</strong>分布式缓存（Redis Cluster、Memcached）、负载均衡器、分布式存储系统、CDN 内容分发。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fdf4ff;">
+                    <span style="font-size:1.4rem;">&#x2699;</span>
+                </div>
+                <span class="category-title">框架与开源库原理</span>
+                <span class="category-count">6 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q1</div>
+                    <div class="question-text">AOP（面向切面编程）的原理是什么？有哪些应用场景？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>原理：</strong></p>
+                        <p>AOP 的核心思想是将横切关注点（cross-cutting concerns）从业务逻辑中分离出来，形成可重用的"切面"（Aspect），在编译期、类加载期或运行期将这些切面织入（Weave）到目标代码中。</p>
+                        <p><strong>实现方式：</strong></p>
+                        <ul>
+                            <li><strong>编译期织入（CTW）：</strong>如 AspectJ，在编译阶段直接修改 .class 文件，性能最好但需要特殊编译器</li>
+                            <li><strong>类加载期织入（LTW）：</strong>如 AspectJ Weaver，在类加载时通过 ClassFileTransformer 修改字节码</li>
+                            <li><strong>运行期动态代理：</strong>如 Spring AOP，在运行时通过 JDK 动态代理（实现接口时）或 CGLIB（继承方式）生成代理对象，调用目标方法前后执行增强逻辑。性能最差但最灵活，Spring 默认使用。</li>
+                        </ul>
+                        <p><strong>核心概念：</strong></p>
+                        <ul>
+                            <li><strong>Join Point（连接点）：</strong>程序执行的某个可插入点，如方法调用、异常抛出</li>
+                            <li><strong>Pointcut（切点）：</strong>正则表达式，精确定义哪些连接点需要被增强</li>
+                            <li><strong>Advice（增强/通知）：</strong>在切点执行的具体逻辑，包括 @Before、@After、@AfterReturning、@AfterThrowing、@Around</li>
+                            <li><strong>Weaving（织入）：</strong>将切面应用到目标对象的过程</li>
+                        </ul>
+                        <p><strong>Android / Java 典型应用场景：</strong></p>
+                        <ul>
+                            <li>日志记录（自动记录方法入参出参）</li>
+                            <li>性能监控（方法耗时统计）</li>
+                            <li>事务管理（Spring @Transactional）</li>
+                            <li>安全检查（权限验证）</li>
+                            <li>网络请求参数自动签名/加密</li>
+                            <li>Android 热修复 / 插件化（ClassLoader 替换）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q2</div>
+                    <div class="question-text">Retrofit 的实现原理是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Retrofit 是 Square 公司开源的 RESTful 网络请求框架，本质是对 OkHttp 的上层封装，通过注解和动态代理极大简化了网络请求的编写。</strong></p>
+                        <p><strong>核心实现步骤：</strong></p>
+                        <ul>
+                            <li><strong>Step 1：定义 API 接口</strong> — 用注解声明 HTTP 方法（@GET/@POST）、URL 路径（@Path）、查询参数（@Query）、请求体（@Body）等</li>
+                            <li><strong>Step 2：Retrofit.create() 创建代理对象</strong> — 内部使用 <code>Proxy.newProxyInstance()</code> 为接口创建一个<strong>动态代理对象</strong></li>
+                            <li><strong>Step 3：调用接口方法时拦截</strong> — 当调用接口方法时，代理对象的 <code>invoke()</code> 被调用，解析方法上的所有注解（HTTP 方法、参数类型等）</li>
+                            <li><strong>Step 4：构建 Request</strong> — 根据注解信息构建一个 <code>Retrofit.RequestFactory</code>，解析参数注解，构建完整的 HTTP 请求（URL、Headers、Body）</li>
+                            <li><strong>Step 5：Converter 转换数据</strong> — 通过 <code>Converter.Factory</code>（如 GsonConverterFactory）将 API 返回的 ResponseBody 反序列化为 Java 对象（Call&lt;T&gt; 中的 T）</li>
+                            <li><strong>Step 6：执行网络请求</strong> — 调用 <code>OkHttpCall.execute()</code> 或 <code>enqueue()</code>，底层由 OkHttp 完成实际的网络 I/O</li>
+                            <li><strong>Step 7：CallAdapter 适配</strong> — 通过 <code>CallAdapter.Factory</code>（如 RxJava2CallAdapter）将 OkHttp 的 Call 适配为期望的返回类型（LiveData、Flow、Observable 等）</li>
+                        </ul>
+                        <p><strong>Retrofit 的本质 = 动态代理 + 注解解析 + 适配器模式 + 装饰器模式</strong>，它本身不直接做网络请求，而是将接口定义转化为 OkHttp 请求，然后委托给 OkHttp 执行。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q3</div>
+                    <div class="question-text">OkHttp 的拦截器是如何工作的？有哪些内置拦截器？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>责任链模式（Chain of Responsibility）：</strong></p>
+                        <p>OkHttp 使用拦截器链实现请求/响应的层层处理。每个拦截器都可以：修改请求（request）→ 传递给下一个拦截器 → 收到响应后处理（response）→ 返回给上一个拦截器。这是一个典型的责任链模式。</p>
+                        <p><strong>内置拦截器（按执行顺序）：</strong></p>
+                        <ul>
+                            <li><strong>RetryAndFollowUpInterceptor：</strong>处理重试和重定向。最多重试 20 次；检测到 301/302/303/307/308 等重定向状态码，自动用新 URL 发起新请求</li>
+                            <li><strong>BridgeInterceptor：</strong>为请求补充缺失的 Headers（Content-Type、Content-Length、Host、Cookie 等），并解压响应体（Gzip）</li>
+                            <li><strong>CacheInterceptor：</strong>根据缓存策略（Cache-Control）处理缓存。如果有有效缓存直接返回；否则发起网络请求并尝试缓存响应</li>
+                            <li><strong>ConnectInterceptor：</strong>建立网络连接。从连接池（ConnectionPool）中获取或创建新的 TCP 连接（三次握手/TLS 握手），并设置连接的超时时间</li>
+                            <li><strong>CallServerInterceptor：</strong>最后一个拦截器。实际与服务器通信——写入请求头、写入请求体、读取响应头、读取响应体。完成后整个拦截器链返回</li>
+                        </ul>
+                        <p><strong>自定义拦截器：</strong></p>
+                        <ul>
+                            <li><strong>Application Interceptor（应用拦截器）：</strong>添加 <code>addInterceptor()</code>，在缓存判断之前执行，适合日志记录、请求/响应统一修改、全局参数注入。只会被调用一次（可能不执行，如缓存命中时）。</li>
+                            <li><strong>Network Interceptor（网络拦截器）：</strong>添加 <code>addNetworkInterceptor()</code>，在网络 I/O 层面拦截，适合在线调试（Charles 抓包）、请求签名/Token 刷新。不使用缓存，始终真正发起网络请求。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q4</div>
+                    <div class="question-text">Glide 的缓存策略是怎样的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>Glide 实现了<strong>多级缓存</strong>策略，查找顺序为：内存缓存 → 磁盘缓存 → 网络请求。</p>
+                        <p><strong>查找顺序（LruCache + ActiveResources）：</strong></p>
+                        <ul>
+                            <li><strong>第一层：活跃缓存（ActiveResources — 弱引用 Map）</strong> — 正在使用的图片缓存，使用弱引用存储，避免内存泄漏。如果图片正在显示，先查这里</li>
+                            <li><strong>第二层：内存缓存（Memory Cache — LruResourceCache）</strong> — 已经使用完毕但还保留在内存中的图片，使用 LRU 算法淘汰。Glide 默认大小为 <code>ActivityManager.getMemoryClass()</code> 的 1/8</li>
+                            <li><strong>第三层：磁盘缓存（Disk LruCache）</strong> — 存储在本地文件系统。Glide 默认使用 InternalCacheDiskLruFactory，默认大小 250MB（可通过自定义 DiskCache.Factory 修改）。缓存 key 由 URL + width + height + transformation 等参数计算 SHA256 哈希</li>
+                        </ul>
+                        <p><strong>磁盘缓存策略（DiskCache Strategy）：</strong></p>
+                        <ul>
+                            <li><strong>ALL：</strong>缓存原始图片和转换后的结果</li>
+                            <li><strong> AUTOMATIC（默认）：</strong>智能策略——对原始 URL 缓存原始图片，对缩略图缓存转换后的结果</li>
+                            <li><strong>SOURCE：</strong>只缓存原始图片（网络下载的原始数据）</li>
+                            <li><strong>RESULT：</strong>只缓存最终显示的结果（经过 transformations、裁剪等处理后的图片）</li>
+                            <li><strong> NONE：</strong>不缓存到磁盘</li>
+                        </ul>
+                        <p><strong>下载流程：</strong>网络请求获取 InputStream → 通过 <code>ResourceDecoder</code> 解码为 Bitmap/Gif → 应用 transformations → 写入磁盘缓存和内存缓存。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q5</div>
+                    <div class="question-text">RxJava 的原理是什么？有哪些核心概念和操作符？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>核心原理：</strong></p>
+                        <p>RxJava 基于<strong>扩展的观察者模式（Extended Observer Pattern）</strong>。核心是数据流的异步产生（被观察者 Observable / Flowable）和消费（观察者 Observer）。通过操作符（Operators）对数据流进行转换、过滤、组合，最终由订阅者消费。整个过程是<strong>响应式编程（Reactive Programming）</strong>——以声明式的方式处理异步事件流。</p>
+                        <p><strong>核心概念：</strong></p>
+                        <ul>
+                            <li><strong>Observable / Flowable：</strong>被观察者，负责发射数据流（0~N 个元素）或错误/完成信号</li>
+                            <li><strong>Observer / Subscriber：</strong>观察者，接收数据（onNext）、错误（onError）、完成（onComplete）信号</li>
+                            <li><strong>Subscription：</strong>订阅关系，持有订阅者与被观察者的关系，可取消订阅（unsubscribe）</li>
+                            <li><strong>背压（Backpressure）：</strong>Flowable 支持背压策略，当消费者处理速度慢于生产者时，Flowable 可通过 buffer/drop/latest 等策略处理</li>
+                            <li><strong>Scheduler：</strong>调度器，控制操作符/订阅在哪个线程执行，如 Schedulers.io()（I/O 线程）、AndroidSchedulers.mainThread()（主线程）</li>
+                        </ul>
+                        <p><strong>常用操作符：</strong></p>
+                        <ul>
+                            <li><strong>转换：</strong>map（元素变换）、flatMap（拍平）、concatMap（按顺序拍平）、cast（类型转换）</li>
+                            <li><strong>过滤：</strong>filter（条件过滤）、distinct（去重）、take / skip（取前/后 N 个）、debounce（防抖）</li>
+                            <li><strong>组合：</strong>zip（合并多个流）、merge（合并多个流同时发射）、concat（按顺序连接多个流）</li>
+                            <li><strong>条件：</strong>takeUntil（满足条件停止）、retry（失败重试）、repeat（重复发射）</li>
+                            <li><strong>转换线程：</strong>subscribeOn（决定上游所在线程）、observeOn（决定下游所在线程）</li>
+                        </ul>
+                        <p><strong>线程切换原理：</strong>通过 lift() 操作符在订阅链中插入一个 OperatorSubscribeOn / OperatorObserveOn，在对应时机切换 Scheduler（利用 ExecutorService / Handler）来改变线程。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q6</div>
+                    <div class="question-text">热修复（HotFix）的原理是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>热修复（HotFix / HotPatch）是指在不重新安装应用、不重启 App 的情况下，动态修复线上的 BUG 或更新代码/资源。主流方案分为几大类：</p>
+                        <p><strong>1. 类加载方案（基于 DEX 分包）</strong></p>
+                        <p>Android 的类加载器（PathClassLoader / DexClassLoader）加载 DEX 时按顺序遍历。当存在多个包含相同类的 DEX 时，优先加载先被找到的类。</p>
+                        <p>原理：将修复后的类打包成 patch.dex，下载后插入到 ClassLoader 的 DEX 列表最前面。重启后加载到的是 patch 中的类而非原类。</p>
+                        <p>代表框架：Tinker（腾讯）、Robust（美团）、QQ 空间超级补丁。</p>
+                        <p><strong>2. Native Hook 方案（底层替换）</strong></p>
+                        <p>直接在 Native 层修改函数指针或替换方法实现。通过 ART/Dalvik 的底层接口（JNI Hook / ART Method Hook）实现，无需重启，即时生效。</p>
+                        <p>代表框架：AndFix（阿里）、Dobby。</p>
+                        <p><strong>3. Instant Run / 热部署方案</strong></p>
+                        <p>通过 ASM / Javassist 在编译期插桩，生成"增量代码"（Incremental Class）。每个方法都通过一个代理类调用，新方法实现了 InstantRunProtocol 接口。更新时只下发增量代码。</p>
+                        <p><strong>4. 资源热修复（Asset / Resource）</strong></p>
+                        <p>将修复后的资源打包成 .patch 资源包，通过 <code>AssetManager.addAssetPath()</code> 注入到 Resources 中。由于 Android 资源按 ID 查找，新资源的 ID 优先被匹配，从而实现资源修复（如换肤）。</p>
+                        <p><strong>5. SO 库热修复</strong></p>
+                        <p>通过 <code>System.load()</code> 加载 SO 库时，将 patch SO 路径放在原始 SO 路径之前；或者使用 PLT Hook / Inline Hook 替换 SO 中的函数实现。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-line"></div>
+            <p>Android / 后端开发面试题汇总 &mdash; 涵盖操作系统、数据库、Java/Android、计算机网络、数据结构算法、框架原理</p>
+        </div>
+    </div>
+
+    <button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x25B2;</button>
+
+    <script>
+        function toggleCard(card) {
+            card.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

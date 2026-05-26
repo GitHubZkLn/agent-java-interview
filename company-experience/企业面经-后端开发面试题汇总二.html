@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后端开发面试题汇总（二）</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1f2937;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px;
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+            border-radius: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            animation: shimmer 8s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .page-header .subtitle {
+            font-size: 1rem;
+            color: #6ee7b7;
+            position: relative;
+        }
+
+        .page-header .tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .page-header .tag {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #d1fae5;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .category { margin-bottom: 40px; }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .category-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+
+        .category-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .category-count {
+            background: #e5e7eb;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            border: 1px solid #e5e7eb;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            transform: translateY(-1px);
+        }
+
+        .card-question {
+            padding: 18px 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .card-number {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .card-number.orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .card-number.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .card-number.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .card-number.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .card-number.pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .card-number.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .card-number.cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        .question-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            padding-top: 3px;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            color: #9ca3af;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .card.open .toggle-icon { transform: rotate(180deg); }
+
+        .card-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, border-color 0.3s;
+            border-top: 0 solid #f3f4f6;
+            background: #fafafa;
+        }
+
+        .card.open .card-answer {
+            max-height: 3000px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .answer-content {
+            padding: 20px 22px 20px 64px;
+            font-size: 0.93rem;
+            color: #374151;
+            line-height: 1.9;
+        }
+
+        .answer-content p { margin-bottom: 10px; }
+        .answer-content p:last-child { margin-bottom: 0; }
+        .answer-content ul { margin: 8px 0; padding-left: 20px; }
+        .answer-content li { margin-bottom: 5px; }
+        .answer-content strong { color: #1f2937; font-weight: 600; }
+
+        .answer-content code {
+            background: #f1f5f9;
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-family: "SF Mono", "Fira Code", monospace;
+            font-size: 0.88em;
+            color: #be123c;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 10px 0 30px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .footer-line {
+            width: 60px; height: 3px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            margin: 0 auto 16px;
+            border-radius: 2px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(5,150,105,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(5,150,105,0.5);
+        }
+
+        @media (max-width: 640px) {
+            .page-header h1 { font-size: 1.6rem; }
+            .card-question { padding: 14px 16px; }
+            .answer-content { padding: 16px 16px 16px 16px; font-size: 0.88rem; }
+            .question-text { font-size: 0.93rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="page-header">
+            <h1>后端开发面试题汇总（二）</h1>
+            <p class="subtitle">Redis &middot; 消息队列 &middot; 微服务 &middot; 并发编程 &middot; Spring &middot; MySQL &middot; 分布式系统 &middot; Linux &middot; 容器</p>
+            <div class="tags">
+                <span class="tag">8 大模块</span>
+                <span class="tag">50+ 核心题目</span>
+                <span class="tag">深度答案解析</span>
+            </div>
+        </div>
+
+        <!-- ========== Redis ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fff1f2;">
+                    <span style="font-size:1.4rem;">&#x1F36A;</span>
+                </div>
+                <span class="category-title">Redis</span>
+                <span class="category-count">7 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q1</div>
+                    <div class="question-text">Redis 支持哪些数据结构？各自的底层实现是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Redis 支持的 5 种基本数据结构 + 3 种特殊数据结构：</strong></p>
+                        <ul>
+                            <li><strong>String（字符串）：</strong>底层实现为 <strong>SDS（Simple Dynamic String）</strong>，即动态字符串。SDS 记录了字符串长度，支持 O(1) 的 <code>strlen</code> 操作；空间预分配 + 惰性释放，避免频繁内存分配；可存储字符串、整数、浮点数，也可用于缓存序列化对象。</li>
+                            <li><strong>List（列表）：</strong>底层实现为 <strong>QuickList</strong>（Redis 3.2 之后），即多个 ZipList 组成的双向链表。ZipList 是一片连续内存（压缩列表），节省内存；当列表数据量小、元素短时使用 ZipList，数据量大了则转为 QuickList。</li>
+                            <li><strong>Hash（哈希）：</strong>底层实现为 <strong>ZipList（数据量小）或 HT（HashTable）</strong>。当 Hash 字段数量少、值短时用 ZipList；超过阈值后转为 HashTable（渐进式 rehash）。</li>
+                            <li><strong>Set（集合）：</strong>底层实现为 <strong>IntSet（整数集合）或 HT（HashTable）</strong>。当集合内全为整数且数量少时用 IntSet（紧凑数组）；否则用 HashTable（value 恒为 NULL）。</li>
+                            <li><strong>ZSet（有序集合）：</strong>底层实现为 <strong>ZipList 或 SkipList + HT</strong>。当元素少时用 ZipList（元素和分值交错存储）；超过阈值后转为 SkipList（跳表）配合 HT 实现。</li>
+                            <li><strong>Bitmap（位图）：</strong>基于 String 类型实现，用 bit 位存储数据，适合签到、活跃用户统计等场景。</li>
+                            <li><strong>HyperLogLog：</strong>基于概率算法，用于海量数据下精确度要求不高的基数统计（UV 统计），内存固定 ≈ 12KB。</li>
+                            <li><strong>Geospatial（地理空间）：</strong>底层使用 <strong>ZSet + GeoHash 编码</strong>，存储地理位置坐标，支持距离查询、附近的人等功能。</li>
+                            <li><strong>Stream：</strong>Redis 5.0 引入的持久化消息队列，底层使用 RadixTree（基数树）实现，支持消费者组。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q2</div>
+                    <div class="question-text">Redis 的过期策略和淘汰策略是怎样的？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>过期策略（删除过期 key 的时机）：</strong></p>
+                        <ul>
+                            <li><strong>惰性删除（Lazy Expire）：</strong>访问 key 时才检查是否过期，过期则删除。优点是对 CPU 友好（只删除必须删除的），缺点是过期 key 堆积可能造成内存压力。</li>
+                            <li><strong>定期删除（Active Expire）：</strong>Redis 每隔一段时间随机抽取一批设置了过期时间的 key 检查删除（通过 <code>ACTIVE_EXPIRE_CYCLE_SLOW_TIME_PERC</code> 配置扫描时间比例）。折中了 CPU 和内存之间的平衡。</li>
+                            <li>惰性删除 + 定期删除 组合使用，是 Redis 的默认过期策略。</li>
+                        </ul>
+                        <p><strong>淘汰策略（内存达到 maxmemory 时的处理方式）：</strong></p>
+                        <ul>
+                            <li><strong>noeviction：</strong>不淘汰，返回错误（默认策略）</li>
+                            <li><strong>volatile-lru / allkeys-lru：</strong>LRU 算法淘汰（最近最少使用）。volatile-lru 只淘汰设置了过期时间的 key；allkeys-lru 淘汰所有 key，最常用</li>
+                            <li><strong>volatile-lfu / allkeys-lfu：</strong>LFU 算法淘汰（最不经常使用）。按访问频率淘汰</li>
+                            <li><strong>volatile-random / allkeys-random：</strong>随机淘汰。volatile-random 只淘汰设置了过期时间的；allkeys-random 淘汰所有</li>
+                            <li><strong>volatile-ttl：</strong>淘汰 TTL 最小的 key（即最快过期的）</li>
+                        </ul>
+                        <p><strong>选型建议：</strong>一般生产环境使用 <code>allkeys-lru</code>（内存不够时自动淘汰最久未使用的 key）；如果业务需要保留热点数据但允许被淘汰，使用 <code>volatile-lru</code>。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q3</div>
+                    <div class="question-text">Redis 如何实现分布式锁？有什么缺陷？如何优化？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>基础实现（SET NX EX）：</strong></p>
+                        <p>使用 <code>SET lock_key unique_value NX EX expire_time</code> 原子性地获取锁；释放锁时用 Lua 脚本验证 value 是否一致（防止误删他人的锁）：</p>
+                        <p><code>if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end</code></p>
+                        <p><strong>基础方案的缺陷：</strong></p>
+                        <ul>
+                            <li><strong>单机单点故障：</strong>Redis 主从架构下，主从异步复制可能导致锁丢失（主节点加锁成功但从节点未同步，主节点故障后从节点升主，锁丢失）</li>
+                            <li><strong>锁过期时间难以确定：</strong>业务执行时间可能超过锁 TTL，导致锁被他人获取</li>
+                            <li><strong>无法等待锁：</strong>没有公平的等待队列机制</li>
+                        </ul>
+                        <p><strong>优化方案：</strong></p>
+                        <ul>
+                            <li><strong>Redlock（红锁）：</strong>向 N 个独立 Redis 实例（奇数个，如 5 个）同时用相同 key + value 获取锁，超过 N/2+1 个成功则视为获取成功。提高了可靠性，但实现复杂且性能开销大。</li>
+                            <li><strong>看门狗（Watchdog）：</strong>如 Redisson 方案，持有锁的线程启动一个后台定时任务，每隔 TTL/3 时间自动续期（延长过期时间），避免业务未执行完锁就过期。</li>
+                            <li><strong>Zookeeper 实现分布式锁：</strong>利用 ZK 的临时有序节点和 Watch 机制，有公平等待队列，锁可靠性更高，但性能低于 Redis。</li>
+                            <li><strong>数据库唯一索引：</strong>利用数据库唯一约束实现分布式锁，简单但性能差、无法处理锁重入。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q4</div>
+                    <div class="question-text">Redis 持久化机制有哪些？RDB 和 AOF 的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>RDB（Redis Database）—— 快照持久化：</strong></p>
+                        <p>通过 <code>BGSAVE</code> 命令（子进程执行）或 <code>SAVE</code> 命令（阻塞主进程），将 Redis 在某个时间点的全量数据写入磁盘的 <code>dump.rdb</code> 文件。触发方式：定时任务（默认 bgrewriteaof 触发）、手动 <code>SAVE/BGSAVE</code>、shutdown 时。</p>
+                        <p><strong>AOF（Append Only File）—— 操作日志持久化：</strong></p>
+                        <p>Redis 执行的每一个写操作命令都追加到 <code>appendonly.aof</code> 文件末尾，重启时通过重放这些命令恢复数据。默认关闭，需设置 <code>appendonly yes</code> 开启。</p>
+                        <p><strong>RDB vs AOF 对比：</strong></p>
+                        <ul>
+                            <li><strong>文件大小：</strong>RDB 是压缩的二进制文件（紧凑），体积小，恢复快；AOF 记录的是操作命令文本，文件大，恢复慢</li>
+                            <li><strong>数据完整性：</strong>RDB 丢失数据多（取决于上次备份到故障之间的数据）；AOF 可以配置每秒同步（everysec）或每条命令同步（always），丢失数据少</li>
+                            <li><strong>性能影响：</strong>RDB fork 子进程，不影响主进程性能，但 fork 时阻塞；AOF 每秒 fsync 一次对性能影响小</li>
+                            <li><strong>优先级：</strong>同时开启时，Redis 重启优先使用 AOF 恢复（数据更完整）</li>
+                        </ul>
+                        <p><strong>AOF 重写（Rewrite）：</strong>AOF 文件过大会触发 bgrewriteaof，通过后台进程压缩命令（合并多条写命令为一条），减少文件体积。</p>
+                        <p><strong>生产环境推荐配置：</strong>RDB + AOF 都开启，AOF 策略设为 <code>everysec</code>（每秒落盘一次，兼顾性能和数据安全）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q5</div>
+                    <div class="question-text">Redis 主从复制原理是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>Redis 主从复制用于读写分离和数据冗余，异步进行。流程分为全量同步和增量同步两个阶段：</p>
+                        <p><strong>全量同步（第一次同步 / 主从不一致时）：</strong></p>
+                        <ul>
+                            <li>从库发送 <code>PSYNC ? -1</code>（或 <code>PSYNC &lt;runid&gt; &lt;offset&gt;</code>）给主库</li>
+                            <li>主库收到后执行 <code>BGSAVE</code> 生成 RDB 快照，同时将后续写命令缓存到 <strong>replication buffer</strong></li>
+                            <li>RDB 写完后，主库将 RDB 文件发送给从库（<code>replication buffer</code> 和 <code>replication backlog</code> 配合实现增量衔接）</li>
+                            <li>从库接收 RDB 并加载到内存，然后等待主库将缓存期间的增量命令发送过来执行</li>
+                        </ul>
+                        <p><strong>增量同步（命令传播阶段）：</strong></p>
+                        <p>主库每执行一个写命令，就异步地将命令发送给所有从库。从库每秒上报自己的 <code>repl_offset</code>（已接收命令的偏移量），主库与从库的差距记录在 <code>replication backlog</code> 环形缓冲区中。如果从库网络断开后重新连接，且差距在 backlog 范围内，则只同步增量命令（<code>PSYNC &lt;runid&gt; &lt;offset&gt;</code>）。</p>
+                        <p><strong>重要配置：</strong><code>replica-serve-stale-data</code>（从库过期或主从不一致时的行为）、<code>replica-read-only</code>（从库只读）、<code>repl-backlog-size</code>（backlog 缓冲区大小，需设置足够大避免增量同步失败）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q6</div>
+                    <div class="question-text">Redis 缓存穿透、缓存击穿、缓存雪崩是什么？如何解决？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>1. 缓存穿透（Cache Penetration）：</strong></p>
+                        <p>大量请求查询数据库中根本不存在的数据（恶意或非恶意），缓存中没有，数据库中也没有，请求全部打到数据库。</p>
+                        <p><strong>解决方案：</strong></p>
+                        <ul>
+                            <li><strong>布隆过滤器（最推荐）：</strong>将所有合法数据 key 存入布隆过滤器，请求进来先过布隆过滤器，在则查缓存；判断不存在则直接返回</li>
+                            <li><strong>空对象缓存：</strong>将 NULL 结果也缓存起来（如 <code>SET key null 5min</code>），短时间内相同非法 key 直接返回缓存结果</li>
+                            <li><strong>参数校验：</strong>在接口层对请求参数做基础校验（如 id > 0）</li>
+                        </ul>
+                        <p><strong>2. 缓存击穿（Cache Breakdown）：</strong></p>
+                        <p>某个热点 key 过期瞬间，大量并发请求同时涌入查询该 key，全部穿透到数据库。</p>
+                        <p><strong>解决方案：</strong></p>
+                        <ul>
+                            <li><strong>互斥锁 / 分布式锁：</strong>加锁只允许一个线程去查数据库并回填缓存，其他线程等待（Redisson RLock）</li>
+                            <li><strong>热点数据永不过期：</strong>不设置 TTL，而是通过后台异步更新；或者逻辑过期（存两个字段：过期时间 + 值，访问时判断逻辑过期则异步重建）</li>
+                        </ul>
+                        <p><strong>3. 缓存雪崩（Cache Avalanche）：</strong></p>
+                        <p>大量 key 同时过期，或 Redis 突然宕机，导致大量请求同时打到数据库。</p>
+                        <p><strong>解决方案：</strong></p>
+                        <ul>
+                            <li><strong>过期时间分散：</strong>在 TTL 基础上加上随机偏移量（<code>TTL + random(0, TTL/2)</code>），避免同时过期</li>
+                            <li><strong>多级缓存：</strong>本地缓存（Caffeine/Guava Cache）+ Redis + 数据库，多一层保护</li>
+                            <li><strong>Redis 高可用：</strong>主从 + Sentinel / Cluster，避免全量故障</li>
+                            <li><strong>服务熔断/限流：</strong>缓存服务不可用时，通过 Hystrix / Sentinel 等限流，避免数据库被打垮</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number">Q7</div>
+                    <div class="question-text">Redis 和 Memcache 的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <ul>
+                            <li><strong>数据结构：</strong>Redis 支持 String、List、Hash、Set、ZSet、Bitmap、HyperLogLog、Stream 等丰富数据结构；Memcache 只支持简单的 Key-Value（Value 最大 1MB，不支持数据结构）。</li>
+                            <li><strong>持久化：</strong>Redis 支持 RDB + AOF 两种持久化方式，可将数据持久化到磁盘；Memcache 不支持持久化，重启后数据丢失。</li>
+                            <li><strong>主从复制：</strong>Redis 支持主从复制、哨兵、集群；Memcache 不支持复制。</li>
+                            <li><strong>内存管理：</strong>Redis 使用自己的内存分配器（jemalloc），支持内存碎片管理；Memcache 使用 slab 机制（固定大小的内存块分配）。</li>
+                            <li><strong>单线程 vs 多线程：</strong>Redis 6.0 之前是单线程（6.0 后引入了 IO 多线程），单线程避免了锁开销，命令执行是原子的；Memcache 是多线程模型（Memcached 1.6+，使用 libevent）。</li>
+                            <li><strong>应用场景：</strong>Redis 适合需要丰富数据结构、持久化、主从复制的场景（缓存、分布式锁、消息队列、计数器）；Memcache 适合简单的 KV 缓存场景，对可靠性要求不高的情况。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ========== 消息队列 ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#eff6ff;">
+                    <span style="font-size:1.4rem;">&#x1F4E7;</span>
+                </div>
+                <span class="category-title">消息队列</span>
+                <span class="category-count">7 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q1</div>
+                    <div class="question-text">消息队列的应用场景有哪些？有什么优缺点？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>消息队列的核心价值：解耦、异步、削峰。</strong></p>
+                        <p><strong>典型应用场景：</strong></p>
+                        <ul>
+                            <li><strong>异步处理：</strong>将非核心流程异步化，提升系统响应速度（如用户注册后发送邮件/短信通知、订单完成后触发积分/库存操作）。原本串行的"注册+发邮件+发短信"变为注册完成后直接返回，MQ 异步通知各下游。</li>
+                            <li><strong>流量削峰：</strong>在大促/秒杀场景下，将突增流量先写入 MQ，下游服务按自身能力从 MQ 消费，避免压垮数据库。</li>
+                            <li><strong>系统解耦：</strong>微服务间通过消息总线通信，上下游无需直接调用，新增/修改消费者不影响生产者（如支付系统通知库存、物流、积分等多个下游）。</li>
+                            <li><strong>日志处理：</strong>将日志采集到 Kafka，集中处理（ETL、实时分析、归档）。</li>
+                            <li><strong>分布式事务一致性：</strong>通过 MQ + 事务消息（RocketMQ）实现最终一致性。</li>
+                        </ul>
+                        <p><strong>优点：</strong>解耦、削峰、异步；提升系统吞吐量和稳定性；支持一对多广播。</p>
+                        <p><strong>缺点：</strong></p>
+                        <ul>
+                            <li>系统可用性降低（MQ 挂了影响全局）</li>
+                            <li>系统复杂度提升（消息丢失、重复消费、顺序性问题需要处理）</li>
+                            <li>数据一致性问题（分布式环境下无法保证强一致性，只能最终一致）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q2</div>
+                    <div class="question-text">Kafka、RabbitMQ、RocketMQ 有什么区别？如何选型？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Kafka（LinkedIn 开源，流处理场景首选）：</strong></p>
+                        <ul>
+                            <li><strong>架构：</strong>分布式、分区（Partition）+ 多副本（Replication）。每个 Partition 顺序写磁盘，顺序读写性能极高。</li>
+                            <li><strong>消息模型：</strong>基于拉取（Pull）的消费模式，消费者自己控制消费进度（offset）。</li>
+                            <li><strong>吞吐量：</strong>最高（百万级 QPS），适合大数据、日志采集、流处理。</li>
+                            <li><strong>消息持久化：</strong>天然持久化，消息存储在磁盘，顺序写入，IO 效率高。</li>
+                            <li><strong>消息顺序性：</strong>单 Partition 内有序；不保证跨 Partition 有序。</li>
+                            <li><strong>不支持事务消息。</strong></li>
+                        </ul>
+                        <p><strong>RabbitMQ（ Erlang 开发，功能最丰富）：</strong></p>
+                        <ul>
+                            <li><strong>架构：</strong>Exchange（交换机）+ Binding + Queue。消息先到 Exchange，根据路由键转发到不同 Queue。支持 4 种 Exchange 类型：Direct、Fanout、Topic、Headers。</li>
+                            <li><strong>消息模型：</strong>推（Push）模式，Broker 主动推送给消费者。</li>
+                            <li><strong>吞吐量：</strong>中等（万级 QPS）。</li>
+                            <li><strong>消息可靠性：</strong>支持消息确认（ACK）、死信队列（DLX）、延迟队列。</li>
+                            <li><strong>不支持消息回溯（重新消费历史消息）。</strong></li>
+                        </ul>
+                        <p><strong>RocketMQ（阿里开源，电商场景）：</strong></p>
+                        <ul>
+                            <li><strong>架构：</strong>NameServer 集群管理路由信息，Broker 分为 Master/Slave。</li>
+                            <li><strong>核心优势：</strong>支持<strong>事务消息</strong>（半消息 + 回查机制），实现分布式事务；支持消息回溯（按时间戳或 offset 重置消费位点）。</li>
+                            <li><strong>吞吐量：</strong>高（十万级 QPS）。</li>
+                            <li><strong>顺序消息：</strong>支持队列维度的严格顺序。</li>
+                        </ul>
+                        <p><strong>选型建议：</strong>日志采集 / 大数据流处理选 <strong>Kafka</strong>；业务系统需要丰富路由规则、延迟队列、死信队列选 <strong>RabbitMQ</strong>；需要事务消息、订单场景选 <strong>RocketMQ</strong>。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q3</div>
+                    <div class="question-text">如何保证消息的可靠传输（不丢失）？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>消息从生产者到消费者，中间经历三个环节，每个环节都可能丢消息，需要逐一保障：</p>
+                        <p><strong>1. 生产者到 Broker（发送阶段）：</strong></p>
+                        <ul>
+                            <li>使用<strong>同步发送 + 回调确认</strong>：发送后等待 Broker 确认（ACK），失败则重试（Kafka 的 <code>retries</code> 配置，RabbitMQ 的 publisher confirm）。</li>
+                            <li>Kafka 设置 <code>acks=all</code>（所有 ISR 副本确认）+ <code>min.insync.replicas=2</code>，确保消息写入多个副本。</li>
+                            <li>RabbitMQ 使用事务模式（channel.txSelect()）或 publisher confirm 机制。</li>
+                        </ul>
+                        <p><strong>2. Broker 存储阶段：</strong></p>
+                        <ul>
+                            <li>Broker 开启<strong>同步刷盘</strong>（flush to disk）配置，不要使用异步刷盘（性能优先时可接受少量丢失）。</li>
+                            <li>Kafka 设置 <code>replication.factor >= 3</code>（多副本）、<code>unclean.leader.election.enable=false</code>（不允许落后太多的副本当选 Leader）。</li>
+                            <li>RabbitMQ 开启持久化（Queue durable=true + Message persistent=true）。</li>
+                        </ul>
+                        <p><strong>3. Broker 到消费者（消费阶段）：</strong></p>
+                        <ul>
+                            <li>使用<strong>手动 ACK</strong>（手动确认），业务处理完成后才发送 ACK，不要使用自动 ACK（Auto ACK）。</li>
+                            <li>如果处理失败，不 ACK，消息会重新投递给其他消费者（或重试队列）。</li>
+                            <li>消费端做好幂等性处理（重复消费的场景下保证结果正确）。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q4</div>
+                    <div class="question-text">如何保证消息的顺序性？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>消息顺序性分为两种：<strong>全局顺序</strong>和<strong>局部顺序</strong>。实际场景中通常只需要保证局部顺序（如同一订单的消息按先后顺序处理）。</p>
+                        <p><strong>全局顺序：</strong>所有消息严格按发送顺序消费。实现方式：Topic 只建 1 个 Queue，生产者和消费者都单线程。单线程瓶颈大，实际很少使用。</p>
+                        <p><strong>局部顺序（通常场景）：</strong>同一类别的消息（如同一订单、同一用户）按顺序处理，不同类别之间无顺序要求。</p>
+                        <p><strong>实现方案：</strong></p>
+                        <ul>
+                            <li><strong>Kafka：</strong>将需要保序的消息发到<strong>同一个 Partition</strong>（按消息 key 做哈希取模路由）。Kafka 保证同一 Partition 内消息有序。由于 Partition 可并行消费，整体吞吐量不受影响。</li>
+                            <li><strong>RabbitMQ：</strong>将需要保序的消息路由到<strong>同一个 Queue</strong>（用同一个 routing key）。消费者端使用单线程消费该 Queue（或使用分布式锁 + 多线程处理，同一 key 的消息串行处理）。</li>
+                            <li><strong>消费者端：</strong>如果需要多消费者并行处理，可在消费者端按消息 key 哈希后分发到不同的内存队列，每个内存队列单线程处理。</li>
+                        </ul>
+                        <p><strong>注意事项：</strong></p>
+                        <ul>
+                            <li>不要将大量消息路由到同一个 Partition（热点问题）</li>
+                            <li>消费者崩溃重启后，需要从上次消费的 offset 继续（确保不丢消息也不重复消费）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q5</div>
+                    <div class="question-text">如何处理消息的重复消费？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>消息重复消费的本质是消息可靠性要求高时（ACK 前重试），消费者需要做好<strong>幂等性</strong>处理。以下是常用方案：</p>
+                        <p><strong>1. 数据库唯一索引 / 主键约束（最常用）：</strong></p>
+                        <p>将消息 ID 作为表的主键或唯一索引。由于重复消息的 ID 相同，插入时会报主键冲突。处理逻辑：INSERT 时使用 <code>ON DUPLICATE KEY UPDATE</code> 或先查再决定是否插入。</p>
+                        <p><strong>2. 分布式锁：</strong></p>
+                        <p>消费前用消息 ID 申请分布式锁（Redis SETNX），抢到锁的线程执行消费逻辑，其他线程跳过。锁自动过期避免死锁。</p>
+                        <p><strong>3. 去重表（Lookup Table）：</strong></p>
+                        <p>维护一张去重表（如 Redis SET，key = 消息ID），消费前先查是否已处理过。适用于实时性要求高的场景。</p>
+                        <p><strong>4. 业务状态机：</strong></p>
+                        <p>如果消息触发的操作是状态变更（如订单状态：待支付 → 已支付 → 已完成），通过状态机判断：只有当前状态允许转换时才执行，否则跳过。</p>
+                        <p><strong>5. 消息去重窗口：</strong></p>
+                        <p>使用 Redis 记录最近 N 分钟内已消费的消息 ID（设置过期时间 TTL），每次消费前先检查。</p>
+                        <p><strong>注意事项：</strong>幂等性应由消费端保障，而非依赖 MQ 本身去重（MQ 不保证 exactly-once）。不同业务场景选择最合适的幂等方案即可。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q6</div>
+                    <div class="question-text">Kafka 的架构是怎样的？为什么吞吐量高？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Kafka 核心架构：</strong></p>
+                        <ul>
+                            <li><strong>Topic（主题）：</strong>消息的逻辑分类，每个 Topic 可分为多个 Partition（分区）</li>
+                            <li><strong>Partition（分区）：</strong>每个 Partition 存储在不同的 Broker 上，实现数据分布式存储；每个 Partition 有多个副本（ISR：In-Sync Replicas）</li>
+                            <li><strong>Producer（生产者）：</strong>按 key 哈希路由到指定 Partition；可配置 acks 级别</li>
+                            <li><strong>Consumer（消费者）：</strong>属于 Consumer Group，同一 Group 内不同 Consumer 消费不同 Partition；不同 Group 可重复消费同一消息</li>
+                            <li><strong>ZooKeeper / KRaft：</strong>早期版本用 ZK 管理 Broker 注册、分区 Leader 选举；Kafka 3.0 后支持 KRaft（无需 ZK）</li>
+                        </ul>
+                        <p><strong>Kafka 高吞吐量的原因：</strong></p>
+                        <ul>
+                            <li><strong>顺序写磁盘：</strong>Kafka 将消息追加到文件末尾（Append-only log），磁盘顺序写入速度极快（接近内存速度），远高于随机写入。</li>
+                            <li><strong>零拷贝（Zero-Copy）：</strong>使用 Linux 的 <code>sendfile()</code> 系统调用，数据从磁盘到网络的传输绕过用户态，直接由内核态完成，减少了 2 次 CPU 拷贝。</li>
+                            <li><strong>批量处理：</strong>多条消息打包成批次（Batch）后发送和存储，减少网络请求次数和磁盘 I/O。</li>
+                            <li><strong>数据压缩：</strong>支持批量压缩（Batch GZIP/Snappy/LZ4/ZSTD），压缩后传输和存储。</li>
+                            <li><strong>页缓存（Page Cache）：</strong>利用操作系统的 Page Cache 缓存热点数据，写入时先写 Page Cache 由 OS 异步刷盘，读取时优先读缓存。</li>
+                            <li><strong>多副本 + 分区并行：</strong>横向扩展，多个 Partition 分散到不同机器并行读写。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number orange">Q7</div>
+                    <div class="question-text">RabbitMQ 的 Exchange 类型有哪些？各自的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>RabbitMQ 的消息路由模型为：<strong>Producer → Exchange → Binding → Queue → Consumer</strong>。Exchange 根据路由键（Routing Key）和 Binding 的规则，将消息路由到一个或多个 Queue。</p>
+                        <p><strong>四种 Exchange 类型：</strong></p>
+                        <ul>
+                            <li><strong>Direct（直连交换机）：</strong>完全匹配路由键。Binding 时指定完整的 routing key，消息的 routing key 必须与 binding key 完全一致才路由到对应 Queue。适用于一对一精准路由（如不同优先级任务分发）。</li>
+                            <li><strong>Fanout（广播交换机）：</strong>忽略路由键，将消息广播到所有绑定的 Queue。相当于子网广播，所有消费者都会收到消息副本。适用于群发通知、多个消费者独立处理同一任务。</li>
+                            <li><strong>Topic（主题交换机）：</strong>按通配符匹配路由键。<code>*</code> 匹配一个词，<code>#</code> 匹配零个或多个词。routing key 格式为 <code>word1.word2.word3</code>。适用于灵活的消息分类订阅（如 <code>stock.*.usd</code> 可匹配 <code>stock.ba.usd</code> 和 <code>stock.goog.usd</code>）。</li>
+                            <li><strong>Headers（头交换机）：</strong>根据消息头部的多个属性（键值对）进行匹配，而非 routing key。用得较少，适合需要多维度匹配的场景。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ========== 微服务 ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fff7ed;">
+                    <span style="font-size:1.4rem;">&#x1F310;</span>
+                </div>
+                <span class="category-title">微服务与架构</span>
+                <span class="category-count">7 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q1</div>
+                    <div class="question-text">SOA 和微服务架构有什么区别？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>SOA（Service-Oriented Architecture，面向服务架构）：</strong></p>
+                        <ul>
+                            <li>强调整体集成，以<strong>企业服务总线（ESB）</strong> 为中心，所有服务通过 ESB 通信（HTTP、SOAP、JMS 等协议）</li>
+                            <li>服务粒度较粗，通常是企业级的大业务模块（"用户服务"、"订单服务"）</li>
+                            <li>ESB 承担协议转换、消息路由、服务注册发现等，功能重，容易成为单点瓶颈</li>
+                            <li>部署周期长，通常整体部署，灵活度低</li>
+                        </ul>
+                        <p><strong>微服务架构：</strong></p>
+                        <ul>
+                            <li>去中心化，每个服务独立进程，独立部署，数据自主管理（每个服务有独立的数据库）</li>
+                            <li>服务粒度细（单一职责），一个微服务只做一件事（如"用户注册"、"发送验证码"、"积分查询"）</li>
+                            <li>服务间通过轻量协议通信（HTTP REST、gRPC、GraphQL），无需 ESB</li>
+                            <li>独立技术栈，不同服务可根据需求选择不同语言和框架</li>
+                            <li>快速迭代，独立发布上线，CI/CD 友好</li>
+                        </ul>
+                        <p><strong>核心区别：</strong></p>
+                        <ul>
+                            <li><strong>集成方式：</strong>SOA 用 ESB（中心化）；微服务用轻量通信（去中心化）</li>
+                            <li><strong>服务粒度：</strong>SOA 粗，微服务细</li>
+                            <li><strong>数据库：</strong>SOA 倾向共享数据库；微服务各服务独立数据库</li>
+                            <li><strong>部署：</strong>SOA 整体部署；微服务独立部署</li>
+                            <li><strong>适用场景：</strong>SOA 适合企业级异构系统集成；微服务适合互联网敏捷开发</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q2</div>
+                    <div class="question-text">服务注册与发现是如何实现的？Eureka 和 Nacos 有什么区别？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>服务注册与发现的核心机制：</strong></p>
+                        <p>服务启动时向<strong>注册中心</strong>注册自己的 IP、Port、服务名等信息；消费者从注册中心<strong>发现</strong>可用服务实例列表；心跳机制维持服务实例的存活状态（心跳超时则从注册中心剔除）。</p>
+                        <p><strong>Eureka（Netflix，开源已停止维护）：</strong></p>
+                        <ul>
+                            <li><strong>架构：</strong>每个 Eureka Server 既作为注册中心又作为客户端（去中心化），通过互相注册实现高可用。</li>
+                            <li><strong>保护模式：</strong>Eureka Server 在网络分区故障时开启保护模式（<code>self-preservation mode</code>），不会立即剔除心跳过期的服务，避免误删。</li>
+                            <li><strong>CAP 取舍：</strong>优先<strong>A（可用性）</strong>和 P（分区容错），允许数据短暂不一致（Eureka 2.0 已停止开发）。</li>
+                            <li>不支持配置管理，不支持命名空间分组，不支持动态配置。</li>
+                        </ul>
+                        <p><strong>Nacos（阿里巴巴，开源活跃）：</strong></p>
+                        <ul>
+                            <li><strong>双重身份：</strong>既是<strong>注册中心</strong>又是<strong>配置中心</strong>（Config Server），一站式解决方案。</li>
+                            <li><strong>注册中心一致性协议：</strong>支持两种模式 —— <strong>CP（Raft 协议）</strong>（使用 Leader 复制，强一致）和 <strong>AP（Distro 协议）</strong>（无 Leader，最终一致）。可根据场景切换。</li>
+                            <li><strong>命名空间 / 分组：</strong>支持 Namespace（环境隔离）、Group（服务分组）、Cluster（集群分组）三层结构。</li>
+                            <li><strong>动态配置：</strong>配置变更实时推送到客户端（长轮询 + UDP），支持配置的热更新（不重启服务生效）。</li>
+                            <li><strong>健康检查：</strong>支持心跳上报、TCP、HTTP、MySQL 等多种检查方式。</li>
+                        </ul>
+                        <p><strong>选型建议：</strong>新项目推荐 Nacos；Spring Cloud Alibaba 生态首选 Nacos。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q3</div>
+                    <div class="question-text">分布式事务的解决方案有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>分布式事务的核心问题：一个业务操作涉及多个服务/数据库，如何保证要么全部成功，要么全部失败/回滚。</p>
+                        <p><strong>1. 两阶段提交（2PC，Two-Phase Commit）：</strong></p>
+                        <ul>
+                            <li><strong>准备阶段：</strong>协调者向所有参与者发送 Prepare，所有参与者执行事务（锁定资源）但不提交，返回成功/失败</li>
+                            <li><strong>提交阶段：</strong>协调者收到所有成功回应后，发送 Commit 提交事务；任何一个失败则发送 Rollback 回滚</li>
+                            <li><strong>缺点：</strong>协调者是单点；如果部分参与者已提交而协调者挂了，会导致数据不一致；锁定资源时间长，性能差</li>
+                        </ul>
+                        <p><strong>2. 三阶段提交（3PC，Three-Phase Commit）：</strong></p>
+                        <p>引入 PreCommit 阶段和超时机制，在一定程度上改善了 2PC 的阻塞问题，但仍然无法彻底解决数据不一致问题。</p>
+                        <p><strong>3. TCC（Try-Confirm-Cancel，补偿型）：</strong></p>
+                        <ul>
+                            <li><strong>Try：</strong>预留资源（如冻结库存、预扣金额）</li>
+                            <li><strong>Confirm：</strong>确认执行（真正扣库存、转账）</li>
+                            <li><strong>Cancel：</strong>取消回滚（释放冻结的库存/金额）</li>
+                            <li>需要业务代码实现 Try/Confirm/Cancel，对业务侵入大；但不锁定资源，并发度高</li>
+                        </ul>
+                        <p><strong>4. 本地消息表（事务消息）：</strong></p>
+                        <p>将消息和业务操作放在同一数据库事务中，通过本地消息表 + 定时任务轮询（或 RocketMQ 事务消息）保证最终一致性。实现简单，适合大多数业务场景。</p>
+                        <p><strong>5. Saga 模式：</strong></p>
+                        <p>将长事务拆分为多个本地短事务，每个事务有对应的补偿操作（正向/逆向）。不支持回滚（只做补偿）。适合长流程业务（旅行预订、订单处理）。</p>
+                        <p><strong>选型建议：</strong>强一致性用 2PC/3PC；大多数业务场景用<strong>本地消息表</strong>或<strong>RocketMQ 事务消息</strong>；高并发下单场景用 <strong>TCC</strong>。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q4</div>
+                    <div class="question-text">分布式 ID 的生成方案有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>1. UUID / GUID：</strong></p>
+                        <ul>
+                            <li>128 位，本地生成，无中心依赖</li>
+                            <li>缺点：无序（导致 B+Tree 页分裂）、字符串存储（36 字符 / 128 bit）</li>
+                        </ul>
+                        <p><strong>2. 雪花算法（Snowflake）—— 最常用：</strong></p>
+                        <ul>
+                            <li>64 位 Long：1 位符号 + 41 位时间戳 + 10 位机器 ID + 12 位序列号</li>
+                            <li>趋势递增、高性能、本地生成；依赖机器时钟（时钟回拨可能重复）</li>
+                            <li>变种：美团 Leaf（双 Buffer + 趋势递增优化）、百度 UidGenerator（减少时间回拨风险）</li>
+                        </ul>
+                        <p><strong>3. 数据库自增：</strong></p>
+                        <ul>
+                            <li>单表或单库可用 AUTO_INCREMENT，ID 连续性好</li>
+                            <li>分库分表后需要单独的自增序列表或数据库集群（如 MySQL Group Replication）</li>
+                        </ul>
+                        <p><strong>4. Redis INCR：</strong></p>
+                        <ul>
+                            <li>利用 <code>INCR</code> 原子性生成 ID，可按业务前缀分区</li>
+                            <li>ID 连续性好，但依赖 Redis（需考虑持久化和高可用）</li>
+                        </ul>
+                        <p><strong>5. 号段模式（Segment）：</strong></p>
+                        <ul>
+                            <li>批量从数据库/Redis 申请号段（批量获取 1000 个），本地内存分配，用完再申请</li>
+                            <li>减少数据库交互次数，性能好，且 ID 不会断号</li>
+                            <li>代表：美团 Leaf、滴滴（TinyID）</li>
+                        </ul>
+                        <p><strong>选型：</strong>一般业务场景选<strong>雪花算法</strong>（变种）或<strong>号段模式</strong>；需要严格顺序号选<strong>数据库自增</strong>；简单场景可接受字符串用<strong>UUID</strong>。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q5</div>
+                    <div class="question-text">如何设计一个高可用系统？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>高可用设计的核心思想：冗余 + 自动故障转移 + 降级保护。</strong></p>
+                        <p><strong>1. 基础设施层：</strong></p>
+                        <ul>
+                            <li>服务器冗余（多台机器）、机房冗余（多可用区 / 多数据中心）</li>
+                            <li>网络冗余（多线路接入）、负载均衡（Nginx / SLB / LVS）</li>
+                        </ul>
+                        <p><strong>2. 应用层：</strong></p>
+                        <ul>
+                            <li><strong>服务无状态化：</strong>Session 外置（Redis）、配置外置（Nacos）、多实例部署</li>
+                            <li><strong>微服务治理：</strong>熔断（Hystrix / Sentinel）、限流（令牌桶/滑动窗口）、降级（非核心功能关闭）、超时控制</li>
+                            <li><strong>健康检查 + 自动摘除：</strong>注册中心心跳检测，故障实例自动下线</li>
+                        </ul>
+                        <p><strong>3. 数据层：</strong></p>
+                        <ul>
+                            <li>数据库主从复制 + 读写分离</li>
+                            <li>分库分表（ShardingSphere）</li>
+                            <li>多副本存储（Redis Cluster / Codis）</li>
+                            <li>数据定期备份 + 跨机房同步</li>
+                        </ul>
+                        <p><strong>4. 缓存层：</strong></p>
+                        <ul>
+                            <li>Redis 主从 + Sentinel（自动故障转移）或 Cluster</li>
+                            <li>多级缓存（本地 + 分布式）</li>
+                            <li>缓存高可用（Pipeline / Cluster）</li>
+                        </ul>
+                        <p><strong>5. 消息队列：</strong></p>
+                        <ul>
+                            <li>MQ 集群部署，消息持久化 + 多副本</li>
+                            <li>消费者幂等性处理（防止消息重复）</li>
+                        </ul>
+                        <p><strong>6. 容灾与恢复：</strong></p>
+                        <ul>
+                            <li>全链路压测（发现瓶颈）</li>
+                            <li>灰度发布（金丝雀 / Blue-Green）</li>
+                            <li>容灾演练（Chaos Engineering）</li>
+                            <li>监控告警（Prometheus + Grafana / ELK）</li>
+                            <li>自动化运维（Ansible / Kubernetes）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q6</div>
+                    <div class="question-text">接口的幂等性如何保证？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>幂等性：多次执行与一次执行结果相同。常见场景：支付扣款、订单创建、库存扣减。</p>
+                        <p><strong>1. 基于 Token + 业务去重：</strong></p>
+                        <p>客户端发起请求前先从服务端获取唯一 Token（UUID），请求时携带 Token；服务端以 Token 作为 Redis Key（设置 TTL）判断是否已处理。简单有效，但需要额外一次请求获取 Token。</p>
+                        <p><strong>2. 基于数据库唯一索引 / 主键约束：</strong></p>
+                        <p>将幂等 Key（如订单号、用户ID+业务类型+日期）作为唯一索引或主键。重复插入时数据库报主键冲突，捕获异常返回成功即可。适合创建类操作（用户注册、订单创建）。</p>
+                        <p><strong>3. 状态机幂等：</strong></p>
+                        <p>对于状态流转类操作（如订单支付），通过状态机判断：只有当前状态允许转换时才执行。例如：订单状态为"待支付"才允许执行"支付"操作，已支付则跳过。</p>
+                        <p><strong>4. 悲观锁（SELECT FOR UPDATE）：</strong></p>
+                        <p>数据库行锁保证并发安全，<code>SELECT * FROM orders WHERE id = ? FOR UPDATE</code>，加锁后检查状态再执行。</p>
+                        <p><strong>5. 乐观锁（版本号 / CAS）：</strong></p>
+                        <p>UPDATE 时带 version 条件：<code>UPDATE orders SET status='已支付', version=version+1 WHERE id=? AND version=?</code>，影响行数为 0 说明已被他人修改，触发重试。</p>
+                        <p><strong>6. 分布式锁：</strong></p>
+                        <p>用业务 ID 做 Redis 分布式锁（SETNX），同一 ID 并发时只有一个获取锁成功并执行，其他等待或跳过。</p>
+                        <p><strong>设计建议：</strong>GET 操作天然幂等；PUT/DELETE 需根据语义设计幂等；POST（创建）通常用唯一索引；状态变更用状态机。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number blue">Q7</div>
+                    <div class="question-text">Spring Boot 自动装配的原理是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>Spring Boot 的自动装配（Auto Configuration）是其"约定大于配置"理念的核心，让开发者无需手动配置大量 Bean，框架自动根据 classpath 中的依赖和配置文件完成 Bean 的注册。</p>
+                        <p><strong>核心原理：</strong></p>
+                        <ul>
+                            <li><strong>@SpringBootApplication：</strong>由 <code>@SpringBootConfiguration</code>（= @Configuration）+ <code>@EnableAutoConfiguration</code> + <code>@ComponentScan</code> 三个注解组成。</li>
+                            <li><strong>@EnableAutoConfiguration：</strong>通过 <code>@Import(AutoConfigurationImportSelector.class)</code> 导入自动配置选择器。</li>
+                            <li><strong>AutoConfigurationImportSelector：</strong>重写了 <code>selectImports()</code> 方法。它扫描所有 <code>META-INF/spring.factories</code>（Spring Boot 2.7 之前）或 <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code>（Spring Boot 2.7+）文件，读取其中声明的自动配置类（FulFillAutoConfiguration）。</li>
+                            <li><strong>条件装配（@Conditional）：</strong>每个自动配置类通过 <code>@ConditionalOnClass</code>（classpath 存在某类才生效）、<code>@ConditionalOnProperty</code>（配置项存在且为 true 才生效）、<code>@ConditionalOnBean</code>（容器中不存在某 Bean 才生效）等条件注解，实现"智能"装配——只有当特定依赖存在时才注册对应 Bean。</li>
+                        </ul>
+                        <p><strong>举例：</strong>当 classpath 中有 <code>spring-boot-starter-data-redis</code> 时，<code>RedisAutoConfiguration</code> 上的 <code>@ConditionalOnClass(RedisTemplate.class)</code> 条件满足，框架自动注册 <code>RedisTemplate</code> 等 Bean，无需手动配置。</p>
+                        <p><strong>排除自动配置：</strong><code>@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})</code> 或在配置文件中 <code>spring.autoconfigure.exclude</code>。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ========== 并发编程 ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fef2f2;">
+                    <span style="font-size:1.4rem;">&#x2699;</span>
+                </div>
+                <span class="category-title">并发编程</span>
+                <span class="category-count">5 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number red">Q1</div>
+                    <div class="question-text">ThreadLocal 的原理是什么？存在哪些问题？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>原理：</strong></p>
+                        <p>每个 Thread 对象内部有一个 <code>ThreadLocalMap</code>（本质是 Entry[] 数组），key 是 ThreadLocal 对象（弱引用），value 是存入的值。调用 <code>set(T value)</code> 时，实际上是获取当前线程的 ThreadLocalMap，以当前 ThreadLocal 对象为 key 存入 Entry。不同线程访问同一个 ThreadLocal，get 的是各自线程独立的数据副本。</p>
+                        <p><strong>内存泄漏问题（重点）：</strong></p>
+                        <p>ThreadLocalMap 的 Entry 继承自 <code>WeakReference&lt;ThreadLocal&lt;?&gt;&gt;</code>，key（ThreadLocal 对象）是弱引用。当 ThreadLocal 对象没有强引用只剩弱引用时，下次 GC 就会被回收，key 变为 null。但 value 是强引用，如果不为 null，就无法被回收，导致<strong>value 内存泄漏</strong>。</p>
+                        <p>ThreadLocal 的设计者在 <code>set/get/remove</code> 方法中都做了<strong>探测式清理（expungeStaleEntry）</strong>：访问时发现 stale key（key == null）就清理掉对应的 value。但更安全的做法是：<strong>使用完毕后主动调用 <code>remove()</code></strong>，而不是依赖自动清理。</p>
+                        <p><strong>应用场景：</strong></p>
+                        <ul>
+                            <li>数据库连接（Connection）在线程间隔离</li>
+                            <li>用户登录 Session 传递（Web 项目中，在拦截器设置 ThreadLocal，获取用户信息时直接取 ThreadLocal）</li>
+                            <li>线程上下文传递（如 TraceId 日志追踪）</li>
+                            <li>Spring 事务管理器（TransactionSynchronizationManager）</li>
+                        </ul>
+                        <p><strong>ThreadLocal vs 继承（InheritableThreadLocal）：</strong>普通 ThreadLocal 只在当前线程有效；InheritableThreadLocal 允许子线程继承父线程的值，但需要注意子线程生命周期短时同样有内存泄漏风险。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number red">Q2</div>
+                    <div class="question-text">synchronized 和 ReentrantLock 的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>共同点：</strong>都是可重入锁（同一线程可重复获取），保证互斥访问和可见性。</p>
+                        <p><strong>核心区别：</strong></p>
+                        <ul>
+                            <li><strong>底层实现：</strong>synchronized 是 JVM 内置关键字，由 JVM 底层实现（对象头 Mark Word + Monitor）；ReentrantLock 是 <code>java.util.concurrent.locks</code> 包下的类，基于 AQS（AbstractQueuedSynchronizer）实现。</li>
+                            <li><strong>等待方式：</strong>synchronized 无法中断等待锁的线程，锁获取一直阻塞；ReentrantLock 可以通过 <code>lockInterruptibly()</code> 中断等待。</li>
+                            <li><strong>公平性：</strong>synchronized 是非公平锁（插队式）；ReentrantLock 可以通过构造函数指定公平/非公平（<code>new ReentrantLock(true)</code> 为公平锁）。</li>
+                            <li><strong>锁粒度：</strong>synchronized 锁粒度粗（整个方法或代码块）；ReentrantLock 可通过 <code>newCondition()</code> 创建多个条件变量（Condition），更精细地控制线程等待/通知。</li>
+                            <li><strong>性能优化：</strong>JDK 1.6 之后对 synchronized 做了大量优化（偏向锁、轻量级锁、自旋锁、锁消除、锁粗化），两者性能差距已不大。</li>
+                            <li><strong>API 丰富度：</strong>ReentrantLock 提供 <code>tryLock()</code>（尝试获取，获取不到立即返回）、<code>tryLock(timeout)</code>（超时等待）、<code>getHoldCount()</code>（当前线程持有锁次数）等 API。</li>
+                        </ul>
+                        <p><strong>选型建议：</strong>简单互斥用 synchronized（更简洁，JVM 原生支持）；需要公平锁、可中断、超时等待、多条件变量时用 ReentrantLock。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number red">Q3</div>
+                    <div class="question-text">线程池的核心参数有哪些？拒绝策略是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>ThreadPoolExecutor 构造方法核心参数：</strong></p>
+                        <ul>
+                            <li><strong>corePoolSize：</strong>核心线程数，即使空闲也不会被回收的线程数量</li>
+                            <li><strong>maximumPoolSize：</strong>最大线程数，核心线程 + 临时线程的最大数量</li>
+                            <li><strong>keepAliveTime / unit：</strong>非核心线程的空闲存活时间</li>
+                            <li><strong>workQueue：</strong>任务队列，用于存放等待执行的任务（如 LinkedBlockingQueue、ArrayBlockingQueue、SynchronousQueue）</li>
+                            <li><strong>threadFactory：</strong>线程工厂，用于创建新线程（可自定义线程名称、优先级、是否守护线程）</li>
+                            <li><strong>handler：</strong>拒绝策略，当线程池饱和时的处理策略</li>
+                        </ul>
+                        <p><strong>线程池工作流程：</strong></p>
+                        <p>任务进来 → 核心线程数未满则创建核心线程执行 → 核心线程满则加入任务队列 → 队列满则创建非核心线程（直到 maxPoolSize） → 线程池饱和则执行拒绝策略</p>
+                        <p><strong>4 种拒绝策略：</strong></p>
+                        <ul>
+                            <li><strong>AbortPolicy（默认）：</strong>抛出 <code>RejectedExecutionException</code>，拒绝执行并抛异常</li>
+                            <li><strong>CallerRunsPolicy：</strong>由调用者线程执行任务（主线程），会降低提交速度，不会丢失任务</li>
+                            <li><strong>DiscardPolicy：</strong>直接丢弃任务，不抛异常</li>
+                            <li><strong>DiscardOldestPolicy：</strong>丢弃队列中最旧（最老的）的任务，然后尝试重新提交新任务</li>
+                        </ul>
+                        <p><strong>常见线程池：</strong><code>Executors.newFixedThreadPool()</code>（固定大小，LinkedBlockingQueue）；<code>newCachedThreadPool()</code>（按需创建，SynchronousQueue）；<code>newSingleThreadExecutor()</code>（单线程）；<code>newScheduledThreadPool()</code>（定时任务）。生产环境建议用 <code>ThreadPoolExecutor</code> 直接创建，避免使用 Executors 快捷方法导致队列无限堆积。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number red">Q4</div>
+                    <div class="question-text">什么是守护线程？Java 中的线程类型有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>守护线程（Daemon Thread）：</strong></p>
+                        <p>守护线程是为用户线程（User Thread）提供后台服务的线程。JVM 的启动线程是非守护线程（User Thread）。当所有非守护线程都结束时，JVM 会立即终止所有守护线程并退出程序。</p>
+                        <p><strong>设置方式：</strong><code>thread.setDaemon(true)</code> 必须在 <code>start()</code> 之前调用。</p>
+                        <p><strong>典型守护线程：</strong>垃圾回收线程（GC）、JVM 内部调度线程、Finalizer 线程。线程池中的线程默认是用户线程。</p>
+                        <p><strong>注意：</strong>守护线程中 finally 块可能不执行（JVM 突然终止）；不要用守护线程处理数据库连接、文件读写等需要清理资源的工作。</p>
+                        <p><strong>Java 线程的 6 种状态（NEW / RUNNABLE / BLOCKED / WAITING / TIMED_WAITING / TERMINATED）：</strong></p>
+                        <ul>
+                            <li><strong>NEW：</strong>新建，线程被创建但未启动</li>
+                            <li><strong>RUNNABLE：</strong>运行中（包含 Ready 和 Running 两种状态，由系统调度）</li>
+                            <li><strong>BLOCKED：</strong>阻塞，等待获取监视器锁（synchronized 阻塞）</li>
+                            <li><strong>WAITING：</strong>无限等待（<code>Object.wait()</code>、<code>LockSupport.park()</code>、<code>thread.join()</code> 无参数）</li>
+                            <li><strong>TIMED_WAITING：</strong>有限期等待（<code>Thread.sleep()</code>、<code>wait(timeout)</code>、<code>LockSupport.parkNanos()</code>）</li>
+                            <li><strong>TERMINATED：</strong>终止，线程执行完毕</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number red">Q5</div>
+                    <div class="question-text">volatile 的作用是什么？它的局限性在哪里？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>volatile 的两大作用：</strong></p>
+                        <ul>
+                            <li><strong>保证可见性（Visibility）：</strong>当一个线程修改了 volatile 变量的值，其他线程能立即看到这个修改（通过 MESI 缓存一致性协议或总线锁实现）。不加 volatile 时，线程可能从 CPU 缓存或寄存器读取过期值。</li>
+                            <li><strong>禁止指令重排序（Ordering）：</strong>volatile 在编译器和 CPU 之间插入内存屏障（Memory Barrier），防止编译器/CPU 对 volatile 变量前后的指令进行重排序。</li>
+                        </ul>
+                        <p><strong>volatile 不保证原子性：</strongp>
+                        <p>volatile 的读/写本身是原子的（单次操作），但<strong>复合操作</strong>（如 <code>i++</code> 实际上是"读取-修改-写入"三步操作）不是原子的，多线程下仍然会出现竞态条件。</p>
+                        <p>例如：两个线程同时执行 <code>i++</code>，初始 i=0，期望结果 2，但实际可能只有 1：</p>
+                        <p>线程A读取i=0 → 线程B读取i=0 → 线程A计算i+1=1 → 线程B计算i+1=1 → 线程A写入i=1 → 线程B写入i=1</p>
+                        <p><strong>volatile 的局限性：</strong></p>
+                        <ul>
+                            <li><strong>不保证原子性：</strong>复合操作需要用 <code>synchronized</code> 或 <code>AtomicInteger</code> 等原子类</li>
+                            <li><strong>不保证互斥：</strong>无法阻止两个线程同时进入临界区</li>
+                        </ul>
+                        <p><strong>volatile 的典型使用场景：</strong></p>
+                        <ul>
+                            <li>状态标志（<code>volatile boolean running = true</code>，用于优雅停机）</li>
+                            <li>DCL（双重检查锁）中修饰单例对象的引用</li>
+                            <li>单写入多读取的场景（如配置信息读取）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ========== MySQL ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#ecfdf5;">
+                    <span style="font-size:1.4rem;">&#x1F4BE;</span>
+                </div>
+                <span class="category-title">MySQL</span>
+                <span class="category-count">5 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q1</div>
+                    <div class="question-text">MySQL 的锁机制有哪些？什么是间隙锁？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>按锁粒度分类：</strong></p>
+                        <ul>
+                            <li><strong>表锁：</strong>锁定整张表，开销小、加锁快、锁粒度粗。MyISAM 使用表锁；InnoDB 也支持表锁（<code>LOCK TABLES</code>）。</li>
+                            <li><strong>行锁：</strong>只锁定需要修改的行，开销大、加锁慢、锁粒度细。InnoDB 的行锁基于索引实现（如果查询不走索引则升级为表锁）。</li>
+                            <li><strong>页面锁：</strong>介于表锁和行锁之间，开销和粒度折中（BDB 存储引擎支持）。</li>
+                        </ul>
+                        <p><strong>按类型分类：</strong></p>
+                        <ul>
+                            <li><strong>共享锁（S Lock）：</strong>允许事务读取一行数据，多个 S 锁可同时加在同一数据上，不互斥。</li>
+                            <li><strong>排他锁（X Lock）：</strong>允许事务删除/更新一行数据，X 锁与其他任何锁互斥（不能同时存在）。</li>
+                        </ul>
+                        <p><strong>InnoDB 特有锁：</strong></p>
+                        <ul>
+                            <li><strong>记录锁（Record Lock）：</strong>锁定索引记录（而非数据行），即最常见的行锁。</li>
+                            <li><strong>间隙锁（Gap Lock）：</strong>锁定索引记录之间的间隙（或第一条/最后一条索引记录之前/之后的范围），防止其他事务在间隙中插入数据，防止幻读。Gap Lock 是 InnoDB 在 RR（可重复读）隔离级别下防止幻读的核心手段。</li>
+                            <li><strong>临键锁（Next-Key Lock）：</strong>记录锁 + 间隙锁的组合。锁定一个前开后闭区间<code>(prev, current]</code>，既锁定已有的行，也锁定行之间的间隙。</li>
+                            <li><strong>插入意图锁（Insert Intention Lock）：</strong>插入操作在等待获取间隙锁时，在间隙中设置的锁，表示有多个插入意图。</li>
+                        </ul>
+                        <p><strong>间隙锁举例：</strong></p>
+                        <p>id 列有值 1, 5, 10。当事务执行 <code>SELECT * FROM t WHERE id > 3 AND id < 10 FOR UPDATE</code> 时，Gap Lock 会锁定 (5, 10) 这个间隙，其他事务无法在这个范围内插入 id=6/7/8/9 的记录。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q2</div>
+                    <div class="question-text">什么是慢查询？如何优化 SQL？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>慢查询定义：</strong>执行时间超过 <code>slow_query_log</code> 阈值（默认 1 秒）的 SQL 查询。</p>
+                        <p><strong>慢查询分析流程：</strong></p>
+                        <ul>
+                            <li>开启慢查询日志：<code>slow_query_log=1</code>、<code>long_query_time=1</code></li>
+                            <li>通过 <code>mysqldumpslow</code> 或 <code>pt-query-digest</code> 工具分析慢日志，找出 Top N 慢 SQL</li>
+                            <li>使用 <code>EXPLAIN</code> / <code>EXPLAIN ANALYZE</code> 分析执行计划，关注 type、key、rows、Extra</li>
+                            <li>使用 <code>SHOW FULL PROCESSLIST</code> 查看当前连接和查询状态</li>
+                        </ul>
+                        <p><strong>SQL 优化策略：</strong></p>
+                        <ul>
+                            <li><strong>索引优化：</strong>为 WHERE、JOIN、ORDER BY、GROUP BY 字段建索引；避免全表扫描（type=ALL）；使用覆盖索引减少回表</li>
+                            <li><strong>避免索引失效：</strong>不在索引列上使用函数（<code>WHERE YEAR(create_time)</code>）、避免类型转换、遵循最左前缀原则</li>
+                            <li><strong>优化数据访问：</strong>避免 <code>SELECT *</code>；分页优化（延迟关联 / 游标分页）；使用 LIMIT 限制返回行数</li>
+                            <li><strong>减少 JOIN：</strong>大表 JOIN 消耗巨大，禁止超过 3 张表的 JOIN；可适当反范式化（冗余字段）</li>
+                            <li><strong>避免排序：</strong>无法利用索引的 ORDER BY 会产生 filesort（内存/磁盘排序），可优化为索引排序</li>
+                            <li><strong>批量操作：</strong>批量 INSERT 代替循环单条插入；批量 UPDATE 用 CASE WHEN 合并</li>
+                            <li><strong>架构层优化：</strong>读写分离；引入缓存；分库分表</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q3</div>
+                    <div class="question-text">什么是分库分表？ShardingSphere 的实现原理是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>分库分表（Sharding）的背景：</strong></p>
+                        <p>单机数据库的连接数、存储容量、写入性能都有上限。当单表数据量超过千万级（MySQL 行锁竞争加剧、B+ 树层数增加）时，需要将数据分散到多个库/表中。</p>
+                        <p><strong>分库：</strong>将数据按业务模块拆分到不同数据库实例，减轻单一数据库的 I/O 和连接压力。</p>
+                        <p><strong>分表（水平分表 / 垂直分表）：</strong></p>
+                        <ul>
+                            <li><strong>垂直分表：</strong>按字段的访问频率和相关性拆分（冷热字段分离），如将大字段（text/blob）拆分到扩展表，减少单行数据宽度。</li>
+                            <li><strong>水平分表：</strong>按某个字段（分片键/sharding key）将数据行分散到多个表中（如按 user_id 取模、按时间范围分表）。</li>
+                        </ul>
+                        <p><strong>分片算法：</strong></p>
+                        <ul>
+                            <li><strong>哈希分片：</strong><code>sharding_key % N</code>，数据分布均匀，但扩缩容时需要迁移大量数据（改 N 后所有路由变化）</li>
+                            <li><strong>范围分片：</strong>按时间/ID 区间分，数据分布有序，适合范围查询，但易产生热点</li>
+                            <li><strong>一致性哈希：</strong>解决扩缩容迁移量大的问题，Redis Cluster / ShardingSphereJDBC 都支持</li>
+                        </ul>
+                        <p><strong>ShardingSphere 的两种模式：</strong></p>
+                        <ul>
+                            <li><strong>ShardingSphere-JDBC（分库分表客户端）：</strong>在应用层通过 jar 包拦截 SQL，重写 SQL 并根据分片键路由到对应库/表。轻量、无额外组件，但应用需要引入 SDK。</li>
+                            <li><strong>ShardingSphere-Proxy（分库分表代理端）：</strong>部署一个 MySQL 代理进程，应用连接代理而非直连 MySQL，代理负责 SQL 改写和路由。应用无侵入，但多了一层网络转发。</li>
+                        </ul>
+                        <p><strong>分库分表的问题：</strong>跨库查询困难（需多次查询或 ES）、分布式 ID 生成问题、分布式事务问题。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q4</div>
+                    <div class="question-text">MySQL 的执行计划（EXPLAIN）需要关注哪些字段？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>使用 <code>EXPLAIN [ANALYZE] &lt;SQL&gt;</code> 分析 SQL 的执行计划。</p>
+                        <p><strong>关键字段：</strong></p>
+                        <ul>
+                            <li><strong>type（连接类型，从优到差）：</strong>const > eq_ref > ref > range > index > ALL
+                                <ul>
+                                    <li><strong>const：</strong>主键或唯一索引等值查询，最多返回一行（最优）</li>
+                                    <li><strong>eq_ref：</strong>关联查询时，被驱动表使用唯一索引（主键/唯一）访问（优）</li>
+                                    <li><strong>ref：</strong>非唯一索引等值查询（良）</li>
+                                    <li><strong>range：</strong>索引范围扫描（<code>BETWEEN</code>、<code>IN</code>、<code>&gt;</code> 等）（中）</li>
+                                    <li><strong>index：</strong>全索引扫描（只需要扫描索引，不需要回表）（差）</li>
+                                    <li><strong>ALL：</strong>全表扫描（最差，需要优化）</li>
+                                </ul>
+                            </li>
+                            <li><strong>key：</strong>实际使用的索引名称</li>
+                            <li><strong>key_len：</strong>索引使用的字节数（越长说明索引覆盖越宽）</li>
+                            <li><strong>rows：</strong>估算需要扫描的行数（越小越好）</li>
+                            <li><strong>Extra（重要）：</strong>
+                                <ul>
+                                    <li><strong>Using index：</strong>覆盖索引，无需回表（性能好）</li>
+                                    <li><strong>Using index condition：</strong>索引下推（Index Condition Pushdown），在索引层过滤部分条件</li>
+                                    <li><strong>Using where：</strong>需要在 MySQL 服务层额外过滤数据</li>
+                                    <li><strong>Using filesort：</strong>无法利用索引排序，需要额外排序（可能使用磁盘或内存排序），需优化</li>
+                                    <li><strong>Using temporary：</strong>需要创建临时表存储中间结果，需优化</li>
+                                    <li><strong>Using join buffer：</strong>JOIN 时使用 join buffer 加速（Block Nested-Loop Join）</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number purple">Q5</div>
+                    <div class="question-text">MySQL 死锁是怎么产生的？如何排查和解决？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>死锁产生的条件（四个必要条件，缺一不可）：</strong></p>
+                        <ul>
+                            <li><strong>互斥：</strong>资源一次只能被一个事务持有</li>
+                            <li><strong>持有并等待：</strong>事务在持有资源的同时请求其他资源</li>
+                            <li><strong>不可抢占：</strong>已持有的资源不能被强制释放，只能主动释放</li>
+                            <li><strong>循环等待：</strong>事务间形成资源循环等待链</li>
+                        </ul>
+                        <p><strong>MySQL InnoDB 死锁典型场景：</strong></p>
+                        <p>两个事务以不同顺序操作相同行的记录：</p>
+                        <p>事务A: UPDATE t SET v=1 WHERE id=1（锁住 id=1） → UPDATE t SET v=1 WHERE id=2（等待 id=2）</p>
+                        <p>事务B: UPDATE t SET v=1 WHERE id=2（锁住 id=2） → UPDATE t SET v=1 WHERE id=1（等待 id=1）</p>
+                        <p>循环等待，死锁形成。</p>
+                        <p><strong>死锁的检测与处理：</strong></p>
+                        <p>InnoDB 使用<strong>等待图（Wait-For Graph）</strong>算法自动检测死锁（O(N) 时间复杂度）。检测到死锁后，选择<strong>undo log 最小的事务</strong>进行回滚（通常是插入/更新数据量最少的事务），让其他事务继续执行。</p>
+                        <p><strong>死锁排查方法：</strong></p>
+                        <ul>
+                            <li><strong>SHOW ENGINE INNODB STATUS：</strong>查看最近一次死锁的详细信息（包含两个事务的完整 SQL 序列、等待的锁信息）</li>
+                            <li><strong>开启死锁日志：</strong><code>innodb_print_all_deadlocks=1</code>（MySQL 5.6.2+）写入错误日志</li>
+                            <li>分析慢查询日志，找出高并发下频繁操作同一批记录的事务</li>
+                        </ul>
+                        <p><strong>避免死锁的措施：</strong></p>
+                        <ul>
+                            <li>按固定顺序访问数据（所有事务都按 id 升序访问）</li>
+                            <li>减少事务持有锁的时间（尽快提交/回滚）</li>
+                            <li>降低隔离级别（如从 RR 降到 RC，Gap Lock 会减少）</li>
+                            <li>批量操作尽量一次锁定范围更大的记录</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ========== Linux & 容器 ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fdf4ff;">
+                    <span style="font-size:1.4rem;">&#x1F4BB;</span>
+                </div>
+                <span class="category-title">Linux 与容器</span>
+                <span class="category-count">6 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number amber">Q1</div>
+                    <div class="question-text">Linux 的 IO 模型有哪些？同步与异步、阻塞与非阻塞的区别？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>5 种 IO 模型（以 recvfrom 为例）：</strong></p>
+                        <ul>
+                            <li><strong>阻塞 IO（BIO）：</strong>应用进程发起 recvfrom 调用后，进程阻塞，直到数据复制完成才返回。简单但效率低，一个连接一个线程。</li>
+                            <li><strong>非阻塞 IO（NIO）：</strong>应用进程发起 recvfrom 后，内核数据未就绪则立即返回 EWOULDBLOCK，进程不断轮询直到数据就绪，再进行数据复制并返回。CPU 空转开销大。</li>
+                            <li><strong>IO 多路复用（Multiplexing）：</strong>用一个线程管理多个 socket。通过 select/poll/epoll 监听多个 fd，当某个 socket 数据就绪后返回，再调用 recvfrom 读取数据。Linux 高并发服务器的基石。</li>
+                            <li><strong>信号驱动 IO（SIGIO）：</strong>应用进程先注册 SIGIO 信号处理函数，内核数据就绪时发送 SIGIO 信号，进程收到信号后调用 recvfrom 读取数据。内核层面实现了异步通知。</li>
+                            <li><strong>异步 IO（AIO / io_uring）：</strong>应用进程发起 <code>aio_read</code> 后立即返回，内核完成数据读取并复制到用户空间后，通过信号或回调通知进程。真正的异步，Linux 7 支持 io_uring。</li>
+                        </ul>
+                        <p><strong>同步 vs 异步：</strong>同步指用户进程发起 IO 后，需要等待（主动等待）结果才继续；异步指用户进程发起 IO 后立即返回，内核完成全部工作后通知进程（被动通知）。</p>
+                        <p><strong>阻塞 vs 非阻塞：</strong>阻塞指调用在数据未就绪时挂起；非阻塞指调用在数据未就绪时立即返回错误码，不挂起（但通常需要轮询）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number amber">Q2</div>
+                    <div class="question-text">epoll 相比 select / poll 的优势是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>select 的问题：</strong></p>
+                        <ul>
+                            <li><strong>fd 数量限制：</strong>受限于 <code>FD_SETSIZE</code>（Linux 通常 1024），无法支持高并发</li>
+                            <li><strong>线性扫描：</strong>每次调用都需要将 fd 集合从用户态复制到内核态，然后遍历所有 fd 检查就绪状态（O(N) 复杂度）</li>
+                            <li><strong>重置成本：</strong>每次 select 调用后需要重置 fd 集合</li>
+                        </ul>
+                        <p><strong>poll 的改进：</strong>用 pollfd 数组代替 fd_set，突破了 fd 数量限制（仅受文件描述符上限 ulimit 限制），但仍然是线性扫描（O(N)）。</p>
+                        <p><strong>epoll 的优势：</strong></p>
+                        <ul>
+                            <li><strong>时间复杂度 O(1)：</strong>epoll 使用红黑树管理 fd，新增/删除 fd 和事件都在 O(log N)；就绪时只返回已就绪的 fd（通过回调机制），无需遍历所有 fd。</li>
+                            <li><strong>无需重复拷贝：</strong>fd 集合在 epoll_ctl 时一次性从用户态拷贝到内核态，epoll_wait 只拷贝已就绪的 fd 列表，不需要每次都全量拷贝。</li>
+                            <li><strong>支持边缘触发（ET）和水平触发（LT）：</strong>ET 模式只通知一次（需一次性读完所有数据），减少系统调用次数；LT 模式只要数据未读完就持续通知。</li>
+                        </ul>
+                        <p><strong>epoll 的应用：</strong>Nginx、Redis、Java NIO（Selector 底层实现）均使用 epoll，是 Linux 高性能网络 IO 的核心。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number amber">Q3</div>
+                    <div class="question-text">Docker 的原理是什么？容器与虚拟机的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>Docker 核心原理：</strong></p>
+                        <ul>
+                            <li><strong>Linux Namespace（命名空间）：</strong>隔离资源，使容器内的进程看到不同的视图。6 种命名空间：
+                                <ul>
+                                    <li>PID Namespace：隔离进程 ID（容器内 PID 1 可能对应宿主机 PID 1000）</li>
+                                    <li>Network Namespace：隔离网络设备、端口、路由表</li>
+                                    <li>Mount Namespace：隔离文件系统挂载点</li>
+                                    <li>UTS Namespace：隔离主机名和域名</li>
+                                    <li>IPC Namespace：隔离信号量、共享内存、消息队列</li>
+                                    <li>User Namespace：隔离用户和用户组 ID</li>
+                                </ul>
+                            </li>
+                            <li><strong>Linux Cgroup（Control Groups）：</strong>限制和隔离进程的资源使用（CPU、内存、IO、网络带宽）。每个容器有自己的 cgroup 层级，防止一个容器耗尽宿主机资源。</li>
+                            <li><strong>UnionFS（联合文件系统）：</strong>Docker 镜像由多层只读层叠而成（Base Image + 中间层），容器启动时在最上层添加一个可写层（Container Layer）。容器间共享底层只读层，复用存储（Copy-on-Write）。</li>
+                        </ul>
+                        <p><strong>容器 vs 虚拟机：</strong></p>
+                        <ul>
+                            <li><strong>架构：</strong>VM 需要独立内核，通过 Hypervisor 模拟硬件，运行完整 OS（Guest OS），每个 VM 都有独立的 OS（数 GB）；容器共享宿主机内核，轻量得多（MB 级），启动快（秒级 vs 分钟级）</li>
+                            <li><strong>隔离性：</strong>VM 隔离性更强（硬件级别隔离）；容器是内核级隔离，安全性相对弱（共用内核是潜在攻击面）</li>
+                            <li><strong>性能：</strong>容器几乎无性能损失（接近原生）；VM 有虚拟化开销（CPU/IO/网络）</li>
+                            <li><strong>启动速度：</strong>容器秒级启动；VM 分钟级启动</li>
+                            <li><strong>适用场景：</strong>VM 适合需要强隔离的场景（多租户、不同 OS）；容器适合微服务、CI/CD、快速弹性伸缩</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number amber">Q4</div>
+                    <div class="question-text">如何排查 Linux 服务器性能问题？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>CPU 瓶颈：</strong></p>
+                        <ul>
+                            <li><code>top</code> / <code>htop</code>：查看 CPU 使用率，定位高 CPU 进程</li>
+                            <li><code>top -Hp &lt;pid&gt;</code>：查看某进程内各线程的 CPU 占用</li>
+                            <li><code>vmstat 1</code>：查看 CPU 上下文切换次数（cs 高说明调度开销大）</li>
+                            <li><code>perf top</code>：CPU profiling，定位热点函数</li>
+                        </ul>
+                        <p><strong>内存瓶颈：</strong></p>
+                        <ul>
+                            <li><code>free -h</code>：查看内存使用（free / available / cached）</li>
+                            <li><code>top</code> 按 M 排序：查看各进程内存占用</li>
+                            <li><code>vmstat 1</code>：查看 si/so（swap in/out），频繁换页说明内存不足</li>
+                            <li><code>pmap -x &lt;pid&gt;</code>：查看进程详细内存映射</li>
+                        </ul>
+                        <p><strong>磁盘 I/O 瓶颈：</strong></p>
+                        <ul>
+                            <li><code>iostat -x 1</code>：查看各磁盘 I/O 利用率和吞吐量</li>
+                            <li><code>iotop</code>：按进程查看 I/O 占用</li>
+                            <li><code>iostat -d -k 2</code>：查看磁盘读写 KB/s 和 tps</li>
+                        </ul>
+                        <p><strong>网络瓶颈：</strong></p>
+                        <ul>
+                            <li><code>netstat -s</code>：查看网络协议栈统计（丢包、重传、连接数）</li>
+                            <li><code>sar -n DEV 1</code>：查看网卡流量（收发包数、字节数）</li>
+                            <li><code>ss -s</code>：查看当前 TCP 连接状态分布</li>
+                        </ul>
+                        <p><strong>整体排查思路：</strong>先 <code>top</code> 看 CPU/内存 → <code>iostat</code> 看 I/O → <code>netstat/ss</code> 看网络 → 结合 <code>dmesg</code>（内核日志）和应用日志定位具体原因。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number amber">Q5</div>
+                    <div class="question-text">Kubernetes（K8s）的核心概念有哪些？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>核心对象：</strong></p>
+                        <ul>
+                            <li><strong>Pod：</strong>K8s 的最小调度单位，一个 Pod 包含一个或多个紧密耦合的容器（共享网络、存储、UTS/ IPC Namespace）。同一 Pod 内容器通过 localhost 通信。</li>
+                            <li><strong>Deployment：</strong>管理无状态应用的声明式更新。通过 ReplicaSet 控制 Pod 副本数，支持滚动更新（Rolling Update）和回滚（Rollback）。</li>
+                            <li><strong>StatefulSet：</strong>管理有状态应用（需要持久存储、唯一网络标识）。Pod 名称固定、持久 PVC、按顺序部署/扩缩容。</li>
+                            <li><strong>DaemonSet：</strong>确保每个节点（或符合选择条件的节点）都运行一个 Pod 副本（如日志收集 node-exporter、fluentd）。</li>
+                            <li><strong>Service：</strong>为 Pod 提供稳定的访问入口（ClusterIP / NodePort / LoadBalancer）。通过 Label Selector 动态发现后端 Pod，支持滚动更新时 IP 变化对客户端透明。</li>
+                            <li><strong>Ingress：</strong>HTTP/HTTPS 层的外部访问入口，七层负载均衡，支持基于 Host/Path 的路由规则。</li>
+                            <li><strong>ConfigMap / Secret：</strong>外部化配置。ConfigMap 存储非敏感配置（JSON/YAML/env 文件）；Secret 存储敏感信息（密码、证书、密钥），Base64 编码。</li>
+                            <li><strong>PersistentVolume / PersistentVolumeClaim：</strong>持久化存储抽象。PV 是集群级的存储资源；PVC 是 Pod 对 PV 的请求。</li>
+                        </ul>
+                        <p><strong>核心组件：</strong></p>
+                        <ul>
+                            <li><strong>API Server：</strong>集群统一入口，所有操作通过 API Server</li>
+                            <li><strong>etcd：</strong>分布式 kv 存储，保存集群所有状态</li>
+                            <li><strong>Scheduler：</strong>将 Pod 调度到最优节点（考虑资源、亲和性、Taint/Toleration）</li>
+                            <li><strong>Controller Manager：</strong>运行各种 Controller（Deployment Controller、ReplicaSet Controller、Node Controller 等）维护期望状态</li>
+                            <li><strong>Kubelet：</strong>运行在每个节点上，负责创建/启动/停止容器、管理 Volume 和网络</li>
+                            <li><strong>Kube-Proxy：</strong>维护节点上的网络规则（iptables / IPVS），实现 Service 的负载均衡</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number amber">Q6</div>
+                    <div class="question-text">软链接和硬链接的区别是什么？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>硬链接（Hard Link）：</strong></p>
+                        <p>多个文件名指向同一个 inode（索引节点）。删除任意一个文件名，只要还有链接指向该 inode，数据就不会被删除。只有在同一文件系统内才能创建硬链接，不能跨文件系统，不能给目录创建硬链接。</p>
+                        <p><strong>软链接（Symbolic Link / Symlink）：</strong></p>
+                        <p>创建一个特殊类型的文件，内容是目标文件的路径（快捷方式）。软链接有自己的 inode，指向目标文件的路径。可以跨文件系统，可以给目录创建软链接。如果目标文件被删除（inode 链接数归 0），软链接变成"悬空链接"（ dangling link），访问会报错。</p>
+                        <p><strong>对比：</strong></p>
+                        <ul>
+                            <li><strong>跨文件系统：</strong>软链接可以，硬链接不行</li>
+                            <li><strong>指向目录：</strong>软链接可以给目录创建；硬链接不行</li>
+                            <li><strong>原文件删除后：</strong>硬链接仍然有效（因为引用数 > 1）；软链接变成悬空链接</li>
+                            <li><strong>速度：</strong>硬链接直接指向 inode，快；软链接需要二次查找，慢</li>
+                            <li><strong>创建命令：</strong><code>ln source hardlink</code>（硬链接）；<code>ln -s source symlink</code>（软链接）</li>
+                        </ul>
+                        <p><strong>应用场景：</strong>硬链接用于安全删除（防止误删重要文件）；软链接用于程序版本切换（如 <code>/usr/bin/python</code> → <code>/usr/bin/python3.9</code>）、目录快捷方式、跨文件系统引用。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ========== 系统设计 ========== -->
+        <div class="category">
+            <div class="category-header">
+                <div class="category-icon" style="background:#fff0f0;">
+                    <span style="font-size:1.4rem;">&#x1F3AF;</span>
+                </div>
+                <span class="category-title">系统设计</span>
+                <span class="category-count">6 题</span>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number cyan">Q1</div>
+                    <div class="question-text">如何设计一个秒杀系统？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>秒杀系统的核心挑战：<strong>高并发读 + 写放大</strong>（万级 QPS 集中写入），必须解决缓存穿透、缓存击穿、数据库压力等问题。</p>
+                        <p><strong>整体架构（多层防护）：</strong></p>
+                        <p><strong>第一层：客户端优化：</strong></p>
+                        <ul>
+                            <li>验证码/答题，错开下单时间（前端加倒计时，服务端校验时间窗口）</li>
+                            <li>禁止重复点击（前端按钮置灰 + 服务端幂等校验）</li>
+                            <li>CDN 加速静态资源</li>
+                        </ul>
+                        <p><strong>第二层：接入层（限流 + 防刷）：</strong></p>
+                        <ul>
+                            <li>API 网关限流（令牌桶 / 滑动窗口，限制 QPS）</li>
+                            <li>IP 黑名单、User ID 限流（防爬虫/黄牛）</li>
+                            <li>热点资源 CDN 缓存（活动页面静态化）</li>
+                        </ul>
+                        <p><strong>第三层：应用层（缓存 + 异步）：</strong></p>
+                        <ul>
+                            <li>秒杀活动开始前，商品信息预热到 Redis（库存数量、秒杀价格）</li>
+                            <li>库存预扣减：<code>DECR stock</code> 原子扣库存，返回负数则说明已售罄，直接返回失败（不用打到数据库）</li>
+                            <li>扣减成功则写入<strong>秒杀订单消息队列</strong>（Kafka / RabbitMQ）</li>
+                            <li>消息队列消费者异步处理订单创建、支付、库存最终一致性</li>
+                        </ul>
+                        <p><strong>第四层：数据层：</strong></p>
+                        <ul>
+                            <li>数据库乐观锁更新库存：<code>UPDATE stock SET count = count - 1 WHERE id = ? AND count > 0</code></li>
+                            <li>库存分桶：将单 SKU 库存分成多个桶（1000件分10桶，每桶100件）写入不同 Redis key，分散并发压力</li>
+                            <li>订单库分库分表（按用户ID分库，按订单ID分表）</li>
+                        </ul>
+                        <p><strong>其他关键点：</strong>前端页面的库存展示需要定时从 Redis 更新；秒杀结束后及时更新库存回源；做好监控告警（Redis 连接数、MQ 积压量、数据库 QPS）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number cyan">Q2</div>
+                    <div class="question-text">如何设计一个短链接（短网址）系统？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>核心需求：</strong>长 URL → 短码（如 6 位字符串）→ 302 重定向到原 URL。</p>
+                        <p><strong>短码生成方案：</strong></p>
+                        <ul>
+                            <li><strong>哈希算法：</strong>对长 URL 做 MD5/SHA256，取前 6 位。缺点：哈希碰撞需处理；无法保证同一 URL 生成相同短码（去重困难）。</li>
+                            <li><strong>自增 ID（分布式 ID）：</strong>为每个 URL 分配一个全局自增 ID，将 ID 转换为 62 进制（0-9a-zA-Z，每位62种可能）。6 位可表示 62^6 ≈ 568 亿。同一 URL 每次生成相同短码（去重查询）。</li>
+                            <li><strong>预分配池：</strong>提前生成一批短码存入数据库，应用直接取用，避免自增 ID 的单点问题。</li>
+                        </ul>
+                        <p><strong>存储设计：</strong></p>
+                        <ul>
+                            <li><strong>Redis 缓存：</strong><code>SET short_code original_url EX 86400</code>（TTL 如 1 年），热点链接走缓存，O(1) 查找</li>
+                            <li><strong>MySQL 持久化：</strong>表设计：<code>(id, short_code, original_url, created_at, expire_at, click_count)</code>，对 short_code 建唯一索引</li>
+                            <li><strong>存储容量预估：</strong>6 位短码 ≈ 568 亿可用，存储压力不大</li>
+                        </ul>
+                        <p><strong>302 vs 301：</strong>使用 302 临时重定向（保留统计价值）；301 会被浏览器缓存，导致无法统计。</p>
+                        <p><strong>高并发优化：</strong>Redis 缓存热点数据；CDN 节点预缓存高频短链；多级缓存（L1 本地 + L2 Redis + L3 MySQL）。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number cyan">Q3</div>
+                    <div class="question-text">如何设计一个 Feed 流系统（朋友圈 / 微博）？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p>Feed 流系统分为两种模式：<strong>Push（推）</strong>和<strong>Pull（拉）</strong>，各有优劣。</p>
+                        <p><strong>Push 模式（写入时推送给粉丝）：</strong></p>
+                        <p>用户发微博时，将内容写入自己的发件箱（outbox），同时异步推送到所有粉丝的收件箱（inbox）。读取时直接从收件箱拉取。优点：读取极快（O(1)）；缺点：粉丝多时写放大严重（明星用户发一条微博要推送给千万粉丝）。</p>
+                        <p><strong>Pull 模式（读取时拉取关注列表）：</strong></p>
+                        <p>用户读取 Feed 时，查询自己关注的所有用户列表，再从每个关注用户的发件箱中拉取最新 N 条内容，然后归并排序。优点：写操作轻量；缺点：读取慢（需要多次查询 + 归并排序），读放大。</p>
+                        <p><strong>混合方案（业界常用）：</strong></p>
+                        <ul>
+                            <li><strong>普通用户：</strong>采用 Push（推送到粉丝 inbox）</li>
+                            <li><strong>大 V 用户：</strong>采用 Pull（不主动推送，读取时拉取大 V 的发件箱）或 Hybrid（活跃粉丝推送，大 V 拉取）</li>
+                            <li><strong>Timeline Service：</strong>读取时从收件箱拉取 N 条（分页加载），优先读 Redis 缓存（收件箱列表），缓存 miss 则回源 MySQL</li>
+                        </ul>
+                        <p><strong>存储选型：</strong></p>
+                        <ul>
+                            <li><strong>发件箱/内容表：</strong>MySQL + 分库分表（按用户 ID），存储微博正文（可水平分表，按时间或 user_id 分）</li>
+                            <li><strong>收件箱（Feed 列表）：</strong>Redis ZSet（key = user:inbox:{uid}，score = timestamp，member = feed_id），支持按时间倒序分页</li>
+                            <li><strong>内容缓存：</strong>Redis String / Hash 存储微博正文（feed_id → content），热点内容走缓存</li>
+                        </ul>
+                        <p><strong>Feed 推拉平衡的权衡：</strong>Push 适合粉丝量少（KOL 以下）、更新频繁的应用；Pull 适合粉丝量差异大（微博类）或有大量大 V 的场景。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number cyan">Q4</div>
+                    <div class="question-text">如何设计一个抢红包系统？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>核心挑战：</strong>高并发下的资金安全（不能超发红包）、原子性、公平性（随机金额）。</p>
+                        <p><strong>发红包：</strong></p>
+                        <ul>
+                            <li>用户请求 → 账户余额扣款（事务保证原子性）</li>
+                            <li>生成红包唯一 ID（分布式 ID），计算每人金额（二倍均值法：每次随机 [0, 剩余金额*2/剩余人数]），将金额和状态存入数据库 + Redis（ZSet，score=红包ID）</li>
+                            <li>红包金额明细预拆（生成每个子红包的金额和领取状态），避免抢的时候再算金额</li>
+                        </ul>
+                        <p><strong>抢红包：</strong></p>
+                        <ul>
+                            <li><strong>Redis 原子扣减：</strong><code>DECR redpack:{id}:remain_count</code>，返回负数说明已抢完（防超卖，不需要数据库锁）</li>
+                            <li>从预拆明细中随机选一个未领取的子红包（可用 SET 存储未领取 ID，随机弹出一个 <code>SPOP</code>）</li>
+                            <li>更新子红包状态为"已领取"，更新领取者、领取时间</li>
+                            <li>异步发送领取成功通知（MQ）</li>
+                        </ul>
+                        <p><strong>防并发安全：</strong></p>
+                        <ul>
+                            <li><strong>乐观锁 + 版本号：</strong>更新子红包时 <code>WHERE id=? AND status=0</code>，影响行数为 0 说明已被抢</li>
+                            <li><strong>Redis Lua 脚本：</strong>将"查询+扣减+获取子红包"打包为原子操作，避免并发竞争</li>
+                        </ul>
+                        <p><strong>超时未领退款：</strong>定时任务扫描 24 小时未领取的红包，将金额退回原账户。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number cyan">Q5</div>
+                    <div class="question-text">如何设计一个延迟消息队列？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>延迟队列（Delay Queue / Delayed Message）</strong>指消息在发送后不立即投递，而是等待指定时间后才投递给消费者。常见场景：订单超时未支付自动取消、会员到期提醒、异步任务调度。</p>
+                        <p><strong>实现方案：</strong></p>
+                        <p><strong>1. RocketMQ 延迟消息（原生支持）：</strong></p>
+                        <p>设置消息的 delayTimeLevel（延迟级别，如 1s/5s/30s/2m...），消息先写入延迟主题（SCHEDULE_TOPIC），RocketMQ 的定时任务根据延迟级别将消息投递到真实消费队列。优点：原生支持；缺点：延迟级别固定（需配置，不支持任意精确延迟）。</p>
+                        <p><strong>2. RabbitMQ + 死信队列（DLX） + TTL：</strong></p>
+                        <p>为队列设置 TTL（消息过期时间），消息 TTL 过期后进入死信队列（DLX），消费者监听 DLX 获取延迟消息。缺点：TTL 单条消息设置不灵活（每个消息的延迟时间不同需要单独队列）；消息顺序性可能改变。</p>
+                        <p><strong>3. Redis ZSet 延迟队列（轻量级）：</strong></p>
+                        <p>将消息存入 Redis ZSet，score = 执行时间戳（Unix timestamp），用一个定时任务（Lua 脚本定时轮询）不断读取 score < current_time 的消息进行消费。优点：实现简单，适合延迟精度要求不高（秒级）、消息量不大的场景。</p>
+                        <p><strong>4. 时间轮算法（Netty / Kafka Timer）：</strong></p>
+                        <p>用时间轮（TimeWheel）数据结构管理延迟任务，每个时间格维护一个 bucket（链表），指针周期性推进（Tick），到期任务自动触发。时间复杂度 O(1)，适合高性能定时器（Netty HashedWheelTimer、Kafka client.timer）。</p>
+                        <p><strong>5. 分布式延迟队列（如当当网 elastic-job、xxl-job）：</strong></p>
+                        <p>使用 Quartz /xxl-job 等分布式任务调度框架，将延迟任务作为定时 Job 注册，执行时查询数据库/Redis 获取到期的任务。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" onclick="toggleCard(this)">
+                <div class="card-question">
+                    <div class="card-number cyan">Q6</div>
+                    <div class="question-text">如何设计一个 IM（即时通讯）系统？</div>
+                    <div class="toggle-icon">&#x25BC;</div>
+                </div>
+                <div class="card-answer">
+                    <div class="answer-content">
+                        <p><strong>IM 系统的核心问题：</strong>消息可靠投递（不丢失、不重复）、实时性、消息顺序性、高并发。</p>
+                        <p><strong>消息通道：</strong></p>
+                        <ul>
+                            <li><strong>WebSocket（双向）：</strong>客户端与服务器建立持久连接，服务端可主动推送。是 IM 实时通信的基础。</li>
+                            <li><strong>轮询（HTTP Short Polling）：</strong>客户端定时请求拉取消息，简单但效率低、延迟大。</li>
+                            <li><strong>长轮询（Comet）：</strong>客户端请求后服务端 hold 住连接直到有新消息或超时，减少无效请求。</li>
+                        </ul>
+                        <p><strong>消息路由架构：</strong></p>
+                        <ul>
+                            <li><strong>消息 ID（MsgID）：</strong>全局唯一 ID（雪花算法），用于去重和排序。</li>
+                            <li><strong>写扩散 vs 读扩散：</strong>
+                                <ul>
+                                    <li><strong>写扩散（Push）：</strong>发消息时主动推送到接收者的收件箱（类似 Feed 流 Push），读取快（直接读 inbox），写入量大（每个在线用户都要写一次）。</li>
+                                    <li><strong>读扩散（Pull）：</strong>发消息只写发件箱，读取时拉取关注列表再聚合。写入轻量，读取重。</li>
+                                    <li>生产级 IM（如微信）通常混合使用：小群写扩散、大群读扩散。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p><strong>消息可靠投递：</strong></p>
+                        <ul>
+                            <li><strong>消息确认（ACK）：</strong>客户端收到消息后发送 ACK，服务端收到 ACK 才标记已读。超时未 ACK 则重发。</li>
+                            <li><strong>消息存储：</strong>离线消息写入消息库（MySQL + 分库分表 / MongoDB），用户上线后拉取离线消息。</li>
+                            <li><strong>消息漫游：</strong>所有消息持久化，支持任意时间跨设备拉取历史记录。</li>
+                        </ul>
+                        <p><strong>在线状态：</strong></p>
+                        <p>使用 Redis Set 存储用户的在线状态（uid → Gateway Server IP）。用户上线时加入 Set，下线时移除（通过心跳检测超时移除）。查询用户在线状态时读 Redis 即可。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-line"></div>
+            <p>后端开发面试题汇总（二）&mdash; 涵盖 Redis、消息队列、微服务、并发编程、MySQL、Linux容器、系统设计</p>
+        </div>
+    </div>
+
+    <button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x25B2;</button>
+
+    <script>
+        function toggleCard(card) {
+            card.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
