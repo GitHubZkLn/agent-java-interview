@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Harness Engineering 学习笔记</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --blue: #0b57c5;
+      --blue-soft: #edf5ff;
+      --green: #0b8a35;
+      --green-soft: #eefaf2;
+      --orange: #e66a10;
+      --orange-soft: #fff4ea;
+      --purple: #5a38a8;
+      --purple-soft: #f4f0ff;
+      --red: #d62636;
+      --ink: #111827;
+      --text: #374151;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f5f7fb;
+      --shadow: 0 4px 20px rgba(0,0,0,.08);
+      --grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      color: var(--text);
+      background: var(--grad);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+    .sidebar {
+      width: 286px;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 10;
+      overflow-y: auto;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(10px);
+      box-shadow: 2px 0 20px rgba(0,0,0,.1);
+    }
+
+    .sidebar-header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      padding: 24px 20px;
+      color: #fff;
+      background: var(--grad);
+    }
+
+    .sidebar-header h1 {
+      margin-bottom: 4px;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .sidebar-header p {
+      color: rgba(255,255,255,.9);
+      font-size: 12px;
+    }
+
+    .nav-section { padding: 16px 0 28px; }
+
+    .nav-title {
+      padding: 8px 20px;
+      margin-top: 8px;
+      color: #667eea;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #4a5568;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      font-size: 14px;
+      transition: .2s ease;
+    }
+
+    .nav-item:hover {
+      color: #667eea;
+      background: rgba(102,126,234,.1);
+      border-left-color: #667eea;
+    }
+
+    .nav-index {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: white;
+      background: #667eea;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      padding: 2px 8px;
+      color: white;
+      background: #667eea;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .main-content {
+      flex: 1;
+      min-height: 100vh;
+      margin-left: 286px;
+      padding: 40px;
+    }
+
+    .container {
+      width: min(1080px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero, .section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      overflow: hidden;
+      margin-bottom: 28px;
+      border: 1px solid rgba(255,255,255,.65);
+    }
+
+    .hero-top {
+      padding: 24px 30px;
+      color: white;
+      background: var(--grad);
+    }
+
+    .hero-top .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      max-width: 820px;
+      color: white;
+      font-size: clamp(30px, 4.6vw, 54px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .hero-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+      gap: 24px;
+      padding: 28px 30px;
+      background:
+        linear-gradient(90deg, rgba(11,87,197,.04) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(rgba(11,87,197,.04) 1px, transparent 1px) 0 0 / 28px 28px,
+        white;
+    }
+
+    .hero-lead {
+      color: #1f2937;
+      font-size: 18px;
+      line-height: 1.9;
+    }
+
+    .hero-lead strong { color: var(--blue); }
+
+    .quick-map {
+      display: grid;
+      gap: 10px;
+    }
+
+    .quick-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .quick-item b {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--blue);
+      border-radius: 12px;
+      font-size: 18px;
+    }
+
+    .quick-item:nth-child(2) b { background: var(--green); }
+    .quick-item:nth-child(3) b { background: var(--orange); }
+    .quick-item span {
+      display: block;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .quick-item small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .section {
+      margin-bottom: 24px;
+      padding: 30px;
+    }
+
+    .section-header {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: white;
+      background: var(--grad);
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .section-title {
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .section-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .note {
+      margin-bottom: 16px;
+      color: #46505f;
+      font-size: 16px;
+      line-height: 1.9;
+    }
+
+    .note strong { color: var(--ink); }
+
+    .highlight {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+      color: #1f2937;
+      font-weight: 700;
+    }
+
+    .answer-section {
+      margin-top: 18px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--blue);
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .answer-section.green { border-left-color: var(--green); }
+    .answer-section.orange { border-left-color: var(--orange); }
+    .answer-section.purple { border-left-color: var(--purple); }
+
+    .answer-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .answer-section.green .answer-title { color: var(--green); }
+    .answer-section.orange .answer-title { color: var(--orange); }
+    .answer-section.purple .answer-title { color: var(--purple); }
+
+    .answer-title::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .mini-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .mini-card.blue { background: var(--blue-soft); border-color: #bfdbfe; }
+    .mini-card.green { background: var(--green-soft); border-color: #bbf7d0; }
+    .mini-card.orange { background: var(--orange-soft); border-color: #fed7aa; }
+    .mini-card.purple { background: var(--purple-soft); border-color: #ddd6fe; }
+
+    .mini-card h3 {
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .mini-card p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .diagram {
+      margin-top: 20px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background:
+        linear-gradient(90deg, rgba(11,87,197,.04) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(rgba(11,87,197,.04) 1px, transparent 1px) 0 0 / 24px 24px,
+        #fff;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .flow-box {
+      position: relative;
+      min-height: 120px;
+      padding: 16px;
+      border: 2px solid var(--blue);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .flow-box.green { border-color: var(--green); }
+    .flow-box.orange { border-color: var(--orange); }
+    .flow-box.purple { border-color: var(--purple); }
+    .flow-box h3 {
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 20px;
+    }
+    .flow-box p { color: #4b5563; font-size: 14px; line-height: 1.65; }
+
+    .compare-table {
+      width: 100%;
+      margin-top: 18px;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .compare-table th {
+      color: white;
+      background: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .compare-table th:nth-child(3) { background: var(--green); }
+    .compare-table th:nth-child(4) { background: var(--orange); }
+    .compare-table tr:last-child td { border-bottom: 0; }
+    .compare-table td:first-child {
+      width: 14%;
+      color: var(--ink);
+      background: #f8fafc;
+      font-weight: 800;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .stack-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .stack-row strong {
+      color: var(--ink);
+      font-size: 15px;
+    }
+    .stack-row p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+        .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .layer-card {
+      min-height: 156px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .letter {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      color: white;
+      background: var(--blue);
+      border-radius: 50%;
+      font-weight: 900;
+    }
+
+    .layer-card:nth-child(2) .letter { background: var(--orange); }
+    .layer-card:nth-child(3) .letter { background: var(--green); }
+    .layer-card:nth-child(4) .letter { background: var(--purple); }
+    .layer-card:nth-child(5) .letter { background: #0f766e; }
+    .layer-card:nth-child(6) .letter { background: #7c3aed; }
+    .layer-card:nth-child(7) .letter { background: var(--red); }
+
+    .layer-card h3 {
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .layer-card p {
+      color: #4b5563;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .taxonomy-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .taxonomy-row {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 11px 14px;
+      border: 1px solid #e5dfd3;
+      border-left: 4px solid #7c3aed;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .taxonomy-row:nth-child(2) { border-left-color: #e66a10; }
+    .taxonomy-row:nth-child(3) { border-left-color: #d39a16; }
+    .taxonomy-row:nth-child(4) { border-left-color: #16a34a; }
+    .taxonomy-row:nth-child(5) { border-left-color: #14b8a6; }
+    .taxonomy-row:nth-child(6) { border-left-color: #9d2c92; }
+    .taxonomy-row:nth-child(7) { border-left-color: #d53f3f; }
+
+    .taxonomy-row .letter {
+      width: 32px;
+      height: 32px;
+      margin: 0;
+      color: #7c3aed;
+      background: #f3edff;
+      border: 1px solid #c4b5fd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .taxonomy-row:nth-child(2) .letter { color: #e66a10; background: #fff4ea; border-color: #fed7aa; }
+    .taxonomy-row:nth-child(3) .letter { color: #c58a0a; background: #fff8e5; border-color: #f2d49b; }
+    .taxonomy-row:nth-child(4) .letter { color: #16a34a; background: #ecfdf3; border-color: #bbf7d0; }
+    .taxonomy-row:nth-child(5) .letter { color: #0f9f8f; background: #ecfeff; border-color: #a7f3d0; }
+    .taxonomy-row:nth-child(6) .letter { color: #9d2c92; background: #fdf2ff; border-color: #e9b8df; }
+    .taxonomy-row:nth-child(7) .letter { color: #d53f3f; background: #fff1f1; border-color: #fecaca; }
+
+    .taxonomy-row p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .taxonomy-row strong {
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    figure {
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    figure img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      display: block;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    figcaption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .eval-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .eval-step {
+      padding: 14px;
+      min-height: 128px;
+      border: 2px solid var(--blue);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .eval-step:nth-child(2) { border-color: var(--orange); }
+    .eval-step:nth-child(3) { border-color: var(--purple); }
+    .eval-step:nth-child(4) { border-color: var(--green); }
+    .eval-step:nth-child(5) { border-color: var(--red); }
+    .eval-step b {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 8px;
+      color: white;
+      background: var(--blue);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .eval-step:nth-child(2) b { background: var(--orange); }
+    .eval-step:nth-child(3) b { background: var(--purple); }
+    .eval-step:nth-child(4) b { background: var(--green); }
+    .eval-step:nth-child(5) b { background: var(--red); }
+    .eval-step h3 { margin-bottom: 6px; color: var(--ink); font-size: 15px; }
+    .eval-step p { color: #4b5563; font-size: 13px; line-height: 1.55; }
+
+    .source-list {
+      margin-top: 18px;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .source-list li {
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .source-list li:nth-child(2n) { border-left-color: var(--green); }
+    .source-list li:nth-child(3n) { border-left-color: var(--orange); }
+
+    .callout {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 2px solid var(--blue);
+      border-radius: 12px;
+      background: var(--blue-soft);
+      color: #0b3b83;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.75;
+    }
+
+    @media (max-width: 980px) {
+      body { display: block; }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 18px;
+      }
+      .hero-body,
+      .mini-grid,
+      .flow-row,
+      .two-col,
+      .figure-grid,
+      .eval-flow {
+        grid-template-columns: 1fr;
+      }
+      .layer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .section, .hero-body, .hero-top { padding: 20px; }
+      .section-header { flex-direction: column; }
+      .stack-row { grid-template-columns: 1fr; }
+      .layer-grid { grid-template-columns: 1fr; }
+      .compare-table { display: block; overflow-x: auto; }
+      .compare-table th, .compare-table td { min-width: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h1>Agent Harness 学习笔记</h1>
+      <p>从概念到工程落地，循序渐进版</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">学习路径</div>
+      <a href="#overview" class="nav-item"><span class="nav-index">1</span>先建立地图<span class="nav-badge">总览</span></a>
+      <a href="#origin" class="nav-item"><span class="nav-index">2</span>Harness 概念来源<span class="nav-badge">溯源</span></a>
+      <a href="#why" class="nav-item"><span class="nav-index">3</span>为什么需要 Harness<span class="nav-badge">动机</span></a>
+      <a href="#relation" class="nav-item"><span class="nav-index">4</span>三种 Engineering<span class="nav-badge">重点</span></a>
+      <a href="#example" class="nav-item"><span class="nav-index">5</span>用修 Bug 举例<span class="nav-badge">案例</span></a>
+      <a href="#anatomy" class="nav-item"><span class="nav-index">6</span>Agent Harness 包什么<span class="nav-badge">结构</span></a>
+      <a href="#taxonomy" class="nav-item"><span class="nav-index">7</span>ETCLOVG 七层<span class="nav-badge">框架</span></a>
+      <a href="#eval" class="nav-item"><span class="nav-index">8</span>验证与回归<span class="nav-badge">模块</span></a>
+      <a href="#interview" class="nav-item"><span class="nav-index">9</span>口述答案<span class="nav-badge">复盘</span></a>
+      <a href="#questions" class="nav-item"><span class="nav-index">10</span>高频面试题<span class="nav-badge">题库</span></a>
+      <a href="#sources" class="nav-item"><span class="nav-index">11</span>资料来源<span class="nav-badge">链接</span></a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+      <header class="hero" id="overview">
+        <div class="hero-top">
+          <span class="eyebrow">Agent Harness Engineering · Study Note</span>
+          <h1>Harness 不是一张大图能讲完的概念，它是一套让 agent 可靠工作的工程系统。</h1>
+        </div>
+        <div class="hero-body">
+          <div>
+            <p class="hero-lead">读这篇笔记时，可以先记住一条主线：<strong>模型能力提升以后，瓶颈会从“模型会不会回答”转向“agent 能不能在真实环境里稳定行动”。</strong>这就是 Harness Engineering 被单独提出的原因。</p>
+            <p class="note">我把公开资料归纳成 9 个学习模块：OpenAI 起源、概念演进、Agent loop、Prompt / Context / Harness 边界、ETCLOVG 七层、运行时实践、验证闭环、Benchmark 与回归、落地清单。这个顺序更适合慢慢学，不会一上来就被七层名词淹没。</p>
+          </div>
+          <div class="quick-map">
+            <div class="quick-item"><b>P</b><div><span>Prompt Engineering</span><small>控制一次模型调用怎么表达。</small></div></div>
+            <div class="quick-item"><b>C</b><div><span>Context Engineering</span><small>控制模型每一步看到什么。</small></div></div>
+            <div class="quick-item"><b>H</b><div><span>Harness Engineering</span><small>控制 agent 在系统里怎么跑、怎么验、怎么受控。</small></div></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section" id="origin">
+        <div class="section-header">
+          <div class="section-icon">00</div>
+          <div>
+            <h2 class="section-title">AI 语境里的 Harness 是怎么来的？</h2>
+            <p class="section-subtitle">这轮热度的起点，是 OpenAI 在 2026 年围绕 Codex 提出的 Harness Engineering。</p>
+          </div>
+        </div>
+        <p class="note">这里先把时间线说清楚：<strong>harness</strong> 这个英文词和软件里的 test harness 并不是今年才有；但 <strong>Harness Engineering</strong> 作为 AI Coding / Agent 时代的一种工程范式，是 OpenAI 在 2026 年 Codex 实践文章里正式带火的。中文社区后来讨论它时，常把它理解成“AI 编程时代，人不再只写代码，而是设计让 agent 高效工作的环境、脚手架和反馈回路”。</p>
+        <p class="note">OpenAI 那篇文章的重点不是“发明一个新框架”，而是把工程师角色重新描述了一遍：当 Codex 这类 coding agent 能读代码、改代码、跑测试时，人的价值开始转向<strong>设计任务环境、定义成功标准、搭建反馈循环、沉淀内部工具</strong>。也就是说，真正要卷的不只是模型本身，而是模型外面的工作系统。</p>
+
+        <div class="diagram">
+          <div class="flow-row">
+            <div class="flow-box">
+              <h3>OpenAI 的起点</h3>
+              <p>Codex 能执行工程任务后，重点从“亲手写代码”转向“搭环境、给约束、建反馈”。</p>
+            </div>
+            <div class="flow-box green">
+              <h3>中文社区的转述</h3>
+              <p>人类更像导演和系统设计者，Agent 负责执行；质量来自环境和闭环。</p>
+            </div>
+            <div class="flow-box orange">
+              <h3>Survey 的扩展</h3>
+              <p>论文把这种外部系统系统化，拆成 ETCLOVG 七层 agent harness。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="answer-section orange">
+          <div class="answer-title">为什么叫 Harness？</div>
+          <p class="note">因为 harness 的底层隐喻一直是“包住一股能力，让它可连接、可牵引、可约束”。在 AI Coding 里，被包住的是 coding agent；在 Agent 开发里，被包住的是完整的 agent run；在 Evaluation 里，被包住的是一组可重复评测的运行过程。名字变了，核心没变：让能力进入可控工程系统。</p>
+        </div>
+
+        <h3 class="section-title" style="font-size:20px;margin-top:24px;">不同环境下，Harness 指的不是同一个东西</h3>
+        <p class="note">理解 harness 最容易踩的坑，是把它当成一个固定产品名。它更像一种工程角色：不同环境里，harness 包住的对象不同，提供的控制面也不同。</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>环境</th>
+              <th>Harness 包住谁？</th>
+              <th>主要提供什么？</th>
+              <th>典型问题</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Agent 开发</td>
+              <td>LLM agent 的完整执行过程。</td>
+              <td>工具、上下文、任务 loop、沙箱、trace、eval、治理。</td>
+              <td>这个 agent 能否在真实任务中稳定行动？</td>
+            </tr>
+            <tr>
+              <td>AI Coding</td>
+              <td>coding agent 与代码仓库。</td>
+              <td>workspace、git、测试命令、依赖安装、PR 流程、代码审查。</td>
+              <td>它能否安全改代码、跑测试、交付可合并变更？</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">所以，“harness 是什么”没有脱离上下文的唯一答案。更稳的回答方式是：先说它包住的对象是什么，再说它给这个对象补了哪些工程能力。放在 Agent 项目里，Harness 不是某个单点组件，而是一层运行基底：它定义 Agent 的活动范围，接入工具和外部系统，组织上下文和任务流程，记录每一步执行轨迹，把结果接入验证和反馈循环，同时用权限、审批、审计去约束高风险动作。换句话说，Harness 的价值不是让 Agent 看起来更智能，而是让 Agent 的执行过程变得可运行、可观察、可复盘、可验证、可迭代、可治理。</div>
+      </section>
+
+      <section class="section" id="why">
+        <div class="section-header">
+          <div class="section-icon">01</div>
+          <div>
+            <h2 class="section-title">为什么需要 Harness Engineering？</h2>
+            <p class="section-subtitle">从“单次回答”走向“长时间执行”，问题类型变了。</p>
+          </div>
+        </div>
+        <p class="note">早期使用 LLM，最常见的问题是回答不稳定，所以大家首先优化 prompt。OpenAI 今年围绕 Codex 提出 Harness Engineering 后，大家开始意识到：当 agent 能读代码、改代码、跑测试，真正要设计的是它的工作环境和反馈回路。后来 agent 又开始检索资料、调用工具、跨多轮执行，问题就不只是模型输入了，而是<strong>整个执行系统是否安全、可观测、可验证、可回滚</strong>。</p>
+        <p class="note">论文《Agent Harness Engineering: A Survey》是在这个基础上进一步系统化：它把“包在模型外面的基础设施层”命名为 agent execution harness，并用 ETCLOVG 七层解释生产环境里的可靠性来自哪里。</p>
+
+        <div class="diagram">
+          <div class="flow-row">
+            <div class="flow-box">
+              <h3>阶段 1：模型回答</h3>
+              <p>目标是让模型按格式输出，主要靠 prompt、示例、角色和约束。</p>
+            </div>
+            <div class="flow-box green">
+              <h3>阶段 2：多轮协作</h3>
+              <p>目标是让模型看到正确材料，主要靠检索、压缩、记忆和上下文预算。</p>
+            </div>
+            <div class="flow-box orange">
+              <h3>阶段 3：真实行动</h3>
+              <p>目标是让 agent 安全地做事，靠沙箱、工具协议、trace、eval 和治理。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="answer-section">
+          <div class="answer-title">关键理解</div>
+          <p class="note">Harness Engineering 的对象不是某一句 prompt，而是 agent 的工作系统。它关心的是：agent 在哪里运行、能用什么工具、看到哪些状态、怎样循环推进、怎么记录过程、如何判断结果对不对、哪些动作必须被限制。</p>
+        </div>
+      </section>
+
+      <section class="section" id="relation">
+        <div class="section-header">
+          <div class="section-icon">02</div>
+          <div>
+            <h2 class="section-title">Harness Engineering 与 Prompt、Context 的关系</h2>
+            <p class="section-subtitle">三者不是替代关系，而是工程半径逐层外扩。</p>
+          </div>
+        </div>
+        <p class="note">如果只记一句话：<span class="highlight">Prompt 管表达，Context 管信息，Harness 管运行系统。</span>Prompt 和 Context 都可以被看作 Harness 的组成部分，但 Harness 还要覆盖执行环境、工具协议、生命周期、可观测、评测和治理。</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>Prompt Engineering</th>
+              <th>Context Engineering</th>
+              <th>Harness Engineering</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>核心问题</td>
+              <td>这次请求怎么说，模型才照做？</td>
+              <td>这一轮应该让模型看见哪些信息？</td>
+              <td>agent 怎样在真实环境里安全、稳定、可验证地执行？</td>
+            </tr>
+            <tr>
+              <td>主要对象</td>
+              <td>system prompt、few-shot、角色、输出格式、推理步骤。</td>
+              <td>检索片段、历史摘要、工具返回、长期记忆、上下文压缩。</td>
+              <td>沙箱、工具协议、任务 loop、trace、成本、评测、权限、审批。</td>
+            </tr>
+            <tr>
+              <td>典型动作</td>
+              <td>让模型“按 JSON 输出、先分析再回答、不要编造”。</td>
+              <td>把报错日志、API 文档、相关代码、历史 issue 放到上下文。</td>
+              <td>让 agent 在隔离分支修改代码，跑测试，失败回滚，危险操作审批。</td>
+            </tr>
+            <tr>
+              <td>失败表现</td>
+              <td>答偏、格式错、没有遵守口径。</td>
+              <td>漏读关键资料、引用过期信息、上下文被噪声挤满。</td>
+              <td>无限循环、误用工具、改坏文件、不可复现、没有验收标准。</td>
+            </tr>
+            <tr>
+              <td>一句话</td>
+              <td>让模型答得像样。</td>
+              <td>让模型看得明白。</td>
+              <td>让 agent 做得可靠。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="answer-section green">
+          <div class="answer-title">为什么很多人会混淆？</div>
+          <p class="note">因为早期 agent 框架常把 prompt、memory、tool calling 放在一个抽象里，导致大家误以为“加工具 + 加记忆”就是 harness。实际进入生产后，真正棘手的是状态恢复、权限边界、trace 诊断、回归评估和上线门禁，这些已经超出 prompt/context 本身。</p>
+        </div>
+      </section>
+
+      <section class="section" id="example">
+        <div class="section-header">
+          <div class="section-icon">03</div>
+          <div>
+            <h2 class="section-title">用一个修 Bug 任务来理解三者区别</h2>
+            <p class="section-subtitle">例子比定义更好记。</p>
+          </div>
+        </div>
+        <p class="note">假设你让一个 coding agent 处理“接口偶发 500”。同样是这个任务，三种工程会从不同层面介入。</p>
+
+        <div class="mini-grid">
+          <div class="mini-card blue">
+            <h3>只做 Prompt</h3>
+            <p>你会写：请先分析日志，再定位代码，最后给出修复方案和测试建议。它改善的是回答结构，但并不保证 agent 真能安全改代码。</p>
+          </div>
+          <div class="mini-card green">
+            <h3>做 Context</h3>
+            <p>你会把错误日志、trace id、接口文档、相关类、最近提交和相似 issue 放进上下文。它改善的是判断材料。</p>
+          </div>
+          <div class="mini-card orange">
+            <h3>做 Harness</h3>
+            <p>你会给 agent 隔离 workspace、工具权限、测试命令、变更审计、CI gate 和回滚策略。它改善的是执行可靠性。</p>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="stack-row"><strong>Prompt 层会问</strong><p>“我怎么让模型按排障专家的方式回答？”</p></div>
+          <div class="stack-row"><strong>Context 层会问</strong><p>“我应该给它哪些日志、代码、文档和历史信息，避免它猜？”</p></div>
+          <div class="stack-row"><strong>Harness 层会问</strong><p>“它可以改哪些文件？测试怎么跑？失败怎么停？过程怎么复盘？上线前谁来验收？”</p></div>
+        </div>
+
+        <div class="callout">所以，Prompt 和 Context 可以提升 agent 的判断质量；Harness 决定这个判断能不能变成可控、可验收、可持续迭代的行动。</div>
+      </section>
+
+      <section class="section" id="anatomy">
+        <div class="section-header">
+          <div class="section-icon">04</div>
+          <div>
+            <h2 class="section-title">Agent Harness 到底包住了什么？</h2>
+            <p class="section-subtitle">把它看成模型外面的任务执行基础设施。</p>
+          </div>
+        </div>
+        <p class="note">Agent Harness 不是单个库，也不是某个“智能体框架”的同义词。更准确地说，它是一组运行时能力的组合：让 agent 能够接收目标、读取状态、调用工具、产生副作用、记录轨迹、接受评测，并在必要时被人类或策略系统拦住。</p>
+
+        <div class="diagram">
+          <div class="flow-row">
+            <div class="flow-box"><h3>用户目标</h3><p>任务、约束、验收标准、风险等级。</p></div>
+            <div class="flow-box green"><h3>Agent Loop</h3><p>计划、行动、观察、反思、继续或停止。</p></div>
+            <div class="flow-box orange"><h3>Harness Control</h3><p>沙箱、工具、上下文、trace、eval、权限。</p></div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="answer-section">
+            <div class="answer-title">如果没有 Harness</div>
+            <p class="note">agent 可能能生成一个看似合理的计划，但它改了什么、为什么失败、能不能回滚、是否越权、下一版是否更好，都很难说清楚。</p>
+          </div>
+          <div class="answer-section orange">
+            <div class="answer-title">如果有 Harness</div>
+            <p class="note">每次运行都被约束在明确环境里，工具调用有契约，过程有 trace，输出有验收，风险动作有审批，失败可以归因和复现。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="taxonomy">
+        <div class="section-header">
+          <div class="section-icon">05</div>
+          <div>
+            <h2 class="section-title">ETCLOVG：论文的七层分类</h2>
+            <p class="section-subtitle">这是读 Survey 最值得带走的框架。</p>
+          </div>
+        </div>
+        <p class="note">论文把 agent harness 拆成七层：Execution、Tooling、Context、Lifecycle、Observability、Verification、Governance。前四层偏“结构核心”，后三层偏“控制平面”。这个拆法的价值在于：你可以用它检查一个 agent 系统到底缺哪块。</p>
+
+        <div class="taxonomy-list">
+          <article class="taxonomy-row">
+            <div class="letter">E</div>
+            <p><strong>执行环境。</strong>决定代理的运行位置以及限制其运行的沙箱约束，包括托管沙箱、微型虚拟机、代码专用运行时、计算机使用环境、浏览器沙箱和操作系统级权限模型。</p>
+          </article>
+          <article class="taxonomy-row">
+            <div class="letter">T</div>
+            <p><strong>工具接口和协议。</strong>规定如何描述、发现和调用外部功能，包括协议标准、工具描述和选择、工具增强型训练以及会话管理。</p>
+          </article>
+          <article class="taxonomy-row">
+            <div class="letter">C</div>
+            <p><strong>上下文和内存管理。</strong>控制模型在短期、会话级和持久范围内可以看到的内容，包括长期上下文技术和上下文漂移的缓解措施。</p>
+          </article>
+          <article class="taxonomy-row">
+            <div class="letter">L</div>
+            <p><strong>生命周期和编排。</strong>组织读取和写入状态的控制流，从单代理内部循环到多代理模式，以及完整的从问题到拉取请求的任务管道。</p>
+          </article>
+          <article class="taxonomy-row">
+            <div class="letter">O</div>
+            <p><strong>可观察性和运维。</strong>通过追踪平台、代理专用运维工具、成本跟踪和统一可观测性，捕获追踪、成本、故障和可靠性信号。</p>
+          </article>
+          <article class="taxonomy-row">
+            <div class="letter">V</div>
+            <p><strong>验证和评估。</strong>将任务和跟踪转化为评估、故障归因和回归反馈，包括基准测试、受控执行、多级判断和部署时评估循环。</p>
+          </article>
+          <article class="taxonomy-row">
+            <div class="letter">G</div>
+            <p><strong>治理与安全。</strong>约束模型级、系统级和组织级子层的行为，包括权限模型、生命周期钩子、组件加固、声明式规则和审计基础设施。</p>
+          </article>
+        </div>
+
+        <div class="answer-section green">
+          <div class="answer-title">怎么用七层做系统检查？</div>
+          <p class="note">拿一个 agent 项目，从 E 到 G 逐层问：环境隔离了吗？工具契约清楚吗？上下文有来源和过期策略吗？任务能停止和恢复吗？trace 能复盘吗？结果能回归验证吗？高风险动作有审批和审计吗？这些问题比单纯问“用了哪个模型”更能判断工程成熟度。</p>
+        </div>
+      </section>
+
+      <section class="section" id="eval">
+        <div class="section-header">
+          <div class="section-icon">06</div>
+          <div>
+            <h2 class="section-title">验证闭环：Harness 怎么证明自己有效？</h2>
+            <p class="section-subtitle">这是 Harness 的一个重要模块，不是整篇笔记的主角。</p>
+          </div>
+        </div>
+        <p class="note">验证闭环是 Harness Engineering 里不可缺的一块，但它只是整个 harness 的 V 层。它不是只跑公开榜单，而是围绕你的真实任务建立用例、运行记录、评分、baseline 对比和 CI gate。它解决的问题是：这次改了 prompt、工具、上下文或策略之后，agent 是真的更好，还是只是在某几个例子上看起来更顺？</p>
+
+        <div class="eval-flow">
+          <div class="eval-step"><b>1</b><h3>Eval Case</h3><p>准备输入、期望输出、验收标准和风险标签。</p></div>
+          <div class="eval-step"><b>2</b><h3>Agent Run</h3><p>按用例运行 agent，保留完整执行轨迹。</p></div>
+          <div class="eval-step"><b>3</b><h3>Episode</h3><p>打包日志、工具调用、输出、耗时、成本。</p></div>
+          <div class="eval-step"><b>4</b><h3>Score</h3><p>多维评分，归因失败，观察趋势。</p></div>
+          <div class="eval-step"><b>5</b><h3>Gate</h3><p>达标放行；不达标回归、降级或人工复核。</p></div>
+        </div>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>对比</th>
+              <th>Benchmark</th>
+              <th>Evaluation Harness</th>
+              <th>怎么用</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>任务来源</td>
+              <td>公开任务集，如 SWE-bench、WebArena、GAIA。</td>
+              <td>你的真实业务任务、历史事故、真实用户路径。</td>
+              <td>Benchmark 用来横向了解能力；Eval Harness 用来上线前防回归。</td>
+            </tr>
+            <tr>
+              <td>核心问题</td>
+              <td>我在公共榜单排第几？</td>
+              <td>这次改动有没有让我的 agent 变好或变差？</td>
+              <td>不要只追榜单，要建立自己的 baseline。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="figure-grid">
+          <figure>
+            <img src="reference-eval-harness.jpg" alt="Evaluation Harness 参考图">
+            <figcaption>你给的风格参考：Evaluation Harness 强调“用数据说话、持续迭代”。</figcaption>
+          </figure>
+          <figure>
+            <img src="reference-benchmark-vs-eval.jpg" alt="Benchmark vs Evaluation Harness 参考图">
+            <figcaption>你给的风格参考：Benchmark 看排名，Evaluation Harness 看自己的回归。</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section" id="interview">
+        <div class="section-header">
+          <div class="section-icon">07</div>
+          <div>
+            <h2 class="section-title">口述高分答案：怎么讲 Agent Harness？</h2>
+            <p class="section-subtitle">适合面试、复盘或讲给同学听。</p>
+          </div>
+        </div>
+
+        <div class="answer-section">
+          <div class="answer-title">30 秒版本</div>
+          <p class="note">Agent Harness 是包在 LLM agent 外面的执行基础设施。它把模型、工具、上下文、任务循环、日志、评测和权限组织起来，让 agent 不只是“能回答”，而是能在真实环境里可靠执行。</p>
+        </div>
+
+        <div class="answer-section green">
+          <div class="answer-title">1 分钟版本</div>
+          <p class="note">Prompt Engineering 解决“怎么说”，Context Engineering 解决“给模型看什么”，Harness Engineering 解决“agent 怎么跑”。比如 coding agent 修 bug，prompt 可以规定排障步骤，context 可以提供日志和代码，harness 则要提供隔离 workspace、工具调用协议、测试命令、trace、CI gate 和权限边界。生产里很多失败不是模型不会，而是执行环境、状态恢复、工具契约、验证闭环和治理没做好。</p>
+        </div>
+
+        <div class="answer-section orange">
+          <div class="answer-title">常见误区</div>
+          <p class="note"><strong>误区一：</strong>Harness 等于 agent 框架。其实框架偏开发抽象，Harness 更偏生产运行系统。<strong>误区二：</strong>Context 做好了就够。其实上下文只是 C 层，还缺 E/T/L/O/V/G。<strong>误区三：</strong>模型越强 Harness 越不重要。模型变强会让部分包装变薄，但只要 agent 有现实副作用，就需要边界、记录和验收。</p>
+        </div>
+      </section>
+
+      <section class="section" id="questions">
+        <div class="section-header">
+          <div class="section-icon">08</div>
+          <div>
+            <h2 class="section-title">Harness 高频面试题</h2>
+            <p class="section-subtitle">围绕概念、问题、区别和 Agent Harness 设计四个核心问题准备。</p>
+          </div>
+        </div>
+
+        <div class="answer-section">
+          <div class="answer-title">1. 什么是 Harness Engineering？</div>
+          <p class="note"><strong>答题要点：</strong>Harness Engineering 是 AI Coding / Agent 时代的一种工程方法：不只优化模型提示词，而是设计包在 agent 外面的工作系统，包括运行环境、工具接口、上下文供给、任务流程、反馈闭环、验证和权限控制。它的目标是让 agent 的能力可连接、可观察、可验证、可治理。</p>
+        </div>
+
+        <div class="answer-section green">
+          <div class="answer-title">2. Harness Engineering 解决什么问题？</div>
+          <p class="note"><strong>答题要点：</strong>它解决的是 agent 从“能回答”到“能可靠执行”的工程问题。比如：在哪里运行、能用哪些工具、怎么控制上下文、如何避免无限循环、怎么记录过程、怎么判断结果正确、失败如何回滚、高风险操作如何审批。生产里很多问题不是模型不会，而是执行环境、反馈闭环和治理没设计好。</p>
+        </div>
+
+        <div class="answer-section orange">
+          <div class="answer-title">3. Harness Engineering 和 Prompt Engineering、Context Engineering 的区别？</div>
+          <p class="note"><strong>答题要点：</strong>Prompt Engineering 解决“怎么说”，通过指令、示例、格式约束提升单次回答质量；Context Engineering 解决“给模型看什么”，通过检索、记忆、压缩和工具结果管理提升判断质量；Harness Engineering 解决“agent 怎么跑”，把模型、工具、状态、流程、观测、验证和权限组织成一个可运行系统。三者不是替代关系，Harness 包含并协调 Prompt 与 Context。</p>
+        </div>
+
+        <div class="answer-section purple">
+          <div class="answer-title">4. 设计 Agent Harness 时应该考虑哪些方面？</div>
+          <p class="note"><strong>答题要点：</strong>可以按 ETCLOVG 七层回答：E 看执行环境和权限边界；T 看工具接口和协议；C 看上下文和记忆管理；L 看任务生命周期和编排；O 看 trace、日志、成本和可观测；V 看测试、评估和回归；G 看治理、安全、审批和审计。面试时最好结合一个场景，比如 coding agent：隔离 workspace、工具白名单、上下文检索、最大轮数、trace、CI gate、敏感文件保护。</p>
+        </div>
+      </section>
+
+      <section class="section" id="sources">
+        <div class="section-header">
+          <div class="section-icon">09</div>
+          <div>
+            <h2 class="section-title">资料来源与建议阅读顺序</h2>
+            <p class="section-subtitle">这部分用于继续深挖。</p>
+          </div>
+        </div>
+        <p class="note">我重新查了公开资料后，建议按“Survey 建地图、厂商工程博客看实践、最后回到自己的项目做拆解”的顺序学习。</p>
+        <ol class="source-list">
+          <li><a href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering</a>：AI Coding 语境下 Harness Engineering 这轮讨论的起点，重点是 Codex、脚手架、反馈循环和 agent-first 软件工程。</li>
+          <li><a href="https://picrew.github.io/LLM-Harness/">Agent Harness Engineering: A Survey 项目页</a>：把 OpenAI 语境中的工程直觉扩展为 Agent Harness Engineering，并提出 ETCLOVG 七层。</li>
+          <li><a href="https://picrew.github.io/LLM-Harness/main.pdf">论文 PDF</a>：适合精读 open problems、cross-layer synthesis 和项目映射。</li>
+          <li><a href="https://github.com/Picrew/awesome-agent-harness">Awesome-Agent-Harness</a>：用真实项目训练“这个系统主要解决哪一层”。</li>
+          <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a>：理解 Context Engineering 的边界。</li>
+          <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic: Effective harnesses for long-running agents</a>：长周期 agent 的初始化、恢复和进度记录。</li>
+          <li><a href="https://www.anthropic.com/engineering/managed-agents">Anthropic: Scaling Managed Agents</a>：session、harness、sandbox/tool 解耦，以及模型变强后的简化问题。</li>
+          <li><a href="https://blog.langchain.com/improving-deep-agents-with-harness-engineering/">LangChain: Improving Deep Agents with harness engineering</a>：trace、自验证、middleware、loop detection、reasoning budget 等实践。</li>
+          <li><a href="https://www.cnblogs.com/itech/p/20192845">中文转写材料：Agent Harness 到底包括什么？</a>：适合作为中文快速理解入口。</li>
+        </ol>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
