@@ -2,6 +2,8 @@
 
 面向 Java 后端与 AI Agent 方向面试准备的资料合集。仓库内容以“面试口述版”“两页精要版”“可直接打印版”为主，覆盖 Java 基础、集合与并发、Spring、MySQL、Redis、Elasticsearch、Kafka、云原生，以及 RAG / AI Agent 系统设计与项目面经。
 
+新增了 Agent Harness Engineering 学习笔记，适合系统理解 Harness 的来源、作用、与 Prompt / Context Engineering 的区别，以及论文中的 ETCLOVG 七层框架。
+
 ## 适合谁使用
 
 - 准备 Java 后端开发、Java 工程师、后端研发实习/社招面试的人。
@@ -14,7 +16,9 @@
 ```text
 .
 ├── README.md
-├── html版本/
+├── agent-study-note/
+│   └── Agent Harness Engineering 学习笔记
+├── professional-experience/
 │   ├── Java / Spring / JUC 面试资料
 │   ├── MySQL / Redis / ES / Kafka / 云原生资料
 │   ├── AI Agent / RAG / 知识库 Agent 资料
@@ -29,60 +33,62 @@
 
 | 文件 | 内容定位 |
 | --- | --- |
-| [Java基础高频面试题_两页精要版.html](html版本/Java基础高频面试题_两页精要版.html) | Java 基础高频题速查，包含 equals/hashCode、String、关键字、OOP、接口/抽象类、异常、泛型、Java 8、BIO/NIO/AIO 等。 |
-| [Java集合反射JUC并发面试题库_面试口述版.md](html版本/Java集合反射JUC并发面试题库_面试口述版.md) | 集合、HashMap、ConcurrentHashMap、反射、synchronized、CAS、AQS、线程池、CompletableFuture 等深度口述答案。 |
-| [Java集合反射JUC并发面试题库_可直接打印.html](html版本/Java集合反射JUC并发面试题库_可直接打印.html) | Java 集合、反射、JUC 并发专题的打印版。 |
-| [Java高频场景面试题库_面试口述版.html](html版本/Java高频场景面试题库_面试口述版.html) | ThreadLocal、启动初始化、过滤器/拦截器/AOP、大文本检索、综合场景设计、Spring Boot 高级特性等场景题。 |
+| [Java基础高频面试题_两页精要版.html](professional-experience/Java基础高频面试题_两页精要版.html) | Java 基础高频题速查，包含 equals/hashCode、String、关键字、OOP、接口/抽象类、异常、泛型、Java 8、BIO/NIO/AIO 等。 |
+| [Java集合反射JUC并发面试题库_面试口述版.md](professional-experience/Java集合反射JUC并发面试题库_面试口述版.md) | 集合、HashMap、ConcurrentHashMap、反射、synchronized、CAS、AQS、线程池、CompletableFuture 等深度口述答案。 |
+| [Java集合反射JUC并发面试题库_可直接打印.html](professional-experience/Java集合反射JUC并发面试题库_可直接打印.html) | Java 集合、反射、JUC 并发专题的打印版。 |
+| [Java高频场景面试题库_面试口述版.html](professional-experience/Java高频场景面试题库_面试口述版.html) | ThreadLocal、启动初始化、过滤器/拦截器/AOP、大文本检索、综合场景设计、Spring Boot 高级特性等场景题。 |
 
 ### Spring / Spring Boot
 
 | 文件 | 内容定位 |
 | --- | --- |
-| [Spring全家桶面试题库_面试口述版.md](html版本/Spring全家桶面试题库_面试口述版.md) | Spring IOC/AOP、Bean 生命周期、循环依赖三级缓存、Spring Boot 自动配置、Starter、事务、Spring MVC、设计模式等。 |
-| [Spring全家桶面试题库_可直接打印.html](html版本/Spring全家桶面试题库_可直接打印.html) | Spring 全家桶核心专题打印版。 |
+| [Spring全家桶面试题库_面试口述版.md](professional-experience/Spring全家桶面试题库_面试口述版.md) | Spring IOC/AOP、Bean 生命周期、循环依赖三级缓存、Spring Boot 自动配置、Starter、事务、Spring MVC、设计模式等。 |
+| [Spring全家桶面试题库_可直接打印.html](professional-experience/Spring全家桶面试题库_可直接打印.html) | Spring 全家桶核心专题打印版。 |
 
 ### 数据库、中间件与云原生
 
 | 文件 | 内容定位 |
 | --- | --- |
-| [MySQL深度面试题库_面试口述版.html](html版本/MySQL深度面试题库_面试口述版.html) | MySQL 索引、事务隔离级别、MVCC、锁机制、慢 SQL 排查与优化。 |
-| [Redis深度面试题库_面试口述版.html](html版本/Redis深度面试题库_面试口述版.html) | Redis 数据结构、高可用、缓存一致性、内存管理、分布式锁、集群与运维。 |
-| [ES高频面试题_两页精要版.html](html版本/ES高频面试题_两页精要版.html) | Elasticsearch 集群、分片副本、倒排索引、写入/搜索流程、脑裂、分词器、搜索调优。 |
-| [Kafka与运维云原生面试题库.html](html版本/Kafka与运维云原生面试题库.html) | Kafka 核心原理、消息可靠性、Docker、Kubernetes、Prometheus + Grafana 监控体系。 |
+| [MySQL深度面试题库_面试口述版.html](professional-experience/MySQL深度面试题库_面试口述版.html) | MySQL 索引、事务隔离级别、MVCC、锁机制、慢 SQL 排查与优化。 |
+| [Redis深度面试题库_面试口述版.html](professional-experience/Redis深度面试题库_面试口述版.html) | Redis 数据结构、高可用、缓存一致性、内存管理、分布式锁、集群与运维。 |
+| [ES高频面试题_两页精要版.html](professional-experience/ES高频面试题_两页精要版.html) | Elasticsearch 集群、分片副本、倒排索引、写入/搜索流程、脑裂、分词器、搜索调优。 |
+| [Kafka与运维云原生面试题库.html](professional-experience/Kafka与运维云原生面试题库.html) | Kafka 核心原理、消息可靠性、Docker、Kubernetes、Prometheus + Grafana 监控体系。 |
 
 ### AI Agent / RAG / 知识库
 
 | 文件 | 内容定位 |
 | --- | --- |
-| [AI_Agent深度面试题库_面试口述版.html](html版本/AI_Agent深度面试题库_面试口述版.html) | Agent 设计模式、Multi-Agent、Skills / MCP / A2A、Prompt / Context Engineering、Memory、沙箱安全、AI 框架。 |
-| [AI_Agent高频场景题_系统设计篇_面试口述版.html](html版本/AI_Agent高频场景题_系统设计篇_面试口述版.html) | Agent 架构、智能客服 Agent、Agent 平台工程化、RAG 知识库、效果评估、性能优化、综合系统设计。 |
-| [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](html版本/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) | Think-Execute / RAG 项目面经，适合准备项目介绍与深挖追问。 |
-| [智能客服FAQ知识库Agent_面试口述版.html](html版本/智能客服FAQ知识库Agent_面试口述版.html) | 智能客服 FAQ 知识库 Agent 项目讲解，包含 Agent、RAG、工程化、开放问题与召回率优化清单。 |
+| [Agent Harness Engineering 学习笔记](agent-study-note/harness-learning-notes.html) | 系统介绍 Harness Engineering 的来源、作用、Agent Harness 的工程含义、Prompt / Context / Harness 的区别，以及 ETCLOVG 七层分类。 |
+| [AI_Agent深度面试题库_面试口述版.html](professional-experience/AI_Agent深度面试题库_面试口述版.html) | Agent 设计模式、Multi-Agent、Skills / MCP / A2A、Prompt / Context Engineering、Memory、沙箱安全、AI 框架。 |
+| [AI_Agent高频场景题_系统设计篇_面试口述版.html](professional-experience/AI_Agent高频场景题_系统设计篇_面试口述版.html) | Agent 架构、智能客服 Agent、Agent 平台工程化、RAG 知识库、效果评估、性能优化、综合系统设计。 |
+| [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](professional-experience/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) | Think-Execute / RAG 项目面经，适合准备项目介绍与深挖追问。 |
+| [智能客服FAQ知识库Agent_面试口述版.html](professional-experience/智能客服FAQ知识库Agent_面试口述版.html) | 智能客服 FAQ 知识库 Agent 项目讲解，包含 Agent、RAG、工程化、开放问题与召回率优化清单。 |
 
 ### 公司面经
 
 | 文件 | 内容定位 |
 | --- | --- |
-| [字节AILab二面_面试口述版.html](html版本/字节AILab二面_面试口述版.html) | 字节 AI Lab 二面相关准备，覆盖自我介绍、项目、RAG、LangChain、部署、向量库、知识库、训练与算法。 |
-| [网易云音乐一面面试题_面试口述版.html](html版本/网易云音乐一面面试题_面试口述版.html) | 网易云音乐一面题，侧重 Java 基础、并发与数据库。 |
+| [字节AILab二面_面试口述版.html](professional-experience/字节AILab二面_面试口述版.html) | 字节 AI Lab 二面相关准备，覆盖自我介绍、项目、RAG、LangChain、部署、向量库、知识库、训练与算法。 |
+| [网易云音乐一面面试题_面试口述版.html](professional-experience/网易云音乐一面面试题_面试口述版.html) | 网易云音乐一面题，侧重 Java 基础、并发与数据库。 |
 | [大厂Agent开发面经_口述高分答案.html](company-experience/大厂Agent开发面经_口述高分答案.html) | 字节、京东、网易等大厂 Agent 开发实习/社招面经，涵盖 RAG、Multi-Agent、MCP、记忆系统设计等核心问题及高分口述答案。 |
 
 ## 推荐复习路线
 
 ### Java 后端路线
 
-1. 先读 [Java基础高频面试题_两页精要版.html](html版本/Java基础高频面试题_两页精要版.html)，快速建立基础题框架。
-2. 深入 [Java集合反射JUC并发面试题库_面试口述版.md](html版本/Java集合反射JUC并发面试题库_面试口述版.md)，重点掌握 HashMap、ConcurrentHashMap、AQS、线程池、CompletableFuture。
-3. 阅读 [Spring全家桶面试题库_面试口述版.md](html版本/Spring全家桶面试题库_面试口述版.md)，补齐 IOC、AOP、循环依赖、事务、MVC 和 Spring Boot 自动配置。
+1. 先读 [Java基础高频面试题_两页精要版.html](professional-experience/Java基础高频面试题_两页精要版.html)，快速建立基础题框架。
+2. 深入 [Java集合反射JUC并发面试题库_面试口述版.md](professional-experience/Java集合反射JUC并发面试题库_面试口述版.md)，重点掌握 HashMap、ConcurrentHashMap、AQS、线程池、CompletableFuture。
+3. 阅读 [Spring全家桶面试题库_面试口述版.md](professional-experience/Spring全家桶面试题库_面试口述版.md)，补齐 IOC、AOP、循环依赖、事务、MVC 和 Spring Boot 自动配置。
 4. 按顺序复习 MySQL、Redis、Kafka、ES，并结合场景题练习“为什么这么设计”和“线上怎么排查”。
-5. 最后用 [Java高频场景面试题库_面试口述版.html](html版本/Java高频场景面试题库_面试口述版.html) 做综合串联。
+5. 最后用 [Java高频场景面试题库_面试口述版.html](professional-experience/Java高频场景面试题库_面试口述版.html) 做综合串联。
 
 ### AI Agent 路线
 
-1. 先读 [AI_Agent深度面试题库_面试口述版.html](html版本/AI_Agent深度面试题库_面试口述版.html)，建立 Agent 核心概念与工程化框架。
-2. 再读 [AI_Agent高频场景题_系统设计篇_面试口述版.html](html版本/AI_Agent高频场景题_系统设计篇_面试口述版.html)，练习系统设计与场景拆解。
-3. 用 [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](html版本/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) 和 [智能客服FAQ知识库Agent_面试口述版.html](html版本/智能客服FAQ知识库Agent_面试口述版.html) 准备项目表达。
-4. 针对目标公司或岗位，再补充 [字节AILab二面_面试口述版.html](html版本/字节AILab二面_面试口述版.html) 这类公司面经。
+1. 先读 [Agent Harness Engineering 学习笔记](agent-study-note/harness-learning-notes.html)，理解 Agent 项目里的 Harness 是什么、解决什么问题，以及 ETCLOVG 七层框架。
+2. 再读 [AI_Agent深度面试题库_面试口述版.html](professional-experience/AI_Agent深度面试题库_面试口述版.html)，建立 Agent 核心概念与工程化框架。
+3. 继续读 [AI_Agent高频场景题_系统设计篇_面试口述版.html](professional-experience/AI_Agent高频场景题_系统设计篇_面试口述版.html)，练习系统设计与场景拆解。
+4. 用 [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](professional-experience/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) 和 [智能客服FAQ知识库Agent_面试口述版.html](professional-experience/智能客服FAQ知识库Agent_面试口述版.html) 准备项目表达。
+5. 针对目标公司或岗位，再补充 [字节AILab二面_面试口述版.html](professional-experience/字节AILab二面_面试口述版.html) 这类公司面经。
 
 ## 使用建议
 
