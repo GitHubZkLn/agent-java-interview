@@ -2,7 +2,7 @@
 
 面向 Java 后端与 AI Agent 方向面试准备的资料合集。仓库内容以“面试口述版”“两页精要版”“可直接打印版”为主，覆盖 Java 基础、集合与并发、Spring、MySQL、Redis、Elasticsearch、Kafka、云原生，以及 RAG / AI Agent 系统设计与项目面经。
 
-新增了 Agent Harness Engineering 学习笔记，适合系统理解 Harness 的来源、作用、与 Prompt / Context Engineering 的区别，以及论文中的 ETCLOVG 七层框架。
+新增了 Agent Harness Engineering 学习笔记和 Coding Harness 企业生产级实践笔记，分别用于理解 Harness 概念框架，以及 AI Coding 在存量复杂代码中的质量保障落地。
 
 ## 适合谁使用
 
@@ -17,7 +17,8 @@
 .
 ├── README.md
 ├── agent-study-note/
-│   └── Agent Harness Engineering 学习笔记
+│   ├── Agent Harness Engineering 学习笔记
+│   └── Coding Harness 企业生产级实践笔记
 ├── professional-experience/
 │   ├── Java / Spring / JUC 面试资料
 │   ├── MySQL / Redis / ES / Kafka / 云原生资料
@@ -59,6 +60,7 @@
 | 文件 | 内容定位 |
 | --- | --- |
 | [Agent Harness Engineering 学习笔记](agent-study-note/harness-learning-notes.html) | 系统介绍 Harness Engineering 的来源、作用、Agent Harness 的工程含义、Prompt / Context / Harness 的区别，以及 ETCLOVG 七层分类。 |
+| [Coding Harness 企业生产级实践笔记](agent-study-note/coding-harness-production-notes.html) | 单独整理 AI Coding 面对存量复杂代码时的生产级质量保障流程，包含 OpenSpec SDD、Harness 内部规范、CI 门禁、预发验证、流量回放、灰度发布和复盘写回。 |
 | [AI_Agent深度面试题库_面试口述版.html](professional-experience/AI_Agent深度面试题库_面试口述版.html) | Agent 设计模式、Multi-Agent、Skills / MCP / A2A、Prompt / Context Engineering、Memory、沙箱安全、AI 框架。 |
 | [AI_Agent高频场景题_系统设计篇_面试口述版.html](professional-experience/AI_Agent高频场景题_系统设计篇_面试口述版.html) | Agent 架构、智能客服 Agent、Agent 平台工程化、RAG 知识库、效果评估、性能优化、综合系统设计。 |
 | [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](professional-experience/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) | Think-Execute / RAG 项目面经，适合准备项目介绍与深挖追问。 |
@@ -85,10 +87,11 @@
 ### AI Agent 路线
 
 1. 先读 [Agent Harness Engineering 学习笔记](agent-study-note/harness-learning-notes.html)，理解 Agent 项目里的 Harness 是什么、解决什么问题，以及 ETCLOVG 七层框架。
-2. 再读 [AI_Agent深度面试题库_面试口述版.html](professional-experience/AI_Agent深度面试题库_面试口述版.html)，建立 Agent 核心概念与工程化框架。
-3. 继续读 [AI_Agent高频场景题_系统设计篇_面试口述版.html](professional-experience/AI_Agent高频场景题_系统设计篇_面试口述版.html)，练习系统设计与场景拆解。
-4. 用 [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](professional-experience/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) 和 [智能客服FAQ知识库Agent_面试口述版.html](professional-experience/智能客服FAQ知识库Agent_面试口述版.html) 准备项目表达。
-5. 针对目标公司或岗位，再补充 [字节AILab二面_面试口述版.html](professional-experience/字节AILab二面_面试口述版.html) 这类公司面经。
+2. 如果关注 AI Coding 落地，再读 [Coding Harness 企业生产级实践笔记](agent-study-note/coding-harness-production-notes.html)，理解 OpenSpec SDD 如何和 Harness、CI/CD、流量回放、灰度发布结合。
+3. 再读 [AI_Agent深度面试题库_面试口述版.html](professional-experience/AI_Agent深度面试题库_面试口述版.html)，建立 Agent 核心概念与工程化框架。
+4. 继续读 [AI_Agent高频场景题_系统设计篇_面试口述版.html](professional-experience/AI_Agent高频场景题_系统设计篇_面试口述版.html)，练习系统设计与场景拆解。
+5. 用 [AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html](professional-experience/AI_Agent项目面经_ThinkExecute_RAG_面试口述版.html) 和 [智能客服FAQ知识库Agent_面试口述版.html](professional-experience/智能客服FAQ知识库Agent_面试口述版.html) 准备项目表达。
+6. 针对目标公司或岗位，再补充 [字节AILab二面_面试口述版.html](professional-experience/字节AILab二面_面试口述版.html) 这类公司面经。
 
 ## 使用建议
 

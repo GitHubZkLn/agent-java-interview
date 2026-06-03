@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coding Harness 企业生产级实践笔记</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #151515;
+      --text: #3f4652;
+      --muted: #747b87;
+      --paper: #fffdf7;
+      --bg: #f1eee6;
+      --line: #ded7ca;
+      --blue: #075bc7;
+      --green: #0b7f3a;
+      --orange: #df6b15;
+      --red: #c92f3a;
+      --violet: #6d49c7;
+      --cyan: #0f8b8d;
+      --shadow: 0 18px 50px rgba(38, 32, 21, .12);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(90deg, rgba(21,21,21,.035) 1px, transparent 1px) 0 0 / 34px 34px,
+        linear-gradient(rgba(21,21,21,.035) 1px, transparent 1px) 0 0 / 34px 34px,
+        var(--bg);
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 26px 20px;
+      overflow-y: auto;
+      background: #151515;
+      color: white;
+      border-right: 6px solid #f2c14e;
+    }
+
+    .brand {
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,.18);
+    }
+    .brand small {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 3px 9px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      color: #f2c14e;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .brand h1 {
+      font-size: 25px;
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+    .brand p {
+      margin-top: 10px;
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 22px;
+    }
+    .nav a {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      color: rgba(255,255,255,.88);
+      text-decoration: none;
+      font-size: 13px;
+      transition: .18s ease;
+    }
+    .nav a:hover {
+      background: rgba(242,193,78,.14);
+      border-color: rgba(242,193,78,.5);
+    }
+    .nav b {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #f2c14e;
+      color: #151515;
+      font-size: 12px;
+    }
+
+    .main {
+      padding: 38px;
+    }
+    .container {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero, .section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 430px;
+      margin-bottom: 24px;
+      border-radius: 18px;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 82% 22%, rgba(242,193,78,.28), transparent 28%),
+        linear-gradient(135deg, rgba(7,91,199,.12), transparent 40%),
+        linear-gradient(90deg, transparent 62%, rgba(21,21,21,.06) 62%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr);
+      gap: 28px;
+      padding: 38px;
+    }
+    .kicker {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: #151515;
+      color: #f2c14e;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .6px;
+    }
+    .hero h2 {
+      color: var(--ink);
+      font-size: clamp(36px, 5vw, 68px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .hero .lead {
+      margin-top: 18px;
+      color: #2f3743;
+      font-size: 18px;
+      line-height: 1.9;
+    }
+    .hero strong { color: var(--blue); }
+
+    .pipeline-board {
+      display: grid;
+      gap: 12px;
+      align-self: stretch;
+      padding: 18px;
+      border: 2px solid #151515;
+      border-radius: 16px;
+      background: rgba(255,255,255,.72);
+    }
+    .pipe-row {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .pipe-row b {
+      display: grid;
+      place-items: center;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--blue);
+      color: white;
+    }
+    .pipe-row:nth-child(2) b { background: var(--green); }
+    .pipe-row:nth-child(3) b { background: var(--orange); }
+    .pipe-row:nth-child(4) b { background: var(--violet); }
+    .pipe-row span {
+      display: block;
+      color: var(--ink);
+      font-weight: 900;
+      line-height: 1.25;
+    }
+    .pipe-row small {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .section {
+      margin-bottom: 22px;
+      padding: 28px;
+      border-radius: 16px;
+    }
+    .section-head {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ece5d8;
+    }
+    .num {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      background: #151515;
+      color: #f2c14e;
+      font-size: 18px;
+      font-weight: 950;
+    }
+    .section h2 {
+      color: var(--ink);
+      font-size: 26px;
+      line-height: 1.25;
+    }
+    .sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .note {
+      margin-bottom: 14px;
+      color: #444b56;
+      font-size: 16px;
+      line-height: 1.9;
+    }
+    .note strong { color: var(--ink); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-top: 5px solid var(--blue);
+      border-radius: 12px;
+      background: white;
+    }
+    .card.green { border-top-color: var(--green); }
+    .card.orange { border-top-color: var(--orange); }
+    .card.violet { border-top-color: var(--violet); }
+    .card h3 {
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    .card p {
+      color: #4c5562;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .source-tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .block {
+      margin-top: 18px;
+      padding: 18px;
+      border-left: 5px solid var(--blue);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .block.green { border-left-color: var(--green); }
+    .block.orange { border-left-color: var(--orange); }
+    .block.violet { border-left-color: var(--violet); }
+    .block h3 {
+      margin-bottom: 10px;
+      color: var(--ink);
+      font-size: 18px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .stack-row {
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      gap: 14px;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .stack-row strong {
+      color: var(--ink);
+      font-size: 15px;
+    }
+    .stack-row p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .compare {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+    }
+    .compare th,
+    .compare td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .compare th {
+      background: #151515;
+      color: #f2c14e;
+      font-weight: 900;
+    }
+    .compare tr:last-child td { border-bottom: 0; }
+    .compare td:first-child {
+      color: var(--ink);
+      font-weight: 900;
+      background: #faf7ef;
+    }
+
+    .code-sample {
+      margin-top: 12px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid #d8dee9;
+      border-radius: 10px;
+      background: #101827;
+      color: #e5e7eb;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .step-card {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .step-card b {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--blue);
+      color: white;
+      font-size: 18px;
+      font-weight: 950;
+    }
+    .step-card:nth-child(2) b { background: var(--green); }
+    .step-card:nth-child(3) b { background: var(--orange); }
+    .step-card:nth-child(4) b { background: var(--violet); }
+    .step-card:nth-child(5) b { background: var(--cyan); }
+    .step-card:nth-child(6) b { background: var(--blue); }
+    .step-card:nth-child(7) b { background: var(--red); }
+    .step-card:nth-child(8) b { background: #111827; }
+    .step-card h3 {
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    .step-card p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .callout {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 2px solid #151515;
+      border-radius: 12px;
+      background: #fff4c9;
+      color: #2d2612;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.75;
+    }
+    .sources {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+      list-style: none;
+    }
+    .sources li {
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--blue);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .sources li:nth-child(2n) { border-left-color: var(--green); }
+    .sources li:nth-child(3n) { border-left-color: var(--orange); }
+
+    @media (max-width: 1000px) {
+      .layout { display: block; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 6px solid #f2c14e;
+      }
+      .main { padding: 18px; }
+      .hero-inner,
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      .hero-inner,
+      .section { padding: 20px; }
+      .section-head { flex-direction: column; }
+      .stack-row,
+      .step-card { grid-template-columns: 1fr; }
+      .compare { display: block; overflow-x: auto; }
+      .compare th, .compare td { min-width: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <small>Production Playbook</small>
+        <h1>Coding Harness 企业生产级实践笔记</h1>
+        <p>把 OpenSpec 的 SDD、项目长期规范、CI 门禁、预发验证、流量回放和灰度发布串成一条可落地链路。</p>
+      </div>
+      <nav class="nav">
+        <a href="#overview"><b>01</b><span>先建立认知</span></a>
+        <a href="#why"><b>02</b><span>为什么要做</span></a>
+        <a href="#cases"><b>03</b><span>阿里/得物实践</span></a>
+        <a href="#openspec"><b>04</b><span>OpenSpec 怎么接</span></a>
+        <a href="#workflow"><b>05</b><span>生产级最终流程</span></a>
+        <a href="#sources"><b>06</b><span>资料来源</span></a>
+        <a href="./harness-learning-notes.html"><b>↩</b><span>返回 Agent Harness 笔记</span></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="container">
+        <header class="hero" id="overview">
+          <div class="hero-inner">
+            <div>
+              <span class="kicker">OpenSpec SDD + Harness Thinking</span>
+              <h2>AI Coding 的质量，不靠“多写点提示词”，靠一条生产级工程流水线。</h2>
+              <p class="lead">在存量复杂代码里，AI 生成代码只是中间动作。真正要保证质量，需要先把需求规约化，再把项目知识、内部规范、验证脚本、预发环境、流量回放、灰度发布和复盘沉淀串起来。</p>
+              <p class="lead"><strong>OpenSpec 解决“这次要做什么”，Coding Harness 解决“怎么可控地做、怎么证明能上线”。</strong></p>
+            </div>
+            <div class="pipeline-board">
+              <div class="pipe-row"><b>S</b><div><span>Spec First</span><small>proposal / design / tasks / requirement scenarios</small></div></div>
+              <div class="pipe-row"><b>H</b><div><span>Harness Assets</span><small>业务术语、错误码、上下游、架构边界、验证脚本</small></div></div>
+              <div class="pipe-row"><b>G</b><div><span>Quality Gates</span><small>编译、单测、契约、DB dry-run、安全扫描、CI</small></div></div>
+              <div class="pipe-row"><b>P</b><div><span>Production Proof</span><small>预发、流量回放、影子流量、灰度、指标回滚</small></div></div>
+            </div>
+          </div>
+        </header>
+
+        <section class="section" id="why">
+          <div class="section-head">
+            <div class="num">01</div>
+            <div>
+              <h2>为什么存量复杂代码需要 Coding Harness？</h2>
+              <p class="sub">因为 AI 能写出“语法正确”的代码，但生产系统要的是“业务正确、可验证、可回滚”。</p>
+            </div>
+          </div>
+          <p class="note">存量系统的难点，不是代码文件多这么简单，而是大量知识藏在历史逻辑、上下游契约、数据口径、错误码、灰度规则和故障复盘里。AI 可以从代码里推断“现在怎么写”，但很难自动知道“为什么必须这么写”。</p>
+          <div class="cards">
+            <div class="card">
+              <h3>隐性业务知识</h3>
+              <p>字段单位、状态机、兼容逻辑、配置中心约定、错误码语义、历史禁忌，很多都不在当前需求里。</p>
+            </div>
+            <div class="card green">
+              <h3>上下游耦合</h3>
+              <p>一个小接口可能影响前端、客户端、BI、消息消费方、风控、结算系统，单看当前模块很容易误判。</p>
+            </div>
+            <div class="card orange">
+              <h3>验证链路长</h3>
+              <p>编译和单测只是底线。企业生产还需要契约测试、预发部署、真实流量验证、灰度和自动回滚。</p>
+            </div>
+          </div>
+          <div class="callout">结论：Coding Harness 不是替代开发流程，而是把 AI Coding 放进企业已有的工程质量体系里。</div>
+        </section>
+
+        <section class="section" id="cases">
+          <div class="section-head">
+            <div class="num">02</div>
+            <div>
+              <h2>阿里和得物的实践，可以归纳成四个共同点</h2>
+              <p class="sub">这些实践不是围绕“提示词技巧”，而是围绕“工程约束和反馈闭环”。</p>
+            </div>
+          </div>
+          <div class="block">
+            <h3>阿里：把 AI Coding 变成可编排的工程系统</h3>
+            <span class="source-tag">文章来源：阿里云转载《Harness Engineering：耗时一周，我是如何将应用的AI Coding率提升至90%的》</span>
+            <p class="note">文章核心不是某个神奇提示词，而是把项目知识、规范和验证流程沉淀成 `.harness` 目录：agent 角色、编码规范、需求规格、业务上下文、自动化脚本和模板。AI 不再是拿到一句需求就开写，而是先进入一个被设计好的项目环境。</p>
+            <pre class="code-sample">.harness/
+  agents/        # feature-dev / test-dev / issue-fix 等专业化角色
+  standards/     # 编码、接口、DB、日志、事务规范
+  context/       # 业务术语、字段含义、状态、上下游
+  specs/         # 需求规格和变更说明
+  scripts/       # 本项目固定验证命令</pre>
+          </div>
+
+          <div class="block green">
+            <h3>阿里：SDD 解决“做什么”，Harness 解决“怎么可控地做”</h3>
+            <span class="source-tag">文章来源：微信公众号《告别“氛围编程”：基于 Harness 治理和 SDD 的团队级 AI 研发范式演进与实践》</span>
+            <p class="note">这条线强调把“氛围编程”拉回研发流程。很多 AI Coding 翻车并不是模型不会写，而是需求没有结构化：接口字段没定、边界条件没说、验收标准没有、业务例外靠口口相传。SDD 先把需求拆成规格、计划、任务和验收；Harness 再把这些规格接入代码仓库、工具链、测试和 review 流程。</p>
+          </div>
+
+          <div class="block orange">
+            <h3>得物：全栈、多仓、可模仿</h3>
+            <span class="source-tag">文章来源：得物技术《基于 Harness + SDD + 多仓管理模式的 AI 全栈开发实践》</span>
+            <p class="note">得物的全栈实践很务实：不要让 AI 凭空创造，而是让它模仿项目里已经跑通的模块。前端、后端、接口文档、SDD 文档放在同一个 workspace，让 agent 能看到跨仓契约，避免前端字段、后端 DTO、数据库含义各说各话。</p>
+          </div>
+
+          <div class="block violet">
+            <h3>得物：Claude Code Harness 的运行时治理</h3>
+            <span class="source-tag">文章来源：得物技术《Claude Code Harness 工程：数仓侧落地方案》</span>
+            <p class="note">这篇更偏运行时治理：复杂数仓或工程任务里，context compact 后容易丢金额单位、分区写法、SQL 规范等临时约束。它的思路是把这些约束写进项目级说明、memory、hooks、subagents 和 skill 文件里，能用脚本拦截的就不要靠模型记忆。</p>
+          </div>
+        </section>
+
+        <section class="section" id="openspec">
+          <div class="section-head">
+            <div class="num">03</div>
+            <div>
+              <h2>OpenSpec 生成什么？Harness 补什么？</h2>
+              <p class="sub">OpenSpec 不是替代 Harness，而是企业 Coding Harness 里的规格层。</p>
+            </div>
+          </div>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>层次</th>
+                <th>产物</th>
+                <th>主要内容</th>
+                <th>谁来维护</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>OpenSpec SDD</td>
+                <td>proposal.md / design.md / tasks.md / spec.md</td>
+                <td>这次需求为什么做、怎么做、拆成哪些任务、满足哪些 Requirement 和 Scenario。</td>
+                <td>AI 生成第一版，人 review 业务边界和验收标准。</td>
+              </tr>
+              <tr>
+                <td>项目入口</td>
+                <td>AGENTS.md / CLAUDE.md</td>
+                <td>项目定位、关键目录、启动命令、测试命令、架构边界、高风险目录。</td>
+                <td>团队手动沉淀，AI 可辅助整理。</td>
+              </tr>
+              <tr>
+                <td>内部知识</td>
+                <td>.harness/context</td>
+                <td>业务术语、错误码、状态机、字段单位、上下游契约、历史故障。</td>
+                <td>领域 owner 维护，AI 根据复盘持续补充。</td>
+              </tr>
+              <tr>
+                <td>工程规范</td>
+                <td>.harness/standards</td>
+                <td>API 兼容、DB migration、MQ 幂等、日志 trace、灰度发布、回滚规范。</td>
+                <td>架构/平台/测试团队共同维护。</td>
+              </tr>
+              <tr>
+                <td>确定性验证</td>
+                <td>.harness/scripts + CI/CD</td>
+                <td>编译、单测、契约测试、schema diff、DB dry-run、安全扫描、流量回放、灰度指标门禁。</td>
+                <td>平台化沉淀，AI 只能调用，不应绕过。</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section" id="workflow">
+          <div class="section-head">
+            <div class="num">04</div>
+            <div>
+              <h2>企业生产级 Coding Harness 最终实践步骤</h2>
+              <p class="sub">从需求到上线后复盘，一条完整可审计、可验证、可回滚的链路。</p>
+            </div>
+          </div>
+          <p class="note">企业级 Coding Harness 不能只停留在“AI 生成 spec + 跑单测”。更完整的链路应该是：<strong>OpenSpec 负责需求规约，Harness 负责项目知识和执行约束，CI/CD 负责确定性门禁，预发/回放/灰度负责真实环境验证，最后把问题反哺回规则和测试。</strong></p>
+
+          <div class="step-list">
+            <div class="step-card">
+              <b>1</b>
+              <div>
+                <h3>先建长期 Harness 资产，不要每次从聊天开始</h3>
+                <p>企业项目里要先准备一组长期文档和脚本，让 AI 每次进项目都有稳定入口。OpenSpec 管“本次变更”，Harness 管“长期规则”。这部分第一版通常要人工补，后续可以让 AI 根据故障复盘和 review 反馈持续更新。</p>
+                <pre class="code-sample">AGENTS.md / CLAUDE.md
+- 项目定位、关键目录、启动命令、测试命令
+- 架构边界：哪些层不能互相调用
+- 高风险目录：migration、支付、资金、权限、定时任务
+
+.harness/context/
+- domain-glossary.md：业务术语、状态、枚举、字段单位
+- error-codes.md：错误码含义、可复用错误码、禁止新增规则
+- upstream-downstream.md：上下游接口、依赖方、兼容要求
+- risk-cases.md：历史事故、易错点、线上禁忌
+
+.harness/standards/
+- api-contract.md：接口兼容、字段新增/删除规范
+- db-migration.md：DDL、索引、回滚、数据修复规范
+- message-idempotency.md：MQ、任务、重试、幂等规范
+- observability.md：日志、trace、metrics、告警规范</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>2</b>
+              <div>
+                <h3>用 OpenSpec 做 SDD：先规约，再编码</h3>
+                <p>需求进来后，不直接让 AI 改代码，而是先执行 `/opsx:propose`。AI 可以读取仓库、已有 specs、AGENTS.md 和 `.harness/context` 生成第一版变更包；人重点 review 业务边界、上下游影响、验收场景和风险点。</p>
+                <pre class="code-sample">/opsx:propose 添加优惠券过期提醒功能
+
+生成：
+openspec/changes/add-coupon-expire-reminder/
+  proposal.md   # 为什么做、做什么、不做什么、影响范围
+  design.md     # 技术方案、数据变更、幂等、失败处理、风险
+  tasks.md      # 可执行任务清单，每一步都能验证
+  specs/
+    coupon-reminder/spec.md
+                 # Requirement + Scenario，作为验收标准
+
+人工 review 重点：
+- 是否遗漏业务边界
+- 是否破坏接口兼容
+- 是否涉及错误码、状态机、数据迁移
+- 是否需要上下游确认
+- 每个 Scenario 是否能变成测试或验证动作</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>3</b>
+              <div>
+                <h3>让 AI 按 spec 小步实现，并强制找参照模块</h3>
+                <p>进入 `/opsx:apply` 或编码阶段后，要求 AI 先读 `tasks.md`，再找相似模块，最后一项一项实现。不要让一个 agent 一口气改完整条链路；高风险场景可以拆成开发 agent、测试 agent、review agent。</p>
+                <pre class="code-sample">编码阶段约束：
+- 每次只处理 tasks.md 中一个小任务
+- 实现前必须列出 2-3 个相似模块
+- 优先复用现有 service、DTO、错误码、状态机
+- 不允许扩大改动范围
+- 涉及资金/权限/数据迁移必须等待人工确认
+
+分工方式：
+- feature agent：按 spec 实现代码
+- test agent：根据 Scenario 补单测/集成测试
+- review agent：独立检查 diff、兼容性、风险点
+- fix agent：只根据 CI/测试失败做最小修复</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>4</b>
+              <div>
+                <h3>合并前门禁：不靠“看起来对”，靠确定性检查</h3>
+                <p>AI 写完以后，企业级 Harness 必须接入 PR/CI 门禁。单测和编译只是底线，还要覆盖接口契约、数据库变更、安全、架构边界和可观测性。能脚本化的规则，不要靠 prompt 让模型记住。</p>
+                <pre class="code-sample">PR / CI Gate：
+- 编译、类型检查、lint、格式化
+- 单元测试、集成测试、E2E 回归
+- OpenAPI / RPC schema diff
+- API contract test
+- DB migration dry-run、回滚脚本检查、慢 SQL explain
+- 依赖漏洞扫描、secret 扫描、权限变更检查
+- 架构边界检查：禁止 controller 直连 DAO 等
+- 日志、trace、metrics 是否补齐
+- 覆盖率和关键 Scenario 覆盖检查</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>5</b>
+              <div>
+                <h3>预发验证：部署一个真实运行环境</h3>
+                <p>复杂存量系统不能只在本地跑测试。合并前后要有预发、临时 namespace 或 preview 环境，连接尽量接近生产的中间件和配置，但使用隔离数据。这里验证的是“服务真的能跑起来，链路真的能走通”。</p>
+                <pre class="code-sample">预发环境验证：
+- 部署新版本服务或临时 preview 环境
+- 启动健康检查、配置检查、依赖连通性检查
+- 跑接口冒烟、核心链路 E2E
+- 定时任务、MQ 消费、补偿任务单独验证
+- 数据迁移 dry-run 和回滚演练
+- 观察启动日志、错误日志、trace、慢 SQL
+- 和上一个稳定版本做关键响应对比</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>6</b>
+              <div>
+                <h3>用真实流量验证：回放、影子流量、Dark Launch</h3>
+                <p>很多边界 case 只存在于真实请求里。生产级 Harness 可以录制线上流量，在预发或隔离环境回放；也可以把线上请求复制一份给新版本，只观察新版本结果，不返回给用户。</p>
+                <pre class="code-sample">真实流量验证：
+- Traffic Replay：录制生产 API 请求，在预发环境回放
+- Shadow Traffic：线上请求复制给新版本，响应丢弃
+- Dark Launch：功能代码上线但不对用户开放，只观察链路
+- 新旧版本对比：状态码、响应字段、异常率、耗时、业务结果
+
+适合场景：
+- 查询逻辑重构
+- 推荐/排序/规则引擎调整
+- 优惠券、库存、订单等复杂业务链路
+- AI 修改了历史兼容逻辑但人造测试覆盖不全</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>7</b>
+              <div>
+                <h3>灰度发布：用指标决定是否继续放量</h3>
+                <p>上线不是一次性全量，而是 1% 到 100% 的受控过程。每个阶段都要观察技术指标和业务指标，超过阈值自动暂停或回滚。这里 Harness 的作用，是把“发布是否安全”变成可观测、可决策的门禁。</p>
+                <pre class="code-sample">灰度策略：
+- Feature Flag 控制功能开关
+- Canary：1% → 5% → 10% → 25% → 50% → 100%
+- 按用户、租户、城市、业务线分批放量
+- 自动回滚：错误率、P95/P99、CPU、内存、消息积压超阈值
+
+必须观察：
+- 技术指标：错误率、延迟、超时、慢 SQL、线程池、MQ 堆积
+- 业务指标：下单率、核销率、提醒发送量、投诉量、转化率
+- 兼容指标：老客户端错误、上下游失败、错误码分布</pre>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <b>8</b>
+              <div>
+                <h3>复盘写回：把一次问题变成长期能力</h3>
+                <p>企业级 Coding Harness 最重要的是闭环。AI 犯错、CI 拦截、预发失败、灰度回滚，都不应该只修代码；还要把问题写回 OpenSpec、Harness 规则、测试、hook 或监控，下一次让系统自动拦住。</p>
+                <pre class="code-sample">反哺动作：
+- spec.md：补遗漏的 Requirement / Scenario
+- AGENTS.md：补项目级硬规则
+- .harness/context：补业务术语、错误码、上下游约定
+- .harness/standards：补接口、DB、MQ、日志规范
+- scripts/hooks：补确定性检查
+- tests：补单测、契约测试、回放 case
+- monitoring：补指标、告警、dashboard
+
+判断标准：
+同类问题下一次不应该再靠人肉发现。</pre>
+              </div>
+            </div>
+          </div>
+          <div class="callout">企业级实践的核心不是“让 AI 多写代码”，而是把 AI 放进一条可审计、可验证、可回滚、可持续学习的研发流水线里。OpenSpec 负责把需求变清楚，Harness 负责让执行不跑偏，生产验证负责证明它真的能上线。</div>
+        </section>
+
+        <section class="section" id="sources">
+          <div class="section-head">
+            <div class="num">05</div>
+            <div>
+              <h2>资料来源</h2>
+              <p class="sub">用于继续深挖 OpenSpec、国内实践和生产验证。</p>
+            </div>
+          </div>
+          <ul class="sources">
+            <li><a href="https://developer.aliyun.com/article/1734483">阿里云转载：Harness Engineering 实践</a>：复杂 Java 应用里用 `.harness`、专业化 agent、项目规范和质量门禁提升 AI Coding 可控性的案例；原微信入口见 <a href="https://mp.weixin.qq.com/s/rlIyIIZOXFObNIXbPI7gDg">这里</a>。</li>
+            <li><a href="https://mp.weixin.qq.com/s/-_IBJFuXpvoqMJxL9oaEJQ">告别“氛围编程”：基于 Harness 治理和 SDD 的团队级 AI 研发范式演进与实践</a>：从团队研发链路角度解释 SDD 与 Harness 如何配合。</li>
+            <li><a href="https://mp.weixin.qq.com/s/ygQGSH5c7GHYDvkqWoQTXQ">得物技术：基于 Harness + SDD + 多仓管理模式的 AI 全栈开发实践</a>：关注多仓工作区、全栈契约、参照模块和分阶段联调。</li>
+            <li><a href="https://mp.weixin.qq.com/s?__biz=MzkxNTE3ODU0NA==&mid=2247544651&idx=1&sn=9a231b02a15ac5e33bd4bf41148a021d&chksm=c1617a14f616f30205fe35eb5dfa7f3add88d6f957a100ec1476622f2ce583f1bb20797fffef&cur_album_id=4439983803683045377&scene=189#wechat_redirect">得物技术：Claude Code Harness 工程数仓侧落地方案</a>：关注项目级上下文、hooks、subagents、skills 和高风险规则拦截。</li>
+            <li><a href="https://github.com/Fission-AI/OpenSpec/">OpenSpec GitHub</a>：了解 OpenSpec 的 SDD 工作流和命令入口。</li>
+            <li><a href="https://thedocs.io/openspec/concepts/spec-format/">OpenSpec Specification Format</a>：理解 Requirement 和 Scenario 的规约格式。</li>
+            <li><a href="https://cloud.google.com/deploy/docs/deployment-strategies/canary">Google Cloud Canary Deployment</a>：灰度发布和逐步放量的参考。</li>
+            <li><a href="https://learn.microsoft.com/en-us/devops/deliver/shift-right-test-production">Microsoft: Shift right to test in production</a>：生产环境验证思路。</li>
+            <li><a href="https://aws.amazon.com/blogs/networking-and-content-delivery/mirror-production-traffic-to-test-environment-with-vpc-traffic-mirroring/">AWS VPC Traffic Mirroring</a>：影子流量/流量镜像的参考。</li>
+            <li><a href="https://goreplay.org/shadow-testing/">GoReplay Shadow Testing</a>：真实流量回放和影子测试思路。</li>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
