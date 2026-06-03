@@ -669,6 +669,75 @@
       line-height: 1.75;
     }
 
+    .source-tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .code-sample {
+      margin-top: 12px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid #d8dee9;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .step-card {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .step-card b {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--blue);
+      color: white;
+      font-size: 18px;
+    }
+
+    .step-card:nth-child(2) b { background: var(--green); }
+    .step-card:nth-child(3) b { background: var(--orange); }
+    .step-card:nth-child(4) b { background: var(--purple); }
+    .step-card:nth-child(5) b { background: #0f766e; }
+
+    .step-card h3 {
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .step-card p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
     @media (max-width: 980px) {
       body { display: block; }
       .sidebar {
@@ -695,6 +764,7 @@
       .section, .hero-body, .hero-top { padding: 20px; }
       .section-header { flex-direction: column; }
       .stack-row { grid-template-columns: 1fr; }
+      .step-card { grid-template-columns: 1fr; }
       .layer-grid { grid-template-columns: 1fr; }
       .compare-table { display: block; overflow-x: auto; }
       .compare-table th, .compare-table td { min-width: 170px; }
@@ -963,16 +1033,32 @@
 
         <div class="answer-section">
           <div class="answer-title">阿里的做法：把 AI Coding 变成一套可编排的工程系统</div>
+          <span class="source-tag">文章来源：阿里云转载《Harness Engineering：耗时一周，我是如何将应用的AI Coding率提升至90%的》</span>
           <p class="note">阿里那篇“AI Coding 率提升至 90%”的文章，重点不是某个神奇提示词，而是把项目里的知识、规范和验证流程沉淀成 `.harness` 这类工程目录。里面会放 agent 角色、编码规范、需求规格、业务上下文、自动化脚本和模板。换句话说，AI 不再是拿到一句需求就开写，而是先进入一个被设计好的项目环境。</p>
           <div class="stack">
             <div class="stack-row"><strong>角色拆分</strong><p>把 feature 开发、测试补充、接口适配、模型转换、校验规则、SQL / ORM、问题修复拆成不同 agent 或 skill，避免一个 agent 从头包到尾、自写自判。</p></div>
             <div class="stack-row"><strong>知识工程</strong><p>用短的项目入口文件做地图，再把业务规则、模块流程、代码约束放进可按需加载的文档里。这样既不丢知识，也不会把上下文窗口塞爆。</p></div>
             <div class="stack-row"><strong>质量嵌入</strong><p>质量不是最后让人扫一眼，而是写进每个 agent 的系统指令和自动化流程里：需要跑哪些测试、遵守哪些分层边界、失败后如何修复和复盘。</p></div>
           </div>
+          <p class="note">如果照着这篇文章落地，可以先搭一个最小目录，不需要一次做成平台：</p>
+          <pre class="code-sample">.harness/
+  agents/
+    feature-dev.md      # 负责需求开发：先读 spec，再找参照模块，最后改代码
+    test-dev.md         # 负责补测试：根据验收标准补单测/接口测试/回归用例
+    issue-fix.md        # 负责修失败：读取 CI、测试日志、review 反馈后小步修复
+  standards/
+    coding-style.md     # 命名、异常、日志、分层、事务、接口返回规范
+  context/
+    domain-glossary.md  # 业务术语、字段含义、金额/时间/状态枚举等
+  specs/
+    2026-xx-feature.md  # 每个需求的规格说明
+  scripts/
+    verify.sh           # 本项目固定验证命令</pre>
         </div>
 
         <div class="answer-section green">
           <div class="answer-title">阿里另一条线：SDD 解决“做什么”，Harness 解决“怎么可控地做”</div>
+          <span class="source-tag">文章来源：微信公众号《告别“氛围编程”：基于 Harness 治理和 SDD 的团队级 AI 研发范式演进与实践》</span>
           <p class="note">另一篇讲团队级 AI 研发范式的文章，核心是把“氛围编程”拉回工程流程。很多团队的 AI Coding 问题不是模型不会写，而是需求本身没结构化：接口字段没定、边界条件没说、验收标准没有、业务例外靠口口相传。SDD 先把需求拆成规格、计划、任务和验收；Harness 再把这些规格接到代码仓库、工具链、测试和 review 流程里。</p>
           <table class="compare-table">
             <thead>
@@ -1008,6 +1094,7 @@
 
         <div class="answer-section orange">
           <div class="answer-title">得物的做法：全栈、多仓、可模仿</div>
+          <span class="source-tag">文章来源：得物技术《基于 Harness + SDD + 多仓管理模式的 AI 全栈开发实践》</span>
           <p class="note">得物的全栈实践更像一套日常可抄的工作法：不要让 AI 凭空创造，而是让它<strong>模仿项目里已经跑通的模块</strong>。比如做一个新页面、新接口、新业务动作时，先明确告诉 agent 参考哪个现有页面、哪个接口、哪个字段定义、哪个 service 写法。对存量系统来说，“像项目自己人写的”比“看起来高级”更重要。</p>
           <div class="two-col">
             <div class="mini-card orange">
@@ -1019,7 +1106,7 @@
               <p>先 mock、再接口、再端到端验证；前后端可以并行，但要用同一份规格和验收标准对齐，避免“各自都对，合起来不通”。</p>
             </div>
           </div>
-          <p class="note">得物另一篇 Claude Code Harness 落地方案，重点放在运行时治理：复杂数仓或工程任务里，context compact 以后很容易丢临时约束，比如金额单位、分区写法、SQL 规范。它的思路是把这些约束写进项目级说明、memory、hooks、subagents 和 skill 文件里，能用脚本拦截的就不要靠模型记忆。</p>
+          <p class="note"><span class="source-tag">文章来源：得物技术《Claude Code Harness 工程：数仓侧落地方案》</span>得物另一篇 Claude Code Harness 落地方案，重点放在运行时治理：复杂数仓或工程任务里，context compact 以后很容易丢临时约束，比如金额单位、分区写法、SQL 规范。它的思路是把这些约束写进项目级说明、memory、hooks、subagents 和 skill 文件里，能用脚本拦截的就不要靠模型记忆。</p>
         </div>
 
         <div class="answer-section purple">
@@ -1031,6 +1118,116 @@
             <div class="eval-step"><b>3</b><h3>参照模块</h3><p>要求 agent 先找最像的 2-3 个现有实现，再按项目模式改，不要凭空设计。</p></div>
             <div class="eval-step"><b>4</b><h3>硬验证</h3><p>把 lint、单测、构建、接口测试、截图检查、SQL 检查变成固定命令。</p></div>
             <div class="eval-step"><b>5</b><h3>复盘写回</h3><p>AI 每踩一次坑，就补一条规则、测试、hook、checklist 或文档。</p></div>
+          </div>
+        </div>
+
+        <div class="answer-section">
+          <div class="answer-title">照着做：一个存量需求的 Coding Harness 流程</div>
+          <p class="note">下面用一个例子讲清楚：假设你要在老系统里新增“用户优惠券过期提醒”能力。不要一上来就说“帮我写代码”，更稳的做法是先让 AI 建地图、写 spec、找参照、拆任务、跑验证。</p>
+          <div class="step-list">
+            <div class="step-card">
+              <b>1</b>
+              <div>
+                <h3>先写项目地图：AGENTS.md / CLAUDE.md</h3>
+                <p>这个文件不是百科全书，只写 agent 每次进项目必须先知道的东西：项目是干什么的、关键目录在哪、启动和测试命令是什么、哪些边界不能碰、常见业务坑是什么。它的作用类似“新同事入组第一天的项目说明”。</p>
+                <pre class="code-sample"># AGENTS.md
+## 项目定位
+这是会员营销系统，负责优惠券、活动、会员权益、消息触达。
+
+## 关键目录
+- coupon-service/：优惠券核心领域逻辑
+- coupon-api/：对外接口和 DTO
+- coupon-job/：定时任务和补偿任务
+- docs/domain/：业务术语、状态机、接口契约
+
+## 常用命令
+- mvn test -pl coupon-service
+- mvn test -pl coupon-api
+- ./scripts/verify.sh coupon
+
+## 硬性规则
+- 不允许绕过 CouponStatus 状态机直接改状态
+- 金额字段统一用分，禁止用元参与计算
+- 新增接口必须补充 API contract test
+- 改定时任务必须说明幂等和重试策略</pre>
+              </div>
+            </div>
+            <div class="step-card">
+              <b>2</b>
+              <div>
+                <h3>再让 AI 生成 spec：先定义“做什么”</h3>
+                <p>spec 不是漂亮文档，而是防止 AI 跑偏的任务契约。你可以先给 AI 原始需求、相关页面截图、接口文档、历史 issue，让它反问不清楚的地方，然后生成一份可执行规格。</p>
+                <pre class="code-sample">你先不要写代码。请基于当前仓库和下面需求生成 docs/specs/coupon-expire-reminder.md。
+要求包含：
+1. 需求背景和目标
+2. 本次明确不做什么
+3. 影响模块和可能改动文件
+4. 接口契约：入参、出参、错误码、兼容性
+5. 业务规则：状态流转、时间窗口、幂等、重复提醒处理
+6. 数据变更：表字段、索引、迁移风险
+7. 验收标准：正常 case、边界 case、异常 case
+8. 需要人工确认的问题
+生成前先列出你找到的相似模块。</pre>
+              </div>
+            </div>
+            <div class="step-card">
+              <b>3</b>
+              <div>
+                <h3>spec 里应该长什么样？</h3>
+                <p>一份合格的 spec 至少要让 reviewer 看得出：需求范围是否收住了、接口有没有定清楚、边界条件有没有覆盖、测试该怎么写。它不需要很长，但必须可验收。</p>
+                <pre class="code-sample"># 优惠券过期提醒 spec
+## 目标
+在优惠券过期前 24 小时，对未使用且未提醒过的券发送站内信提醒。
+
+## 非目标
+- 不新增短信/Push 渠道
+- 不改变优惠券核销流程
+
+## 业务规则
+- 只处理 status = UNUSED 的券
+- expire_time 在当前时间后 24h 内
+- 同一 coupon_user_id 只提醒一次
+- 发送失败进入补偿队列，最多重试 3 次
+
+## 参照模块
+- coupon-job/src/main/.../CouponExpireJob.java
+- message-service/.../MemberMessageSender.java
+
+## 验收标准
+- 未过期且未使用：会发送提醒
+- 已使用/已过期：不会发送
+- 重复执行 job：不会重复提醒
+- 消息服务异常：记录失败并可重试</pre>
+              </div>
+            </div>
+            <div class="step-card">
+              <b>4</b>
+              <div>
+                <h3>让 AI 先找参照模块，再拆任务</h3>
+                <p>存量系统最怕 AI 自创架构。得物文章里的思路很实用：让 AI 模仿已有模块。实现前先让它列出相似代码、调用链、可复用接口，再拆成小任务，比如“新增查询方法”“新增 job”“补单测”“补 contract test”。</p>
+                <pre class="code-sample">请根据 spec 做实现计划，先不要改代码。
+必须输出：
+1. 最相似的 3 个已有模块，以及为什么相似
+2. 本次最小改动范围
+3. 拆成 4 个以内的小任务
+4. 每个任务的验证命令
+5. 你认为风险最高的 3 个点</pre>
+              </div>
+            </div>
+            <div class="step-card">
+              <b>5</b>
+              <div>
+                <h3>最后用验证闭环收口</h3>
+                <p>让 AI 写完以后，不要只看 diff。要求它跑固定命令、解释失败、补测试，再让另一个上下文做 review。每次发现规则没写清楚，就反向补到 AGENTS.md、spec 模板、hook 或测试里。</p>
+                <pre class="code-sample">实现完成后请按顺序执行：
+1. 展示 git diff 摘要
+2. 运行 mvn test -pl coupon-service
+3. 运行 mvn test -pl coupon-job
+4. 检查是否覆盖 spec 中所有验收标准
+5. 列出仍需人工 review 的风险点
+6. 如果测试失败，只做最小修复，不扩大改动范围</pre>
+              </div>
+            </div>
           </div>
         </div>
 
