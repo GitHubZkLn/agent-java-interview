@@ -714,12 +714,13 @@
       <a href="#why" class="nav-item"><span class="nav-index">3</span>为什么需要 Harness<span class="nav-badge">动机</span></a>
       <a href="#relation" class="nav-item"><span class="nav-index">4</span>三种 Engineering<span class="nav-badge">重点</span></a>
       <a href="#example" class="nav-item"><span class="nav-index">5</span>用修 Bug 举例<span class="nav-badge">案例</span></a>
-      <a href="#anatomy" class="nav-item"><span class="nav-index">6</span>Agent Harness 包什么<span class="nav-badge">结构</span></a>
-      <a href="#taxonomy" class="nav-item"><span class="nav-index">7</span>ETCLOVG 七层<span class="nav-badge">框架</span></a>
-      <a href="#eval" class="nav-item"><span class="nav-index">8</span>验证与回归<span class="nav-badge">模块</span></a>
-      <a href="#interview" class="nav-item"><span class="nav-index">9</span>口述答案<span class="nav-badge">复盘</span></a>
-      <a href="#questions" class="nav-item"><span class="nav-index">10</span>高频面试题<span class="nav-badge">题库</span></a>
-      <a href="#sources" class="nav-item"><span class="nav-index">11</span>资料来源<span class="nav-badge">链接</span></a>
+      <a href="#coding-harness" class="nav-item"><span class="nav-index">6</span>Coding Harness学习笔记<span class="nav-badge">新增</span></a>
+      <a href="#anatomy" class="nav-item"><span class="nav-index">7</span>Agent Harness 包什么<span class="nav-badge">结构</span></a>
+      <a href="#taxonomy" class="nav-item"><span class="nav-index">8</span>ETCLOVG 七层<span class="nav-badge">框架</span></a>
+      <a href="#eval" class="nav-item"><span class="nav-index">9</span>验证与回归<span class="nav-badge">模块</span></a>
+      <a href="#interview" class="nav-item"><span class="nav-index">10</span>口述答案<span class="nav-badge">复盘</span></a>
+      <a href="#questions" class="nav-item"><span class="nav-index">11</span>高频面试题<span class="nav-badge">题库</span></a>
+      <a href="#sources" class="nav-item"><span class="nav-index">12</span>资料来源<span class="nav-badge">链接</span></a>
     </div>
   </nav>
 
@@ -733,7 +734,7 @@
         <div class="hero-body">
           <div>
             <p class="hero-lead">读这篇笔记时，可以先记住一条主线：<strong>模型能力提升以后，瓶颈会从“模型会不会回答”转向“agent 能不能在真实环境里稳定行动”。</strong>这就是 Harness Engineering 被单独提出的原因。</p>
-            <p class="note">我把公开资料归纳成 9 个学习模块：OpenAI 起源、概念演进、Agent loop、Prompt / Context / Harness 边界、ETCLOVG 七层、运行时实践、验证闭环、Benchmark 与回归、落地清单。这个顺序更适合慢慢学，不会一上来就被七层名词淹没。</p>
+            <p class="note">我把公开资料归纳成 10 个学习模块：OpenAI 起源、概念演进、Agent loop、Prompt / Context / Harness 边界、存量代码里的 Coding Harness、ETCLOVG 七层、运行时实践、验证闭环、Benchmark 与回归、落地清单。这个顺序更适合慢慢学，不会一上来就被七层名词淹没。</p>
           </div>
           <div class="quick-map">
             <div class="quick-item"><b>P</b><div><span>Prompt Engineering</span><small>控制一次模型调用怎么表达。</small></div></div>
@@ -934,9 +935,111 @@
         <div class="callout">所以，Prompt 和 Context 可以提升 agent 的判断质量；Harness 决定这个判断能不能变成可控、可验收、可持续迭代的行动。</div>
       </section>
 
-      <section class="section" id="anatomy">
+      <section class="section" id="coding-harness">
         <div class="section-header">
           <div class="section-icon">04</div>
+          <div>
+            <h2 class="section-title">Coding Harness学习笔记</h2>
+            <p class="section-subtitle">存量复杂代码里，AI Coding 要先解决“怎么不跑偏”。</p>
+          </div>
+        </div>
+        <p class="note">读阿里和得物这几篇实践文章时，我最大的感受是：大厂现在做 AI Coding，已经不太满足于“让 AI 多写点代码”了。真正难的地方在存量系统里：业务链路长、历史包袱多、接口契约复杂、测试环境麻烦，模型写出来的代码可能语法没问题，但一联调就发现字段含义错了、兼容逻辑漏了、或者改到不该改的边界。</p>
+        <p class="note"><strong>Coding Harness</strong> 可以理解成给 coding agent 搭的一套工程跑道。它不是让 AI 变聪明的魔法，而是把项目知识、代码边界、任务规格、工具命令、验证门禁和人工审核组织起来，让 agent 每次改代码都有上下文、有参照、有约束、有反馈。</p>
+
+        <div class="mini-grid">
+          <div class="mini-card blue">
+            <h3>为什么要做？</h3>
+            <p>存量代码里很多知识不在代码表面，比如字段单位、老接口兼容、配置中心约定、异常分支和上线禁忌。只靠一次 prompt，模型很容易“看起来对，实际错”。</p>
+          </div>
+          <div class="mini-card green">
+            <h3>大厂为什么急？</h3>
+            <p>团队规模越大，AI 生成代码带来的 review 成本、返工成本和质量风险越明显。Harness 的价值，是把个人经验变成团队可复用的工程资产。</p>
+          </div>
+          <div class="mini-card orange">
+            <h3>目标是什么？</h3>
+            <p>不是单纯追求出码率，而是让需求、实现、测试、联调、评审、上线形成闭环，最终降低返工率和线上风险。</p>
+          </div>
+        </div>
+
+        <div class="answer-section">
+          <div class="answer-title">阿里的做法：把 AI Coding 变成一套可编排的工程系统</div>
+          <p class="note">阿里那篇“AI Coding 率提升至 90%”的文章，重点不是某个神奇提示词，而是把项目里的知识、规范和验证流程沉淀成 `.harness` 这类工程目录。里面会放 agent 角色、编码规范、需求规格、业务上下文、自动化脚本和模板。换句话说，AI 不再是拿到一句需求就开写，而是先进入一个被设计好的项目环境。</p>
+          <div class="stack">
+            <div class="stack-row"><strong>角色拆分</strong><p>把 feature 开发、测试补充、接口适配、模型转换、校验规则、SQL / ORM、问题修复拆成不同 agent 或 skill，避免一个 agent 从头包到尾、自写自判。</p></div>
+            <div class="stack-row"><strong>知识工程</strong><p>用短的项目入口文件做地图，再把业务规则、模块流程、代码约束放进可按需加载的文档里。这样既不丢知识，也不会把上下文窗口塞爆。</p></div>
+            <div class="stack-row"><strong>质量嵌入</strong><p>质量不是最后让人扫一眼，而是写进每个 agent 的系统指令和自动化流程里：需要跑哪些测试、遵守哪些分层边界、失败后如何修复和复盘。</p></div>
+          </div>
+        </div>
+
+        <div class="answer-section green">
+          <div class="answer-title">阿里另一条线：SDD 解决“做什么”，Harness 解决“怎么可控地做”</div>
+          <p class="note">另一篇讲团队级 AI 研发范式的文章，核心是把“氛围编程”拉回工程流程。很多团队的 AI Coding 问题不是模型不会写，而是需求本身没结构化：接口字段没定、边界条件没说、验收标准没有、业务例外靠口口相传。SDD 先把需求拆成规格、计划、任务和验收；Harness 再把这些规格接到代码仓库、工具链、测试和 review 流程里。</p>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>阶段</th>
+                <th>没有 Harness 时</th>
+                <th>有 Coding Harness 时</th>
+                <th>质量信号</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>需求</td>
+                <td>一句自然语言需求直接开写。</td>
+                <td>先产出 spec：目标、范围、接口契约、边界条件、验收标准。</td>
+                <td>需求是否可拆、可测、可验收。</td>
+              </tr>
+              <tr>
+                <td>实现</td>
+                <td>模型凭经验生成一版代码。</td>
+                <td>先找相似模块和既有模式，再按项目约束改动最小范围。</td>
+                <td>是否复用现有结构，是否越过架构边界。</td>
+              </tr>
+              <tr>
+                <td>验证</td>
+                <td>靠人工 review 判断“差不多”。</td>
+                <td>自动跑 lint、单测、构建、接口检查、回归用例，失败回到修复循环。</td>
+                <td>测试结果、CI、diff 风险、review 结论。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="answer-section orange">
+          <div class="answer-title">得物的做法：全栈、多仓、可模仿</div>
+          <p class="note">得物的全栈实践更像一套日常可抄的工作法：不要让 AI 凭空创造，而是让它<strong>模仿项目里已经跑通的模块</strong>。比如做一个新页面、新接口、新业务动作时，先明确告诉 agent 参考哪个现有页面、哪个接口、哪个字段定义、哪个 service 写法。对存量系统来说，“像项目自己人写的”比“看起来高级”更重要。</p>
+          <div class="two-col">
+            <div class="mini-card orange">
+              <h3>多仓工作区</h3>
+              <p>前端、后端、接口文档、SDD 文档尽量放在同一个 workspace，让 agent 能看到跨仓契约，不然很容易前端字段、后端 DTO、数据库含义各说各话。</p>
+            </div>
+            <div class="mini-card purple">
+              <h3>分阶段联调</h3>
+              <p>先 mock、再接口、再端到端验证；前后端可以并行，但要用同一份规格和验收标准对齐，避免“各自都对，合起来不通”。</p>
+            </div>
+          </div>
+          <p class="note">得物另一篇 Claude Code Harness 落地方案，重点放在运行时治理：复杂数仓或工程任务里，context compact 以后很容易丢临时约束，比如金额单位、分区写法、SQL 规范。它的思路是把这些约束写进项目级说明、memory、hooks、subagents 和 skill 文件里，能用脚本拦截的就不要靠模型记忆。</p>
+        </div>
+
+        <div class="answer-section purple">
+          <div class="answer-title">我们日常 AI Coding 可以怎么做？</div>
+          <p class="note">普通项目不一定要上来搭平台，先做一个“小 Harness”就够了。核心原则是：每次让 AI 改存量代码前，先把“它该看什么、能改什么、怎么证明改对了”说清楚，并且沉淀到仓库里，下次继续复用。</p>
+          <div class="eval-flow">
+            <div class="eval-step"><b>1</b><h3>项目地图</h3><p>写短版 AGENTS.md / CLAUDE.md：关键目录、启动命令、测试命令、架构边界、常见坑。</p></div>
+            <div class="eval-step"><b>2</b><h3>任务规格</h3><p>先产出 spec：目标、非目标、影响范围、接口契约、验收标准、不确定问题。</p></div>
+            <div class="eval-step"><b>3</b><h3>参照模块</h3><p>要求 agent 先找最像的 2-3 个现有实现，再按项目模式改，不要凭空设计。</p></div>
+            <div class="eval-step"><b>4</b><h3>硬验证</h3><p>把 lint、单测、构建、接口测试、截图检查、SQL 检查变成固定命令。</p></div>
+            <div class="eval-step"><b>5</b><h3>复盘写回</h3><p>AI 每踩一次坑，就补一条规则、测试、hook、checklist 或文档。</p></div>
+          </div>
+        </div>
+
+        <div class="callout">一句话总结：Coding Harness 不是让 AI “更会写代码”，而是让 AI 在复杂存量系统里像一个受约束的新同事一样工作：先读项目规矩，再按参照实现，最后用机器和人共同验收。</div>
+      </section>
+
+      <section class="section" id="anatomy">
+        <div class="section-header">
+          <div class="section-icon">05</div>
           <div>
             <h2 class="section-title">Agent Harness 到底包住了什么？</h2>
             <p class="section-subtitle">把它看成模型外面的任务执行基础设施。</p>
@@ -966,7 +1069,7 @@
 
       <section class="section" id="taxonomy">
         <div class="section-header">
-          <div class="section-icon">05</div>
+          <div class="section-icon">06</div>
           <div>
             <h2 class="section-title">ETCLOVG：论文的七层分类</h2>
             <p class="section-subtitle">这是读 Survey 最值得带走的框架。</p>
@@ -1013,7 +1116,7 @@
 
       <section class="section" id="eval">
         <div class="section-header">
-          <div class="section-icon">06</div>
+          <div class="section-icon">07</div>
           <div>
             <h2 class="section-title">验证闭环：Harness 怎么证明自己有效？</h2>
             <p class="section-subtitle">这是 Harness 的一个重要模块，不是整篇笔记的主角。</p>
@@ -1058,7 +1161,7 @@
 
       <section class="section" id="interview">
         <div class="section-header">
-          <div class="section-icon">07</div>
+          <div class="section-icon">08</div>
           <div>
             <h2 class="section-title">口述高分答案：怎么讲 Agent Harness？</h2>
             <p class="section-subtitle">适合面试、复盘或讲给同学听。</p>
@@ -1083,7 +1186,7 @@
 
       <section class="section" id="questions">
         <div class="section-header">
-          <div class="section-icon">08</div>
+          <div class="section-icon">09</div>
           <div>
             <h2 class="section-title">Harness 高频面试题</h2>
             <p class="section-subtitle">围绕概念、问题、区别和 Agent Harness 设计四个核心问题准备。</p>
@@ -1113,7 +1216,7 @@
 
       <section class="section" id="sources">
         <div class="section-header">
-          <div class="section-icon">09</div>
+          <div class="section-icon">10</div>
           <div>
             <h2 class="section-title">资料来源与建议阅读顺序</h2>
             <p class="section-subtitle">这部分用于继续深挖。</p>
@@ -1124,6 +1227,10 @@
           <li><a href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering</a>：AI Coding 语境下 Harness Engineering 这轮讨论的起点，重点是 Codex、脚手架、反馈循环和 agent-first 软件工程。</li>
           <li><a href="https://picrew.github.io/LLM-Harness/">Agent Harness Engineering: A Survey 项目页</a>：把 OpenAI 语境中的工程直觉扩展为 Agent Harness Engineering，并提出 ETCLOVG 七层。</li>
           <li><a href="https://picrew.github.io/LLM-Harness/main.pdf">论文 PDF</a>：适合精读 open problems、cross-layer synthesis 和项目映射。</li>
+          <li><a href="https://developer.aliyun.com/article/1734483">阿里云转载：Harness Engineering 实践</a>：复杂 Java 应用里用 `.harness`、专业化 agent、项目规范和质量门禁提升 AI Coding 可控性的案例；原微信入口见 <a href="https://mp.weixin.qq.com/s/rlIyIIZOXFObNIXbPI7gDg">这里</a>。</li>
+          <li><a href="https://mp.weixin.qq.com/s/-_IBJFuXpvoqMJxL9oaEJQ">告别“氛围编程”：基于 Harness 治理和 SDD 的团队级 AI 研发范式演进与实践</a>：从团队研发链路角度解释 SDD 与 Harness 如何配合。</li>
+          <li><a href="https://mp.weixin.qq.com/s/ygQGSH5c7GHYDvkqWoQTXQ">得物技术：基于 Harness + SDD + 多仓管理模式的 AI 全栈开发实践</a>：关注多仓工作区、全栈契约、参照模块和分阶段联调。</li>
+          <li><a href="https://mp.weixin.qq.com/s?__biz=MzkxNTE3ODU0NA==&mid=2247544651&idx=1&sn=9a231b02a15ac5e33bd4bf41148a021d&chksm=c1617a14f616f30205fe35eb5dfa7f3add88d6f957a100ec1476622f2ce583f1bb20797fffef&cur_album_id=4439983803683045377&scene=189#wechat_redirect">得物技术：Claude Code Harness 工程数仓侧落地方案</a>：关注项目级上下文、hooks、subagents、skills 和高风险规则拦截。</li>
           <li><a href="https://github.com/Picrew/awesome-agent-harness">Awesome-Agent-Harness</a>：用真实项目训练“这个系统主要解决哪一层”。</li>
           <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic: Effective context engineering for AI agents</a>：理解 Context Engineering 的边界。</li>
           <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic: Effective harnesses for long-running agents</a>：长周期 agent 的初始化、恢复和进度记录。</li>
