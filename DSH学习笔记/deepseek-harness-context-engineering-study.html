@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepSeek Harness：System Prompt、上下文工程与压缩机制</title>
+  <style>
+    :root {
+      --bg: #f5f6f7;
+      --paper: #fff;
+      --ink: #1f2329;
+      --muted: #646a73;
+      --line: #e5e6eb;
+      --soft: #f7f8fa;
+      --blue: #3370ff;
+      --blue-soft: #eef3ff;
+      --green: #2e8b57;
+      --green-soft: #edf8f2;
+      --orange: #d46b08;
+      --orange-soft: #fff7e8;
+      --red: #c93c37;
+      --red-soft: #fff1f0;
+      --purple: #7656c9;
+      --purple-soft: #f4f0ff;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--bg); font: 15px/1.72 var(--sans); }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: var(--mono); }
+    code { padding: 1px 4px; color: #354052; background: #f2f3f5; border-radius: 3px; font-size: .9em; }
+    .shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); max-width: 1260px; margin: 0 auto; background: var(--paper); min-height: 100vh; }
+    .shell > * { min-width: 0; }
+    aside { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 28px 20px; border-right: 1px solid var(--line); background: #fafafa; }
+    .brand { margin-bottom: 22px; font-size: 13px; font-weight: 700; }
+    .brand span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 400; }
+    nav { display: grid; gap: 2px; }
+    nav a { padding: 6px 9px; color: #4e5969; border-left: 2px solid transparent; border-radius: 2px; font-size: 12px; }
+    nav a:hover, nav a.active { color: var(--blue); background: var(--blue-soft); border-left-color: var(--blue); text-decoration: none; }
+    nav a.sub { padding-left: 20px; color: #7b8190; font-size: 11px; }
+    .toc-foot { margin-top: 22px; padding-top: 16px; color: #8f959e; border-top: 1px solid var(--line); font-size: 10px; }
+    .print { margin-top: 14px; padding: 7px 10px; color: #4e5969; background: #fff; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; font-size: 12px; }
+    article { width: 100%; min-width: 0; max-width: 980px; padding: 54px 58px 100px; }
+    header { padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+    h1 { margin: 0 0 14px; font-size: 34px; line-height: 1.28; letter-spacing: -.02em; }
+    .subtitle { max-width: 800px; margin: 0; color: var(--muted); font-size: 16px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 7px 16px; margin-top: 18px; color: #8f959e; font-size: 12px; }
+    section { padding-top: 54px; scroll-margin-top: 18px; }
+    h2 { margin: 0 0 18px; font-size: 25px; line-height: 1.35; }
+    h3 { margin: 34px 0 12px; font-size: 19px; line-height: 1.45; }
+    h4 { margin: 24px 0 8px; font-size: 16px; }
+    p { margin: 10px 0; }
+    ul, ol { margin: 10px 0; padding-left: 24px; }
+    li { margin: 5px 0; }
+    .lead { color: #4e5969; font-size: 16px; }
+    .callout { margin: 18px 0; padding: 14px 16px; background: var(--blue-soft); border-left: 4px solid var(--blue); border-radius: 3px; }
+    .callout.warn { background: var(--orange-soft); border-left-color: var(--orange); }
+    .callout.red { background: var(--red-soft); border-left-color: var(--red); }
+    .callout.green { background: var(--green-soft); border-left-color: var(--green); }
+    .callout p:first-child { margin-top: 0; }
+    .callout p:last-child { margin-bottom: 0; }
+    .label { display: inline-block; margin-right: 6px; padding: 2px 7px; color: var(--blue); background: var(--blue-soft); border-radius: 10px; font-size: 11px; }
+    .label.green { color: var(--green); background: var(--green-soft); }
+    .label.orange { color: var(--orange); background: var(--orange-soft); }
+    .label.red { color: var(--red); background: var(--red-soft); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .card { padding: 15px 16px; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+    .card h4 { margin: 0 0 7px; }
+    .card p { margin: 5px 0; color: #4e5969; font-size: 13px; }
+    .card.full { grid-column: 1 / -1; }
+    .table-wrap { margin: 16px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; }
+    table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { color: #4e5969; background: var(--soft); font-weight: 600; }
+    tr:last-child td { border-bottom: 0; }
+    .diagram { margin: 18px 0 24px; padding: 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: #fbfbfc; }
+    .diagram-title { margin-bottom: 12px; color: #646a73; font-size: 12px; font-weight: 600; }
+    .flow { display: flex; min-width: 760px; align-items: stretch; gap: 24px; }
+    .flow .node { position: relative; flex: 1; min-width: 110px; padding: 11px 10px; text-align: center; border: 1px solid #c9d5f5; border-radius: 5px; background: var(--blue-soft); font-size: 12px; }
+    .flow .node:not(:last-child)::after { content: "→"; position: absolute; right: -19px; top: 50%; color: #8f959e; transform: translateY(-50%); }
+    .node strong { display: block; margin-bottom: 4px; }
+    .node small { display: block; color: #646a73; line-height: 1.45; }
+    .bands { min-width: 740px; display: grid; gap: 8px; }
+    .band { display: grid; grid-template-columns: 110px repeat(4, minmax(120px, 1fr)); gap: 8px; align-items: stretch; }
+    .band-name { display: grid; place-items: center; padding: 10px; color: #4e5969; background: #f0f1f3; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .box { padding: 10px; text-align: center; border: 1px solid var(--line); border-radius: 4px; background: #fff; font-size: 12px; }
+    .box.runtime { border-color: #a9d8bc; background: var(--green-soft); }
+    .box.cap { border-color: #f2c78d; background: var(--orange-soft); }
+    .box.data { border-color: #c9b9ee; background: var(--purple-soft); }
+    .box.span2 { grid-column: span 2; }
+    .box.span4 { grid-column: span 4; }
+    .sequence { min-width: 790px; display: grid; grid-template-columns: 105px 1fr; border-top: 1px solid var(--line); }
+    .sequence > div { padding: 9px 10px; border-bottom: 1px solid var(--line); }
+    .sequence .actor { color: #4e5969; background: #f5f6f7; font-weight: 600; font-size: 12px; }
+    .sequence .event { font-size: 12px; }
+    .sequence .event b { color: var(--blue); }
+    .stack { display: grid; gap: 7px; max-width: 720px; margin: 14px auto; }
+    .stack-row { display: grid; grid-template-columns: 140px 1fr; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-left-width: 5px; background: #fff; font-size: 12px; }
+    .stack-row:nth-child(1) { border-left-color: #c93c37; }
+    .stack-row:nth-child(2) { border-left-color: #d46b08; }
+    .stack-row:nth-child(3) { border-left-color: #3370ff; }
+    .stack-row:nth-child(4) { border-left-color: #2e8b57; }
+    .stack-row:nth-child(5) { border-left-color: #7656c9; }
+    .stack-row strong { font-weight: 600; }
+    .formula { margin: 16px 0; padding: 14px 16px; overflow-x: auto; color: #293042; background: #f7f8fa; border: 1px solid var(--line); border-radius: 5px; font: 13px/1.8 var(--mono); }
+    .case { margin: 16px 0; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+    .case-title { padding: 10px 13px; background: var(--soft); border-bottom: 1px solid var(--line); font-weight: 600; font-size: 13px; }
+    .case-grid { display: grid; grid-template-columns: 100px 1fr; }
+    .case-grid > div { padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .case-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .case-grid .key { color: #646a73; background: #fbfbfc; font-weight: 600; }
+    details { margin: 12px 0; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+    summary { padding: 11px 13px; cursor: pointer; color: #354052; font-weight: 600; }
+    details[open] summary { border-bottom: 1px solid var(--line); }
+    .details-body { padding: 14px; }
+    .prompt { margin: 10px 0; padding: 13px 14px; overflow-x: auto; color: #d8dee9; background: #252a34; border-radius: 4px; font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-word; }
+    .translation { margin-top: 10px; padding: 12px 14px; background: #f7f8fa; border-left: 3px solid var(--blue); font-size: 13px; white-space: pre-wrap; }
+    .compare { display: grid; grid-template-columns: 1fr 70px 1fr; gap: 10px; align-items: center; min-width: 700px; }
+    .surface { padding: 12px; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+    .surface span { display: block; margin: 5px 0; padding: 7px 8px; border-radius: 3px; background: #f4f5f7; font: 11px/1.4 var(--mono); }
+    .surface span.keep { background: var(--green-soft); }
+    .surface span.replace { color: #8b3a25; background: var(--orange-soft); }
+    .arrow { text-align: center; color: #8f959e; font-size: 22px; }
+    .source-list { columns: 2; column-gap: 30px; padding-left: 20px; }
+    .source-list li { break-inside: avoid; margin: 0 0 8px; font-size: 12px; }
+    footer { margin-top: 60px; padding-top: 20px; color: #8f959e; border-top: 1px solid var(--line); font-size: 11px; }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; padding: 18px 22px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { margin-bottom: 10px; }
+      nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      nav a.sub, .toc-foot { display: none; }
+      article { max-width: none; padding: 38px 28px 80px; }
+    }
+    @media (max-width: 620px) {
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      article { padding: 30px 20px 64px; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 22px; }
+      .grid { grid-template-columns: 1fr; }
+      .card.full { grid-column: auto; }
+      .case-grid { grid-template-columns: 78px 1fr; }
+      .source-list { columns: 1; }
+    }
+    @media print {
+      body, .shell { background: #fff; }
+      .shell { display: block; }
+      aside { display: none; }
+      article { max-width: none; padding: 20px 30px; }
+      section { padding-top: 34px; }
+      details { break-inside: avoid; }
+      .diagram { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand">DeepSeek Harness 学习资料<span>System Prompt · Context · Compaction · Cache</span></div>
+      <nav aria-label="目录">
+        <a href="#summary">1. 核心结论</a>
+        <a href="#architecture">2. 总体架构</a>
+        <a href="#turn">3. 一轮请求</a>
+        <a href="#prompt">4. System Prompt</a>
+        <a class="sub" href="#prompt-text">具体提示词</a>
+        <a href="#context">5. 上下文工程</a>
+        <a class="sub" href="#instructions">AGENTS.md</a>
+        <a class="sub" href="#skills">Skills</a>
+        <a href="#capabilities">6. Tool / Skill / MCP</a>
+        <a class="sub" href="#subagent-context">子 Agent 上下文</a>
+        <a href="#compaction">7. 压缩机制</a>
+        <a href="#cache">8. KV Cache</a>
+        <a href="#intent">9. 意图识别</a>
+        <a href="#cases">10. 场景推演</a>
+        <a href="#limits">11. 边界与建议</a>
+        <a href="#sources">12. 源码索引</a>
+      </nav>
+      <button class="print" type="button" onclick="window.print()">打印 / 导出 PDF</button>
+      <div class="toc-foot">源码快照：commit 477b4f4205<br>整理日期：2026-09-25</div>
+    </aside>
+
+    <article>
+      <header>
+        <h1>DeepSeek Harness 的 System Prompt、上下文工程与压缩机制</h1>
+        <p class="subtitle">从源码还原模型每一步实际看到什么、信息何时进入上下文、旧历史怎样被替换，以及系统如何在任务准确性、上下文容量和 KV Cache 之间取舍。</p>
+        <div class="meta"><span>文档类型：源码学习笔记</span><span>参考组合：Web Standard / Base</span><span>重点：运行机制与实际案例</span></div>
+      </header>
+
+      <section id="summary">
+        <h2>1. 先给结论：它不是“一条大 Prompt”</h2>
+        <div class="callout">
+          <p><strong>核心设计：</strong>DeepSeek Harness 把模型上下文当成一个可重放、可替换、可计量的运行时状态，而不是每轮临时拼接一大段字符串。</p>
+        </div>
+        <div class="grid">
+          <div class="card"><h4>稳定规则放前面</h4><p>身份、模式、工具使用规范按固定顺序组装成 System Prompt，尽量形成长期不变的缓存前缀。</p></div>
+          <div class="card"><h4>变化事实放历史尾部</h4><p>沙箱、审批、技能目录、工作区规则等以带来源的消息进入 Session；仅在变化时追加，避免每轮重写前缀。</p></div>
+          <div class="card"><h4>Session Log 是事实源</h4><p>模型请求必须能从事件日志重建。模型可见内容由 Surface 投影得出，替换不会删除旧事件。</p></div>
+          <div class="card"><h4>压缩是“替换视图”</h4><p>旧消息仍在日志中，但当前 Surface 用一个摘要检查点遮蔽旧区间；可以审计，也能继续执行。</p></div>
+          <div class="card"><h4>重要性主要靠结构保证</h4><p>保留最近原文、精确工具配对、按作用域加载指令、按需加载 Skill；不是 embedding、RAG 或语义 Top-K。</p></div>
+          <div class="card"><h4>Cache 是一等设计目标</h4><p>Prompt 更新、Plan 模式、Fork 子 Agent、压缩摘要请求都明确考虑“不要破坏已经热起来的前缀”。</p></div>
+        </div>
+        <div class="callout warn">
+          <p><strong>不要误读：</strong>代码没有证明“每轮送入模型的都是全局最重要信息”。它保证的是：权限和模式不丢、最近上下文保真、旧上下文可压缩、来源可追溯、工具调用结构不被切断。摘要本身仍可能遗漏语义。</p>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <h2>2. 总体架构：四层共同决定模型看到什么</h2>
+        <p class="lead">主路径可以概括为：用户输入进入耐久日志，Agent Loop 在每个 Step 边界装配上下文，Session Surface 投影出当前消息，LLM Adapter 再转换为厂商协议。</p>
+        <div class="diagram">
+          <div class="diagram-title">图 1　上下文系统的四层架构</div>
+          <div class="bands">
+            <div class="band"><div class="band-name">输入层</div><div class="box span2">用户消息 / UI 模式 / 会话引用</div><div class="box">工具结果</div><div class="box">后台注入</div></div>
+            <div class="band"><div class="band-name">编排层</div><div class="box runtime">System Prompt Registry</div><div class="box runtime">Agent pre-step Waterfall</div><div class="box runtime">Inbox</div><div class="box runtime">Tool Runtime</div></div>
+            <div class="band"><div class="band-name">上下文层</div><div class="box cap">Workspace Instructions</div><div class="box cap">Skill Catalog / Skill Body</div><div class="box cap">Runtime Context</div><div class="box cap">Goal / Reminder / Time</div></div>
+            <div class="band"><div class="band-name">状态层</div><div class="box data">Append-only Session Log</div><div class="box data">Surface Projection</div><div class="box data">Token Meter</div><div class="box data">Compaction Events</div></div>
+          </div>
+        </div>
+        <h3>三个必须区分的对象</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>对象</th><th>是什么</th><th>为什么需要</th><th>例子</th></tr></thead>
+          <tbody>
+            <tr><td>Session Log</td><td>只追加的事件序列</td><td>恢复、回放、审计和请求重建的事实源</td><td>原工具结果、压缩开始、摘要、替换消息都各自保留</td></tr>
+            <tr><td>Surface</td><td>把日志折叠后的当前模型可见节点</td><td>允许新事件遮蔽旧消息，而不破坏日志</td><td>压缩后旧 40 条消息仍在日志，但 Surface 只留下摘要节点</td></tr>
+            <tr><td>Provider Request</td><td>Surface 加工具 Schema、模型参数后生成的冻结请求</td><td>适配不同厂商的 system、developer、tool 协议</td><td>DeepSeek 将后续 system 更新放到历史中，将 tool result 映射成 user 内容</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="turn">
+        <h2>3. 一轮请求实际怎样形成</h2>
+        <div class="diagram">
+          <div class="diagram-title">图 2　Turn / Step 的完整时序</div>
+          <div class="sequence">
+            <div class="actor">用户 / 工具</div><div class="event"><b>①</b> 消息先进入 Inbox：新任务去 <code>next-turn</code>，工具追加上下文去 <code>next-step</code>。</div>
+            <div class="actor">Agent Loop</div><div class="event"><b>②</b> <code>claim()</code> 取走 next-step 全部消息；若是新 Turn，再取 next-turn 的第一条。</div>
+            <div class="actor">Prompt Registry</div><div class="event"><b>③</b> 按 agent 作用域组装 section、runtime context、tool schema、变量。</div>
+            <div class="actor">pre-step 插件</div><div class="event"><b>④</b> 压缩检查、AGENTS.md、Skill、时间、提醒等通过 waterfall 增补或拒绝本 Step。</div>
+            <div class="actor">Session</div><div class="event"><b>⑤</b> 先提交 System Prompt 变化，再把本 Step 的 user-role 上下文逐条写日志。</div>
+            <div class="actor">Request Builder</div><div class="event"><b>⑥</b> 写入 request/header 与 request/context；<code>deriveMessages()</code> 从当前 Surface 重建并冻结消息数组。</div>
+            <div class="actor">LLM Adapter</div><div class="event"><b>⑦</b> 转换厂商协议并流式生成；成功输出或失败 attempt 都写回日志。</div>
+            <div class="actor">Tool Runtime</div><div class="event"><b>⑧</b> 若回复含工具调用，执行并把结果及附加上下文放入 next-step；否则 Turn 结束。</div>
+          </div>
+        </div>
+
+        <div class="case">
+          <div class="case-title">实际例子：用户说“把 README 中的旧命令改掉”</div>
+          <div class="case-grid">
+            <div class="key">Step 1 输入</div><div>用户原话 + 当前 runtime context + 根目录到目标目录的 AGENTS.md 基线 + Skill 目录（若首次发布）。</div>
+            <div class="key">模型行动</div><div>根据工具提示先 <code>read</code> README，而不是直接 <code>write</code>。读取成功会形成 tool/result。</div>
+            <div class="key">Step 2 输入</div><div>历史中保留用户要求、read 调用与结果；如果读取路径发现了更深层 AGENTS.md，则这份新规则也在此时进入。</div>
+            <div class="key">模型行动</div><div>调用 <code>edit</code> 精确替换。文件观察策略用上一步读取到的版本防止盲写。</div>
+            <div class="key">完成条件</div><div>模型返回无工具调用的回答，Turn 结束；每个请求仍可仅凭 Session Log 重建。</div>
+          </div>
+        </div>
+        <div class="callout green"><p><strong>准确性的关键不是“多塞说明”：</strong>规则在真正需要它的 Step 前进入；工具结果和新发现的目录规则紧贴下一次决策；已经稳定的前缀不重复生成。</p></div>
+      </section>
+
+      <section id="prompt">
+        <h2>4. System Prompt 设计</h2>
+        <h3>4.1 设计规则</h3>
+        <ol>
+          <li><strong>分段注册，不集中硬编码。</strong>身份、Plan、工具规范、交付格式分别由所属插件贡献。</li>
+          <li><strong>顺序由中央编号决定。</strong>同一 order 再按名称排序，避免插件加载顺序改变最终 Prompt。</li>
+          <li><strong>作用域覆盖同名项。</strong>Agent、Preset、Child Agent 可以覆盖全局 persona，而不是重复追加。</li>
+          <li><strong>静态规则与动态事实分离。</strong>沙箱和审批策略放 runtime-context，不反复改 System Prompt。</li>
+          <li><strong>变量严格插值。</strong><code>{{cwd}}</code>、<code>{{model}}</code> 必须已注册且有值；拼错直接失败，不静默留下错误文本。</li>
+          <li><strong>工具可见性与指导一致。</strong>某个工具被作用域过滤后，它对应的指导 section 返回空串。</li>
+          <li><strong>支持 complete Prompt。</strong>某作用域可以声明一段完整 Prompt；同时出现两段 complete 直接报错。</li>
+          <li><strong>变更可进入历史。</strong>支持 <code>in-history</code> 的模型在同一请求系列中把新 Prompt 追加到旧缓存之后。</li>
+        </ol>
+
+        <div class="diagram">
+          <div class="diagram-title">图 3　System Prompt 组装顺序（数字越小越靠前）</div>
+          <div class="flow">
+            <div class="node"><strong>-1000</strong><small>Harness Identity</small></div>
+            <div class="node"><strong>0</strong><small>Persona Prefix</small></div>
+            <div class="node"><strong>500–900</strong><small>Plan / Team / PTC / File Ref</small></div>
+            <div class="node"><strong>1000–3100</strong><small>Tool 与 MCP 指导</small></div>
+            <div class="node"><strong>5000</strong><small>Tool SDK</small></div>
+            <div class="node"><strong>9000–9900</strong><small>Deliverable / Structured Output</small></div>
+            <div class="node"><strong>10000+</strong><small>本地来源、Web、Persona Suffix</small></div>
+          </div>
+        </div>
+
+        <h3>4.2 Scoped Shadowing 的实际意义</h3>
+        <div class="case">
+          <div class="case-title">例子：父 Agent 与子 Agent 使用不同 Persona</div>
+          <div class="case-grid">
+            <div class="key">全局值</div><div><code>deployment:persona-prefix = You are a coding agent...</code></div>
+            <div class="key">子作用域</div><div>子 Agent 用相同名称注册 <code>You are a security reviewer.</code></div>
+            <div class="key">组装结果</div><div>最近作用域的同名 section 覆盖全局 section；不会同时出现两个身份。</div>
+            <div class="key">价值</div><div>子 Agent 能定制职责，同时继承其余工具规范、工作区规则与父级能力。</div>
+          </div>
+        </div>
+
+        <h3>4.3 Prompt 变化怎样处理 Cache</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>情况</th><th>处理</th><th>Cache 影响</th></tr></thead>
+          <tbody>
+            <tr><td>首次请求</td><td>System Prompt 作为 Surface 节点 0 写入</td><td>形成稳定前缀</td></tr>
+            <tr><td>Prompt 未变化</td><td>不写新 system/message</td><td>完整复用旧前缀</td></tr>
+            <tr><td>模型支持 in-history，且请求系列连续</td><td>把新 System Prompt 追加在已有历史尾部</td><td>旧前缀继续命中；新部分开始写缓存</td></tr>
+            <tr><td>模型不支持，或 Surface/工具发生结构变化</td><td>替换节点 0，并开始新 request series</td><td>旧 Prompt 前缀失效，但历史仍保留</td></tr>
+            <tr><td>Prompt 被清空</td><td>归一化节点 0，清空后续有效 system 节点</td><td>避免旧 Prompt 继续生效</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3 id="prompt-text">4.4 具体提示词与中文解读</h3>
+        <p>以下均来自实际源码或 Standard 配置。英文原文保留用于对照，中文是语义翻译，不是运行时文本。</p>
+
+        <details open><summary>身份与 Persona</summary><div class="details-body">
+          <div class="prompt">You are an AI agent powered by DeepSeek Harness.
+
+You are a coding agent powered by the {{model}} model.
+
+Your working directory is {{cwd}}.</div>
+          <div class="translation">你是由 DeepSeek Harness 驱动的 AI Agent。
+
+你是一个由 {{model}} 模型驱动的编码 Agent。
+
+你的工作目录是 {{cwd}}。</div>
+          <p><strong>解读：</strong>身份极短，执行规则交给工具、模式和 Skill。<code>model</code>/<code>cwd</code> 在每次组装时解析，但只有渲染文本变化时才需要更新历史。</p>
+        </div></details>
+
+        <details><summary>Plan Mode：为什么“帮我实现”在计划模式里不能直接改代码</summary><div class="details-body">
+          <div class="translation">你处于计划模式。在 exit_plan_mode 成功或用户切换会话模式之前，一直保持计划模式。用户要求实现修改的命令式表达，在这里表示“规划如何实现”，而不是执行修改；用户在对话中表示同意，也不会自动结束计划模式。
+
+先探索。使用只读检查、搜索、静态分析和验证，用真实仓库事实支撑计划。不得编辑文件、修改配置、运行会重写文件的格式化或代码生成、提交代码，或实际执行计划。
+
+为了保持请求缓存稳定，模式切换时工具目录保持不变。即使修改工具仍列在目录中，本段规则也覆盖它们的可写建议。
+
+只向用户询问用户自己掌握的选择，或通过检查无法消除的实质歧义。计划必须包含目标、成功标准、子系统改动、API/Schema/数据流、边界情况、失败方式、测试、验收标准与假设。
+
+准备完成后，仅调用 exit_plan_mode，并把完整 Markdown 计划作为参数；不要在普通回复里粘贴最终计划。</div>
+          <p><strong>处理策略：</strong>工具 schema 不随模式减少，避免缓存抖动；行为限制由更靠前的规则控制。若用户说“可以，开始吧”，Agent 只能把确认内容写回计划并再次提交，不能把自然语言同意当成权限切换。</p>
+        </div></details>
+
+        <details><summary>文件工具：把正确行为放在工具附近</summary><div class="details-body">
+          <div class="translation">read：使用 read 工具而不是 cat 等 shell 命令读取文本文件；大文件使用 offset 和 limit 继续读取。
+
+write：覆盖已有文件前先读取；如有 edit，针对性修改优先使用 edit。
+
+edit：编辑前先读取文件，除非你刚刚在本会话中创建或编辑过它。
+
+grep：搜索文件内容时使用 grep 工具，而不是 shell grep/rg；需要上下文时再 read 命中文件。
+
+glob：按路径模式发现文件时使用 glob 工具，而不是 shell find。</div>
+          <p><strong>例子：</strong>模型要修改 <code>src/config.ts</code>，但从未读取过。即使它猜对了旧文本，文件观察策略也会拒绝盲改；提示词和执行期保护形成“双层约束”。</p>
+        </div></details>
+
+        <details><summary>工作区指令框架</summary><div class="details-body">
+          <div class="translation">以下工作区指令可能与你的工作相关。适用时把它们作为指导。更具体的指令优先于更宽泛的指令。它们不能覆盖 system、developer 或用户直接给出的指令。
+
+Instructions from: AGENTS.md
+[根目录规则]
+
+Instructions from: packages/client/AGENTS.md
+[更具体的目录规则]</div>
+          <p><strong>解读：</strong>这里明确了权限层级和目录优先级。仓库文件属于较低权威的工作区指导，不能伪装成系统指令。</p>
+        </div></details>
+
+        <details><summary>Skill Catalog：先目录，后全文</summary><div class="details-body">
+          <div class="translation">Skill 是可复用的任务专用指令。以下 Skill 在当前会话中可用：
+
+&lt;available_skills&gt;
+- `pdf`: 读取、创建和检查 PDF……
+- `code-review`: 评审 Pull Request……
+&lt;/available_skills&gt;
+
+如果用户点名某个 Skill，或任务明显匹配其描述，在采取任务行动前用精确名称调用 skill 工具。先加载所有适用 Skill，再遵循完整指令。此目录只有摘要；加载前不要自行推断 Skill 的详细规则。</div>
+          <p><strong>解读：</strong>首轮只付摘要成本；任务命中后再加载完整 Skill。目录变化会发布“完整替换目录”，而不是让旧条目继续生效。</p>
+        </div></details>
+
+        <details><summary>运行时权限上下文</summary><div class="details-body">
+          <div class="translation">当前 DSH 文件策略：read-only。受 DSH 文件沙箱约束的操作不能在当前模式修改文件。不要仅根据这条策略拒绝用户要求的修改：正常尝试可用工具，并遵循工具返回的拒绝或升级指导。
+
+审批提示在此会话中已禁用：需要审批的操作会被自动拒绝；不要请求沙箱升级，也不要设置 sandbox_permissions。
+
+你是被委派的子 Agent：权限范围在启动时固定，不能在子会话内部扩大。需要范围外权限时，不要重复被拒绝的操作；在回复里说明限制，让委派者处理。</div>
+          <p><strong>解读：</strong>权限事实可能变化，所以它们作为靠近当前请求的 user-role snapshot，而不是重写 System Prompt。子 Agent 的审批策略固定为 <code>never</code>，防止它在无人监督时自行扩权。</p>
+        </div></details>
+
+        <details><summary>Goal 与重复工具提醒</summary><div class="details-body">
+          <div class="translation">Goal：可以从任何语言的用户直接请求中推断目标意图。仅在目标真正达成时标记 complete。只有同一阻塞条件连续存在至少 3 个目标轮次，才可以标记 blocked；困难、不确定或仍有可做工作不算 blocked。
+
+首次重复提醒：你正在用完全相同的参数重复调用同一工具。再次调用前仔细分析上次结果；如果任务未完成，改用不同方案或不同参数。
+
+后续重复提醒：检测到重复调用，列出工具名、连续次数和参数，并明确要求不要再用相同参数调用。</div>
+          <p><strong>例子：</strong>模型连续三次调用 <code>grep("foo")</code> 得到同样结果，第 3 次后收到温和提示；第 5、8 次收到包含参数的强提示。用户中途补充信息会重置重复链。</p>
+        </div></details>
+      </section>
+
+      <section id="context">
+        <h2>5. 上下文工程：每类信息放在哪里</h2>
+        <div class="diagram">
+          <div class="diagram-title">图 4　模型可见信息的权威与生命周期</div>
+          <div class="stack">
+            <div class="stack-row"><strong>System Prompt</strong><span>长期行为、模式规则、工具使用规范；稳定、优先级最高。</span></div>
+            <div class="stack-row"><strong>Developer 更新</strong><span>工具增加/移除等运行时能力变化；引用历史 request/header。</span></div>
+            <div class="stack-row"><strong>用户直接输入</strong><span>当前任务与修正；只有 source.kind=user 才能触发显式 Skill 手势等高权威行为。</span></div>
+            <div class="stack-row"><strong>注入的 user context</strong><span>AGENTS.md、Skill、时间、权限快照、重复提醒；都有 source.kind，不能冒充真实用户。</span></div>
+            <div class="stack-row"><strong>工具与历史</strong><span>观察结果、执行错误、旧回复；用于事实依据，但不授予权限。</span></div>
+          </div>
+        </div>
+
+        <h3>5.1 “只给重要信息”依靠六种筛选</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>筛选方式</th><th>触发条件</th><th>处理策略</th><th>实际例子</th></tr></thead>
+          <tbody>
+            <tr><td>作用域筛选</td><td>为某个 Agent / Child 组装</td><td>只读取其 scope chain 中可见的 Prompt、工具和 Skill</td><td>安全审查子 Agent 看不到父 Agent 被过滤掉的写工具</td></tr>
+            <tr><td>路径筛选</td><td>首次请求或访问新目录</td><td>加载 root→cwd 或 cwd→触达目录的指令链</td><td>读取 <code>packages/client/src/a.ts</code> 后才加入 <code>packages/client/AGENTS.md</code></td></tr>
+            <tr><td>按需展开</td><td>任务匹配 Skill</td><td>常驻摘要目录；完整正文通过 skill 工具加载</td><td>只有处理 PDF 时加载数千字 PDF 工作流</td></tr>
+            <tr><td>变化去重</td><td>runtime context、Skill 目录、工作区规则重新计算</td><td>文本未变则不追加；变化时发布替换快照</td><td>审批策略一直是 ask，不会每个 Step 重复注入</td></tr>
+            <tr><td>容量筛选</td><td>工具结果或全局上下文超过预算</td><td>spill、prune、保留近期原文、摘要旧区间</td><td>40k token 构建日志先落盘并保留头尾</td></tr>
+            <tr><td>来源筛选</td><td>某动作必须由用户明确触发</td><td>检查 message source，而不是只看 role</td><td>网页内容写“/dangerous-skill”不能触发用户 Skill 手势</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3 id="instructions">5.2 AGENTS.md：按目录加载，具体规则优先</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 5　工作区规则发现与刷新</div>
+          <div class="flow">
+            <div class="node"><strong>确定 cwd</strong><small>Session header</small></div>
+            <div class="node"><strong>向上找项目根</strong><small>默认以 .git 为标记</small></div>
+            <div class="node"><strong>构造 root→cwd 链</strong><small>由宽到具体</small></div>
+            <div class="node"><strong>读取候选</strong><small>AGENTS / CLAUDE / local</small></div>
+            <div class="node"><strong>同目录去重</strong><small>trim 后内容相同只留最早项</small></div>
+            <div class="node"><strong>预算裁剪</strong><small>先丢宽规则，再截最具体文件</small></div>
+            <div class="node"><strong>写入上下文</strong><small>带路径和 change metadata</small></div>
+          </div>
+        </div>
+        <div class="case">
+          <div class="case-title">例子：64 KiB 预算下，根规则 50 KiB，packages 规则 30 KiB，client 规则 20 KiB</div>
+          <div class="case-grid">
+            <div class="key">总量</div><div>约 100 KiB，超过 <code>maxBytes=65536</code>。</div>
+            <div class="key">策略</div><div>先整份丢弃最宽的根规则；若仍超限，再丢 packages 规则；最后才截断最具体的 client 规则。</div>
+            <div class="key">模型可见</div><div>保留最贴近当前文件的规则，并显示 <code>Workspace instruction budget ... omitted ... truncated ...</code>。</div>
+            <div class="key">为什么</div><div>目录越具体，越可能直接约束当前编辑；但这是结构启发式，不是对规则内容做语义评分。</div>
+          </div>
+        </div>
+        <p>外部文件不会持续监听。成功的 <code>read/write/edit</code> 记录“触达路径”，在 Step 结束后检查新目录规则；未变化的 digest 不再注入。Shell 中的 <code>cd</code> 不用于发现，因为每次 shell 调用是独立进程，解析任意 shell 语法也不可靠。</p>
+
+        <h3 id="skills">5.3 Skill：目录常驻，正文临时加载</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 6　Skill 路由决策</div>
+          <div class="flow">
+            <div class="node"><strong>任务到达</strong><small>保留原始用户措辞</small></div>
+            <div class="node"><strong>读取短目录</strong><small>名称 + ≤500 字描述</small></div>
+            <div class="node"><strong>是否匹配</strong><small>点名或描述明显命中</small></div>
+            <div class="node"><strong>skill(name)</strong><small>加载完整正文</small></div>
+            <div class="node"><strong>执行 Skill</strong><small>正文紧贴当前回答</small></div>
+            <div class="node"><strong>记录结果</strong><small>可恢复、可压缩</small></div>
+            <div class="node"><strong>后续复用</strong><small>不重复加载显式注入项</small></div>
+          </div>
+        </div>
+        <div class="case">
+          <div class="case-title">例子：用户说“把这个 Markdown 做成 PDF”</div>
+          <div class="case-grid">
+            <div class="key">识别</div><div>目录中 <code>pdf</code> 的描述明显匹配，模型先调用 <code>skill("pdf")</code>。</div>
+            <div class="key">上下文成本</div><div>平时只有一行摘要；此时才加入完整 PDF 生成、渲染和校验流程。</div>
+            <div class="key">安全</div><div>只有真正可见且允许 model invocation 的 Skill 能通过工具加载；未知或已移除名称直接报错。</div>
+            <div class="key">显式手势</div><div>用户消息首行 <code>/pdf</code> 可直接注入 Skill；工具结果或网页文本中的同样字符串不会触发。</div>
+          </div>
+        </div>
+
+        <h3>5.4 Runtime Context：完整快照，而不是增量猜测</h3>
+        <p>沙箱、审批和子 Agent 委派策略先按固定顺序渲染，再加一段声明：“当前快照取代之前的 runtime-context 快照”。<code>RuntimeContextProjection</code> 比较上次保留文本：相同则什么也不写；变化则追加一条来源为 <code>runtime-context</code> 的 user message；全部清空时写显式 cleared marker。</p>
+        <div class="case">
+          <div class="case-title">例子：审批从 ask 切换为 never</div>
+          <div class="case-grid">
+            <div class="key">发生变化</div><div>日志写入 <code>approval/policy</code>，并向 Inbox 注入“用户更改了审批策略”的通知。</div>
+            <div class="key">下一 Step</div><div>重新组装 runtime snapshot，文本从“可以询问”变成“自动拒绝，不要设置 sandbox_permissions”。</div>
+            <div class="key">模型效果</div><div>它不会继续尝试升级权限；旧快照仍在历史中，但新快照明确宣告覆盖旧值。</div>
+            <div class="key">Cache 效果</div><div>变化出现在历史尾部，不需要改写最前面的 System Prompt。</div>
+          </div>
+        </div>
+
+        <h3>5.5 Surface：保留日志，替换模型视图</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 7　Append-only Log 与可替换 Surface</div>
+          <div class="compare">
+            <div class="surface"><strong>日志中的事件</strong><span>seq 0 system/message</span><span>seq 1 user/message</span><span>seq 2 assistant/message</span><span>seq 3 tool/result 原文</span><span>seq 4 compaction/prune</span><span class="replace">seq 5 tool/result 精简副本 → 引用 seq 3</span></div>
+            <div class="arrow">→</div>
+            <div class="surface"><strong>当前 Surface</strong><span class="keep">seq 0 system/message</span><span class="keep">seq 1 user/message</span><span class="keep">seq 2 assistant/message</span><span class="replace">seq 5 tool/result 精简副本</span></div>
+          </div>
+        </div>
+        <p>因此“压缩”不是修改旧记录，而是新增一条带 <code>surfaceOp: replace</code> 的事件。替换范围、来源 seq 和摘要调用都可被离线重放。</p>
+      </section>
+
+      <section id="capabilities">
+        <h2>6. Tool、Skill、MCP 与子 Agent：能力怎样进入上下文</h2>
+        <div class="callout">
+          <p><strong>先分清层次：</strong>Tool 是模型可调用的运行时操作；Skill 是按需加载的工作方法；MCP 是把外部服务器的工具、资源和说明接入 Harness 的协议桥；子 Agent 是拥有独立 Session 和工作上下文的执行者。MCP Tool 接入后仍是 Tool，调用子 Agent 的入口本身也仍是 Tool。</p>
+        </div>
+
+        <h3>6.1 先做选型：什么情况应该设计成什么</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 8　能力选型判断树</div>
+          <div class="flow">
+            <div class="node"><strong>模型是否必须立即知道？</strong><small>当前权限、模式、可见服务器</small></div>
+            <div class="node"><strong>是：直接上下文</strong><small>短、权威、每轮决策前都需要</small></div>
+            <div class="node"><strong>需要执行或读取真实状态？</strong><small>参数可结构化、结果可验证</small></div>
+            <div class="node"><strong>是：Tool</strong><small>若能力在外部服务器，则通过 MCP 接入</small></div>
+            <div class="node"><strong>只是可复用方法？</strong><small>组合已有工具完成任务</small></div>
+            <div class="node"><strong>是：Skill</strong><small>目录常驻，正文命中后加载</small></div>
+            <div class="node"><strong>需要独立工作记忆？</strong><small>并行、隔离、长链路</small></div>
+            <div class="node"><strong>是：子 Agent</strong><small>新 Session，最终结果回父级</small></div>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>形态</th><th>适合放什么</th><th>不适合放什么</th><th>Agent 遇到什么情况</th><th>处理策略</th></tr></thead>
+          <tbody>
+            <tr><td>直接上下文</td><td>在选择下一动作前必须知道的短事实：模式、沙箱、审批、可见 MCP 服务器</td><td>大文档、低频操作说明、执行代码</td><td>审批刚从 <code>ask</code> 切到 <code>never</code></td><td>追加完整 runtime snapshot；文本未变则不重复发布</td></tr>
+            <tr><td>Tool</td><td>读取真实状态、产生副作用、需要权限/超时/取消/参数校验的操作</td><td>纯写作风格、长工作流教程</td><td>要读取文件、执行命令、创建 Issue</td><td>给模型短描述和 JSON Schema；执行器与权限逻辑留在模型上下文之外</td></tr>
+            <tr><td>Skill</td><td>可复用的任务方法、检查清单、工具编排顺序、领域规范</td><td>必须由程序强制的权限；单一原子副作用</td><td>要制作 PDF，且仓库已有 PDF 工作流</td><td>先凭目录匹配，再加载完整 Skill，按 Skill 调用已有工具</td></tr>
+            <tr><td>MCP</td><td>由外部进程或远端服务拥有、希望跨客户端复用的工具和资源</td><td>只属于本地 Harness 的简单函数；静态教程</td><td>要调用 GitHub 服务或读取外部知识库</td><td>MCP 客户端发现能力；Tool 转成本地 schema，Resource 通过共享读取工具按需获取</td></tr>
+            <tr><td>子 Agent</td><td>可独立完成、会产生大量中间历史、适合并行或需要专门 persona 的任务</td><td>必须紧跟当前一步的小操作；共享可变状态的原子更新</td><td>同时审查四个互不依赖的包</td><td>每个任务创建独立子 Session；父级继续工作，只接收最终答案或状态</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout warn"><p><strong>常见误区：</strong>“重要”不等于都塞进 System Prompt。只要信息可以在需要时可靠取得，就优先做 Skill、Tool 或 Resource；否则每一轮都支付 token，并且任何变化都会缩短可复用缓存前缀。</p></div>
+
+        <h3>6.2 三条入模通道：Prompt、Tools、Messages</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 9　能力在一次 Provider Request 中的位置</div>
+          <div class="bands">
+            <div class="band"><div class="band-name">System</div><div class="box span4">Persona / 模式 / 工具指导 / MCP 服务器字面说明：长期规则，按 section 确定排序</div></div>
+            <div class="band"><div class="band-name">Tools</div><div class="box span2">原生 ToolSchema</div><div class="box span2">MCP Tool → ToolSchema；与 messages 分开发送</div></div>
+            <div class="band"><div class="band-name">Messages</div><div class="box">用户原话</div><div class="box">Skill 目录 / Skill 正文</div><div class="box">assistant tool-call</div><div class="box">tool result / MCP Resource</div></div>
+            <div class="band"><div class="band-name">独立 Session</div><div class="box span4">子 Agent：继承组合或历史前缀，但中间消息不回灌父 Session</div></div>
+          </div>
+        </div>
+        <p>Tool 定义不是普通自然语言消息。Harness 内部只投影四个模型可见字段：<code>name</code>、<code>description</code>、<code>parameters</code> 和可选的 <code>deferLoading: true</code>；执行函数、权限判断、超时、UI 渲染器都不会发给模型。</p>
+        <div class="prompt">// Harness 内部的模型可见 ToolSchema
+{
+  "name": "example_tool",
+  "description": "A short model-facing routing description.",
+  "parameters": {
+    "query": { "type": "string", "required": true }
+  },
+  "deferLoading": true
+}
+
+// DeepSeek Messages 适配器发出的字段名
+{
+  "tools": [{
+    "name": "example_tool",
+    "description": "...",
+    "input_schema": { "...": "..." },
+    "defer_loading": true
+  }]
+}</div>
+        <p><strong>调用后的历史格式：</strong>模型产出的调用在 Harness 中是 assistant 内容块 <code>{type:"tool-call", id, name, arguments}</code>；结果是独立的 <code>role:"tool"</code> 消息，携带 <code>toolCallId</code>、<code>isError</code> 和内容。DeepSeek Messages 序列化时，再把它变成紧随调用之后的 user-role <code>tool_result</code> 块。</p>
+        <div class="case">
+          <div class="case-title">例子：运行中新增一个 search 工具</div>
+          <div class="case-grid">
+            <div class="key">支持动态工具的模型</div><div>新定义写入新的 <code>request/header</code>，历史尾部追加 developer 块 <code>{type:"tool-addition", toolName:"search"}</code>；块中不重复内联 schema。</div>
+            <div class="key">为什么</div><div>工具定义可带 <code>deferLoading</code> 先声明，addition 只在变化点激活它，因此旧请求前缀仍可复用。</div>
+            <div class="key">不支持的模型</div><div>过滤 developer 工具更新消息，每次发送当前完整工具列表，并去掉 deferred 语义，保证工具立即可调用。</div>
+            <div class="key">移除工具</div><div>支持 <code>in-history</code> 的 route 追加 <code>tool-removal</code>；只支持 addition 的 route 从当前声明列表删掉它。</div>
+          </div>
+        </div>
+        <details><summary>Native / PTC / Both：同一批 Tool 的三种呈现方式</summary><div class="details-body">
+          <div class="table-wrap"><table>
+            <thead><tr><th>模式</th><th>模型实际看到什么</th><th>适用情况</th><th>上下文与调用代价</th></tr></thead>
+            <tbody>
+              <tr><td><code>native</code></td><td>每个可见 Tool 都作为独立 schema 放进请求的 <code>tools</code> 字段</td><td>工具不多，模型应直接选择并调用</td><td>选择简单；固定成本随工具数量和 schema 长度增长</td></tr>
+              <tr><td><code>ptc</code></td><td>原生列表只保留 <code>run_code</code>；其余 Tool 变成 TypeScript SDK 声明，放入 <code>tools:sdk</code> System section</td><td>工具多、需要在一段程序中组合调用、循环或处理结果</td><td>调用多一层代码传输；SDK 文本仍占上下文，不能笼统视为必然省 token</td></tr>
+              <tr><td><code>both</code></td><td>既发送普通 Tool schema，也发送 PTC SDK 与 <code>run_code</code></td><td>既要方便直接调用，又要支持复杂编排</td><td>能力最全，固定上下文成本也最高</td></tr>
+            </tbody>
+          </table></div>
+          <div class="prompt">## Writing code for run_code
+
+`run_code` takes two required arguments: `code` — the body of an async TypeScript function (erasable syntax only — no `enum` or namespaces; type annotations are advisory, the code runs type-stripped) — and `description`, a short summary of what the program does. The declarations below are SDK bindings for this program. A declaration does not make its name a directly callable tool; only names supplied as separate tool schemas may be called directly.</div>
+          <div class="translation">## 为 run_code 编写代码
+
+<code>run_code</code> 有两个必填参数：<code>code</code> 是异步 TypeScript 函数的函数体（只能使用可擦除语法，不能使用 <code>enum</code> 或 namespace；类型标注仅供参考，运行时会移除类型）；<code>description</code> 是程序用途的简短说明。下方声明是这段程序可用的 SDK 绑定。出现一条声明，并不代表它能作为 Tool 被模型直接调用；只有同时作为独立 Tool schema 提供的名字才能直接调用。</div>
+          <div class="case">
+            <div class="case-title">例子：PTC 模式下执行 shell</div>
+            <div class="case-grid">
+              <div class="key">模型处境</div><div>System 中存在 <code>tools.bash(...)</code> 的 SDK 声明，但请求的原生 <code>tools</code> 里没有 <code>bash</code>，只有 <code>run_code</code>。</div>
+              <div class="key">正确策略</div><div>调用 <code>run_code</code>，让代码执行 <code>return await tools.bash({ command: "pwd", description: "Show current directory" })</code>。</div>
+              <div class="key">错误策略</div><div>直接发出名为 <code>bash</code> 的 tool call；运行时会以 <code>UNKNOWN_TOOL</code> 拒绝，因为 SDK 声明不等于原生 Tool schema。</div>
+              <div class="key">Cache 条件</div><div>模式、可见工具集合、生成的 SDK 和传输 schema 都不变时，前缀才稳定；其中任一项变化都会改变 System 或 Tools 前缀。</div>
+            </div>
+          </div>
+        </div></details>
+
+        <h3>6.3 Skill：为什么不是每个 Skill 都做成 Tool</h3>
+        <p>Skill 本身通常不执行外部动作，它告诉 Agent <em>怎样</em>完成一类任务。一个 PDF Skill 可以要求先渲染、再截图检查、失败后修正；真正读写文件和运行程序的仍是 Tool。这样工作流可以独立维护，而执行权限仍由 Tool Runtime 强制。</p>
+        <details open><summary>Skill 目录的运行时原文与翻译</summary><div class="details-body">
+          <div class="prompt">&lt;system-reminder&gt;
+A skill is a reusable set of task-specific instructions. The following skills are available in this session:
+
+&lt;available_skills&gt;
+- `pdf`: Read, create, inspect, render, and verify PDF files...
+&lt;/available_skills&gt;
+
+If the user names a skill, or the task clearly matches a skill's description, call the `skill` tool with the exact skill name before taking task actions. Load all applicable skills, then follow their full instructions. This catalog contains summaries only; do not infer or follow a skill's instructions until it has been loaded.
+A user may also invoke a skill directly; its &lt;skill_content&gt; block then appears in this conversation. Follow it, and do not call the `skill` tool again for that skill.
+&lt;/system-reminder&gt;</div>
+          <div class="translation">&lt;系统提醒&gt;
+Skill 是一组可复用、面向特定任务的指令。以下 Skill 在本会话中可用：
+
+&lt;可用 Skill&gt;
+- `pdf`：读取、创建、检查、渲染并验证 PDF……
+&lt;/可用 Skill&gt;
+
+如果用户点名某个 Skill，或任务明显匹配某个 Skill 的描述，在执行任务动作之前，必须用精确名称调用 `skill` 工具。加载所有适用 Skill，然后遵循其完整指令。这个目录只有摘要；在加载之前，不要推断或执行 Skill 的具体指令。
+用户也可以直接调用 Skill；此时它的 &lt;skill_content&gt; 块会出现在对话中。遵循该内容，不要再次通过 `skill` 工具加载同一个 Skill。
+&lt;/系统提醒&gt;</div>
+          <p><strong>设计：</strong>它是带 <code>source.kind="skill-catalog"</code> 的持久 user-role 消息。每条描述默认最多 500 个规范化字符；目录 digest 未变化时不重复注入，变化时发布完整替换目录，避免新旧列表合并出幽灵 Skill。</p>
+        </div></details>
+        <details><summary>完整 Skill 正文的统一格式</summary><div class="details-body">
+          <div class="prompt">&lt;skill_content name="pdf"&gt;
+&lt;skill_resources&gt;
+Base directory for this skill: /skills/pdf
+Resolve relative paths mentioned by this skill against the base directory before using them. Load referenced resources only as needed.
+&lt;/skill_resources&gt;
+
+&lt;skill_instructions&gt;
+[SKILL.md 去除元数据后的完整正文]
+&lt;/skill_instructions&gt;
+&lt;/skill_content&gt;</div>
+          <div class="translation">&lt;Skill 内容 名称="pdf"&gt;
+&lt;Skill 资源&gt;
+本 Skill 的基准目录：/skills/pdf
+使用相对路径前，先相对于该基准目录解析；只在需要时加载引用资源。
+&lt;/Skill 资源&gt;
+
+&lt;Skill 指令&gt;
+[完整工作流程]
+&lt;/Skill 指令&gt;
+&lt;/Skill 内容&gt;</div>
+          <p><strong>两条加载路径、同一格式：</strong>模型自己调用 <code>skill({name:"pdf"})</code> 时，它作为 tool result 进入历史；真实用户消息首行写 <code>/pdf</code> 时，它在 pre-step 尾部直接作为 instructions-form user context 注入。后者只检查 <code>source.kind="user"</code>，所以网页和工具输出无法伪造显式调用。</p>
+        </div></details>
+        <div class="case">
+          <div class="case-title">例子：为什么“创建 PDF”同时需要 Skill 和 Tool</div>
+          <div class="case-grid">
+            <div class="key">遇到情况</div><div>用户要求把 Markdown 变成版式稳定的 PDF。</div>
+            <div class="key">Skill 负责</div><div>规定生成顺序、依赖定位、渲染成图片、逐页视觉检查和返修标准。</div>
+            <div class="key">Tool 负责</div><div>读取 Markdown、运行转换程序、保存 PDF、打开渲染图片；参数、权限和错误由代码处理。</div>
+            <div class="key">上下文收益</div><div>普通编码任务只看到一行 <code>pdf</code> 摘要；只有真正命中时才支付完整工作流 token。</div>
+          </div>
+        </div>
+
+        <h3>6.4 MCP：外部能力怎样被桥接，而不是整包塞进 Prompt</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 10　MCP 的三种模型可见投影</div>
+          <div class="flow">
+            <div class="node"><strong>MCP Server</strong><small>tools / resources / instructions</small></div>
+            <div class="node"><strong>tools/list</strong><small>发现远端 JSON Schema</small></div>
+            <div class="node"><strong>本地 Tool Registry</strong><small>mcp__server__tool</small></div>
+            <div class="node"><strong>Provider tools 数组</strong><small>像原生 Tool 一样调用</small></div>
+            <div class="node"><strong>resources</strong><small>三个共享工具按需 list/read</small></div>
+            <div class="node"><strong>tool result</strong><small>读取后才进入消息历史</small></div>
+            <div class="node"><strong>instructions</strong><small>带服务器归属的 System section</small></div>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>MCP 内容</th><th>进入模型的位置</th><th>精确格式/规则</th><th>上下文策略</th></tr></thead>
+          <tbody>
+            <tr><td>Tool</td><td>Provider Request 的 <code>tools</code> 数组</td><td><code>mcp__&lt;serverName&gt;__&lt;rawName&gt;</code>；非法字符替换，超 64 字符时追加 12 位 SHA-256 标识</td><td>只发送 name、description、input schema；执行仍调用服务器原始名称</td></tr>
+            <tr><td>Server instructions</td><td>System Prompt 的 <code>MCP_SERVERS</code> 顺序段</td><td><code>### MCP server: docs</code> + 两个换行 + 服务器原文</td><td><code>interpolate:false</code>，模板符号保持字面量；默认上限 32,768 UTF-8 字节</td></tr>
+            <tr><td>Resource server 目录</td><td>短 System Prompt 段</td><td>按名称排序的 JSON 数组</td><td>只告诉模型可选服务器，不提前加载资源正文</td></tr>
+            <tr><td>Resource 列表/正文</td><td>三个共享 Tool 的结果消息</td><td><code>MCP server: &lt;name&gt;\n&lt;JSON&gt;</code></td><td>调用后才占历史；<code>blob</code> 只显示 base64 长度，不把二进制塞给模型</td></tr>
+            <tr><td>MCP Prompt templates</td><td>不进入</td><td>当前实现不支持</td><td>避免误以为服务器 prompt 会自动成为 Harness prompt</td></tr>
+          </tbody>
+        </table></div>
+        <details open><summary>MCP 系统上下文的实际格式与翻译</summary><div class="details-body">
+          <div class="prompt">### MCP server: docs
+
+[The server's literal instructions]
+
+## MCP resource servers
+
+Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: ["docs","github"].</div>
+          <div class="translation">### MCP 服务器：docs
+
+[服务器返回的字面说明；不会执行 {{变量}} 插值]
+
+## MCP 资源服务器
+
+调用 list_mcp_resources、list_mcp_resource_templates 或 read_mcp_resource 时，把以下名称之一作为 server 参数：["docs","github"]。</div>
+          <p><strong>生命周期：</strong>服务器说明和资源 provider 由同一个连接实例拥有；作用域外的 Agent 看不到它们。连接成功后的指令更新会反映到下一次组装；插件卸载或重连彻底放弃后，说明与工具按生命周期撤回。</p>
+        </div></details>
+        <div class="callout red"><p><strong>安全含义：</strong>MCP 服务器提供的 instructions 会成为 System Prompt 段，工具 description 也会进入模型可见 schema。Harness 会加服务器归属、关闭变量插值并限制说明字节数，但不会替你判断其语义是否可信；只应连接受信服务器，并用作用域和工具限制缩小可见范围。</p></div>
+        <div class="case">
+          <div class="case-title">例子：Agent 要从 docs MCP 服务器读取某个 API 规范</div>
+          <div class="case-grid">
+            <div class="key">遇到情况</div><div>模型只知道服务器名 <code>docs</code>，不知道有哪些资源 URI。</div>
+            <div class="key">第 1 步</div><div>调用 <code>list_mcp_resources({server:"docs"})</code>；返回 URI、名称、MIME 等 JSON。</div>
+            <div class="key">第 2 步</div><div>用列出的 URI 调用 <code>read_mcp_resource</code>；正文此时才进入 tool result。</div>
+            <div class="key">为什么不直塞</div><div>资源数量与正文可能很大且随服务器变化；只常驻服务器名和三个固定 schema，缓存更稳定。</div>
+            <div class="key">错误处理</div><div>服务器不可用、超时或返回协议错误时，结果明确标为失败；模型据此重试、换方案或报告限制。</div>
+          </div>
+        </div>
+
+        <h3>6.5 五种形态的 token 与 Cache 成本</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>形态</th><th>每轮固定成本</th><th>命中后的增量</th><th>对 KV Cache 的影响</th></tr></thead>
+          <tbody>
+            <tr><td>直接上下文</td><td>文本短但每次请求可见</td><td>状态变化时追加新快照</td><td>后置追加可保留旧前缀；若放进前部 System 则变化成本高</td></tr>
+            <tr><td>Tool</td><td>每个可见 schema 都占 token</td><td>调用参数和结果进入历史</td><td>工具集合/描述不变时前缀稳定；动态更新可用 history addition 降低重写</td></tr>
+            <tr><td>Skill</td><td>目录中的一行摘要</td><td>命中后加入完整正文和引用资源</td><td>未命中时成本很低；目录 digest 不变不重复发布</td></tr>
+            <tr><td>MCP</td><td>远端工具 schema + 短服务器目录；服务器指令另计</td><td>调用结果、资源正文</td><td>同名工具保持稳定；资源按需读取，不因远端资源库庞大而扩大固定前缀</td></tr>
+            <tr><td>子 Agent</td><td>父级只有委派工具 schema</td><td>父级保留委派参数和最终结果；子级独立支付自己的上下文</td><td>隔离中间历史；fork 同 route 时可复用父会话的已完成前缀</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3 id="subagent-context">6.6 子 Agent 的上下文、Prompt 与隔离机制</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 11　父 Agent 到子 Agent 的上下文继承</div>
+          <div class="bands">
+            <div class="band"><div class="band-name">父 Agent</div><div class="box span2">subagent 工具：description + prompt</div><div class="box">当前 provider/model</div><div class="box">cwd / preset / 权限状态</div></div>
+            <div class="band"><div class="band-name">创建方式</div><div class="box cap span2">Spawn：全新历史，prompt 必须自包含</div><div class="box cap span2">Fork：复制到最后一个 turn/end 的已完成前缀；排除当前进行中的 Turn</div></div>
+            <div class="band"><div class="band-name">子级组合</div><div class="box runtime">继承父 preset</div><div class="box runtime">可覆盖 persona</div><div class="box runtime">toolFilter 求交</div><div class="box runtime">Delegation runtime context</div></div>
+            <div class="band"><div class="band-name">子 Session</div><div class="box data">parentSession / depth</div><div class="box data">任务作为 user message</div><div class="box data">自己的工具历史</div><div class="box data">自己的压缩与结果</div></div>
+            <div class="band"><div class="band-name">回到父级</div><div class="box span4">前台：最终 assistant 文本成为 tool result；后台：先返回 id，后续通过通知/消息继续。中间步骤不回灌父历史。</div></div>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>子级内容</th><th>Spawn</th><th>Fork</th><th>设计目的</th></tr></thead>
+          <tbody>
+            <tr><td>父对话历史</td><td>不继承</td><td>继承所有已完成 Turn；当前正在调用子 Agent 的 Turn 不继承</td><td>避免复制不完整的 tool-call / result 对</td></tr>
+            <tr><td>任务 prompt</td><td>必须包含完整背景</td><td>只写新增任务，可直接引用前文</td><td>工具描述会按 provider 能力使用不同措辞，防止父模型写错委派词</td></tr>
+            <tr><td>System Prompt / Tools</td><td colspan="2">进程内子级加入父 preset 组合；可用同名 persona 覆盖，并用 toolFilter 缩小工具集</td><td>继承能力而不共享父 Session 的可变历史</td></tr>
+            <tr><td>模型路由</td><td colspan="2">默认继承父级最新 provider/model/reasoning/maxTokens；显式覆盖 route 时，未指定 effort 会使用新模型默认值</td><td>减少配置重复；fork 保持相同 route 时有利于前缀缓存复用</td></tr>
+            <tr><td>权限</td><td colspan="2">捕获父级 Auto/Full 预设和显式 sandbox override；若审批服务存在，子级 approval 固定为 <code>never</code></td><td>权限在委派时冻结，子级无人值守时不能自行扩权</td></tr>
+            <tr><td>血缘</td><td colspan="2">记录 <code>parentSession</code>、<code>origin:"subagent"</code>、单调递增的 <code>delegationDepth</code> 和是否 seeded</td><td>恢复后仍能执行深度限制与导航</td></tr>
+          </tbody>
+        </table></div>
+        <div class="prompt">// 父模型实际调用委派工具时的参数示例
+{
+  "description": "审查 MCP 错误处理",
+  "prompt": "只检查 packages/mcp；列出可复现问题、精确文件路径和修复建议，不修改文件。",
+  "run_in_background": true
+}
+
+// 若开启子模型选择，还可带：
+{
+  "provider": "deepseek",
+  "model": "example-model",
+  "reasoning_effort": "high"
+}</div>
+
+        <details open><summary>Spawn 与 Fork 的工具描述原文、翻译与使用条件</summary><div class="details-body">
+          <h4>Spawn：全新上下文</h4>
+          <div class="prompt">Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps.
+
+Prompt parameter: The complete, self-contained task for the subagent. It does not share this conversation's context, so include everything it needs.</div>
+          <div class="translation">把一个自包含任务委派给子 Agent。它是一个在自己上下文中工作的独立 Agent，适合承担聚焦、独立的工作，例如调研、范围明确的实现或分析，从而不消耗当前对话的上下文。子 Agent 返回最终结果，不返回中间步骤。
+
+prompt 参数：给子 Agent 的完整、自包含任务。它不共享当前对话上下文，因此必须包含完成工作所需的全部信息。</div>
+          <p><strong>适用：</strong>任务边界清楚、背景很少、希望最大程度隔离 token。例：只审查 <code>packages/mcp</code> 的错误处理，把目标、路径和输出要求都写入 prompt。</p>
+          <h4>Fork：继承已完成对话</h4>
+          <div class="prompt">Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps.
+
+Prompt parameter: The task for the subagent. It already sees this conversation's completed turns, so build on them freely and state only what is new.</div>
+          <div class="translation">把任务委派给一个继承当前对话的子 Agent：子级会用目前所有已完成 Turn 作为种子，但看不到当前仍在进行的 Turn。适合需要建立在本对话背景上的后续分析、评审或继续工作，同时不让具体工作消耗父对话上下文。你只会收到结果，不会收到中间步骤。
+
+prompt 参数：交给子 Agent 的任务。它已经能看到当前对话中所有已完成 Turn，因此可以直接承接前文，只说明新增内容。</div>
+          <p><strong>适用：</strong>子任务高度依赖已经讨论过的需求或代码结论。若换子模型 route，厂商侧可能无法复用继承的父级缓存前缀。</p>
+        </div></details>
+
+        <details open><summary>每个进程内子 Agent 都会收到的委派上下文</summary><div class="details-body">
+          <div class="prompt">You are a delegated subagent: your permission scope was fixed when you were started and cannot be widened from inside this session — operations that require approval are rejected automatically. When the task needs access beyond that scope, do not retry the denied operation; state the limitation in your reply so the delegating agent can handle it.</div>
+          <div class="translation">你是被委派的子 Agent：你的权限范围在启动时已经固定，无法从本会话内部扩大；需要审批的操作会被自动拒绝。当任务需要超出该范围的访问时，不要重试被拒绝的操作；请在回复中说明限制，让委派你的 Agent 处理。</div>
+          <p><strong>放置方式：</strong>它注册为名为 <code>subagent:delegation</code> 的 runtime context，不是修改部署级 System Prompt。这样父级与普通 Agent 保持相同的稳定 System 前缀，而限制只在子级作用域可见。</p>
+        </div></details>
+
+        <details><summary>后台并行与结构化输出提示词</summary><div class="details-body">
+          <h4>可继续子 Agent 的并行提示</h4>
+          <div class="prompt">Start independent subagent delegations together in one assistant message and continue useful work while they run.</div>
+          <div class="translation">把彼此独立的子 Agent 委派放在同一条 assistant 消息中一起启动，并在它们运行时继续推进有价值的工作。</div>
+          <p>仅当可继续后台模式开启且该工具在当前作用域可见时，这个 <code>tool:&lt;toolName&gt;</code> System section 才出现。<code>run_in_background</code> 默认 true；只有父级下一步确实依赖结果时才设为 false。</p>
+          <h4>结构化结果提示</h4>
+          <div class="prompt">When you have your final answer, you MUST report it by calling the `structured_output` tool with arguments matching its parameter schema exactly. Do not finish with a plain text answer: only the tool call counts as your result.</div>
+          <div class="translation">得到最终答案后，你必须调用 `structured_output` 工具报告结果，并让参数严格匹配它的 schema。不要用普通文本结束：只有这次工具调用才算有效结果。</div>
+          <p>子级会得到真实的目标 JSON Schema。参数不合规时产生 <code>INVALID_ARGS</code>，模型可在同一 Turn 重试；成功后工具调用提交为最终值、终止 Turn，并用 guard 阻止后续工具再次修改结果。</p>
+        </div></details>
+
+        <div class="diagram">
+          <div class="diagram-title">图 12　一次前台子 Agent 委派的完整时序</div>
+          <div class="sequence">
+            <div class="actor">父模型</div><div class="event"><b>①</b> 调用 <code>subagent({description, prompt, ...})</code>；短 description 只用于展示，prompt 才是子级任务。</div>
+            <div class="actor">Tool Runtime</div><div class="event"><b>②</b> 校验 provider、模型 route、深度、persona、toolFilter 能力；不支持则启动前明确失败。</div>
+            <div class="actor">Child Factory</div><div class="event"><b>③</b> 创建独立 Session，写 cwd、父会话、depth、preset 和冻结的权限策略；spawn 无 seed，fork 复制已完成前缀。</div>
+            <div class="actor">Prompt Registry</div><div class="event"><b>④</b> 继承父组合，叠加子 persona、工具限制和 delegation runtime context。</div>
+            <div class="actor">子 Agent</div><div class="event"><b>⑤</b> 委派 prompt 作为普通 <code>source.kind="user"</code> 消息进入自己的 Inbox；随后独立运行一个 Turn。</div>
+            <div class="actor">结果选择</div><div class="event"><b>⑥</b> 取激活边界之后最后一条 assistant 输出；取消或 max-tokens 时也保留部分文本，但 stop reason 仍标为失败。</div>
+            <div class="actor">父 Session</div><div class="event"><b>⑦</b> 成功时只把最终文本渲染成 subagent 工具结果；子级 read、shell、思考和中间对话都留在子 Session。</div>
+          </div>
+        </div>
+        <div class="case">
+          <div class="case-title">实际例子：父 Agent 并行审查四个包</div>
+          <div class="case-grid">
+            <div class="key">遇到情况</div><div>四个包互不依赖；每个都需要大量搜索，全部放在父会话会膨胀上下文。</div>
+            <div class="key">策略</div><div>在一条 assistant 消息中启动四个后台子 Agent；每个 prompt 限定包路径、检查项和结果格式。</div>
+            <div class="key">父级继续</div><div>整理跨包标准、读取共享架构文档，不空等子级；只有依赖结果的汇总步骤才等待。</div>
+            <div class="key">回收信息</div><div>每个子级只回传结论、证据路径和风险；父级不会继承四套完整搜索历史。</div>
+            <div class="key">越权情况</div><div>某子级需要被过滤的网络工具时，不重复调用或请求审批，而是在结果中说明，由父级决定是否亲自处理。</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="compaction">
+        <h2>7. 完整压缩机制：四层减压</h2>
+        <p class="lead">仓库不是只靠摘要。不同阶段使用不同损失级别的机制：先在工具结果产生时做可恢复 spill，再做确定性工具结果裁剪，仍超阈值才摘要旧对话；图片超限则由厂商错误触发 offload。</p>
+
+        <div class="diagram">
+          <div class="diagram-title">图 13　压缩/减压决策树</div>
+          <div class="flow">
+            <div class="node"><strong>新工具结果</strong><small>是否超过 12,500 估算 token</small></div>
+            <div class="node"><strong>Spill</strong><small>完整内容落盘，模型保留头尾+路径</small></div>
+            <div class="node"><strong>Step 前计量</strong><small>是否达到模型阈值</small></div>
+            <div class="node"><strong>Prune</strong><small>历史工具结果保留 4096+1024 字符</small></div>
+            <div class="node"><strong>重新计量</strong><small>仍超阈值才选旧区间</small></div>
+            <div class="node"><strong>Summary</strong><small>旧区间→结构化检查点</small></div>
+            <div class="node"><strong>Provider 错误</strong><small>窗口溢出重试；图片超限 offload</small></div>
+          </div>
+        </div>
+
+        <h3>7.1 第一层：Spill，尽量无损且可找回</h3>
+        <div class="case">
+          <div class="case-title">例子：构建工具返回约 40,000 token 日志</div>
+          <div class="case-grid">
+            <div class="key">触发</div><div>Standard/Base 配置 <code>maxInlineTokens: 12500</code>，接受后的文本/图片总成本超过上限。</div>
+            <div class="key">处理</div><div>完整格式化结果保存到私有 spill 文件；当前结果保留有序头尾和省略提示。</div>
+            <div class="key">模型看到</div><div>错误开头、日志结尾，以及“省略 N 字节，完整结果位于 /…/file.txt，可用 read/grep”的路径。</div>
+            <div class="key">优势</div><div>关键信息通常位于首尾；中间内容仍可按需检索。结果是新追加内容，不破坏既有 KV Cache。</div>
+            <div class="key">失败策略</div><div>没有 spill backend、存储失败、图片无法计价或提示本身放不下时，保留原始结果，不生成不可读取的假链接。</div>
+          </div>
+        </div>
+
+        <h3>7.2 第二层：Tool Result Pruner，确定性裁掉历史中间段</h3>
+        <div class="case">
+          <div class="case-title">默认参数：threshold=8192 字符，head=4096，tail=1024</div>
+          <div class="case-grid">
+            <div class="key">触发</div><div>对话达到压缩阈值，或请求已经收到 context overflow；扫描当前 Surface 中所有 tool/result。</div>
+            <div class="key">处理</div><div>每个超限结果按 Unicode code point 保留头 4096、尾 1024，中间放 <code>[... tool result middle pruned ...]</code>。</div>
+            <div class="key">结构保护</div><div>非文本 block 保持原顺序；不会把 UTF-16 surrogate pair 切半，但可能切开复杂 grapheme cluster。</div>
+            <div class="key">日志</div><div>先写 <code>compaction/prune</code> 记录原节点成本，再写替换 tool/result。旧原文事件仍在日志。</div>
+            <div class="key">Cache</div><div>因为改写了历史节点，从最早被裁节点开始的缓存失效；代价换来后续请求更短。</div>
+          </div>
+        </div>
+
+        <h3>7.3 第三层：对话摘要压缩</h3>
+        <h4>阈值与保留预算</h4>
+        <div class="formula">W = 模型 contextWindow
+O = 当前请求实际预留的输出 token（request maxTokens，否则 adapter 默认，否则 0）
+B = headroomTokens，默认 65,536
+
+触发阈值 T = floor(min(W × 0.8, W - O - B))
+近期保留 R = floor((W - O) × 0.16)　// 或显式 retainTokens</div>
+        <div class="case">
+          <div class="case-title">计算例子：W=200,000，O=8,192，B=65,536</div>
+          <div class="case-grid">
+            <div class="key">阈值</div><div><code>min(160000, 200000-8192-65536) = 126272</code>。估算总压力达到 126,272 才触发。</div>
+            <div class="key">保留尾部</div><div><code>floor((200000-8192)×0.16) = 30689</code> token 的近期 Surface 原文。</div>
+            <div class="key">为什么留尾部</div><div>最近的用户修正、当前文件片段、未完成工具链通常比早期探索更需要逐字保真。</div>
+            <div class="key">注意</div><div>这是示例。真实 O 来自当前 route；默认 headroom 较大，模型窗口太小时可能直接报配置无可用压力预算。</div>
+          </div>
+        </div>
+
+        <h4>区间选择算法</h4>
+        <ol>
+          <li>用 Token Meter 对当前 Surface 每个节点计价，确认测量节点与 Surface 完全一致。</li>
+          <li>若节点 0 是 system/message，压缩起点从节点 1 开始；System Prompt 永远不进入普通摘要区间。</li>
+          <li>从尾部向前累加，直到至少保留 R token。</li>
+          <li>若切点落在 assistant tool-call 与 tool/result 中间，继续向前移动，直到形成平衡边界。</li>
+          <li>从最早非 system 节点到切点前一节点构成摘要区间；没有可压缩区间则返回 null。</li>
+        </ol>
+        <div class="diagram">
+          <div class="diagram-title">图 14　压缩前后：旧区间摘要，近期尾部逐字保留</div>
+          <div class="compare">
+            <div class="surface"><strong>压缩前 Surface</strong><span class="keep">System Prompt</span><span>早期需求</span><span>探索与工具结果</span><span>旧代码修改</span><span>Assistant tool-call</span><span>Tool result</span><span class="keep">近期用户纠正</span><span class="keep">当前工作</span></div>
+            <div class="arrow">→</div>
+            <div class="surface"><strong>压缩后 Surface</strong><span class="keep">System Prompt</span><span class="replace">结构化 checkpoint</span><span class="keep">近期用户纠正</span><span class="keep">当前工作</span></div>
+          </div>
+        </div>
+
+        <h4>事务与并发保护</h4>
+        <div class="diagram">
+          <div class="diagram-title">图 15　一次摘要压缩事务</div>
+          <div class="flow">
+            <div class="node"><strong>校验区间</strong><small>存在、连续、工具配对平衡</small></div>
+            <div class="node"><strong>compaction/start</strong><small>耐久锁；防止并发压缩</small></div>
+            <div class="node"><strong>快照并计价</strong><small>记录节点与 route token</small></div>
+            <div class="node"><strong>调用摘要模型</strong><small>复用原 system/tools/prefix</small></div>
+            <div class="node"><strong>再次校验稳定</strong><small>Surface 未被并发改写</small></div>
+            <div class="node"><strong>summary + replace</strong><small>摘要记录 + user checkpoint</small></div>
+            <div class="node"><strong>compaction/end</strong><small>成功或带 error 关闭</small></div>
+          </div>
+        </div>
+        <p>自动压缩要求整个 Surface 在摘要期间不变；手动压缩可只要求目标区间稳定。摘要若不比被替换区间更小，事务失败。开始标记后任何失败都尝试写一个带错误的 <code>compaction/end</code>；无法关闭则保留未匹配 start，使后续操作能检测到异常锁。</p>
+
+        <details open><summary>完整摘要提示词：中文翻译</summary><div class="details-body">
+          <div class="translation">你现在是此 AI 编码助手的压缩引擎。把上面的对话压缩成一个结构化检查点，使另一个模型可以恢复工作，同时不丢失关键上下文。
+
+严格按以下 Markdown 结构输出；保留所有章节及顺序。使用简短项目符号，不写散文段落。空章节写“(none)”，不得省略。
+
+## 主要请求与意图
+- 用户最初和逐步变化的目标；精确措辞重要时原样保留
+
+## 关键技术概念
+- 涉及的技术、框架、模式和约定
+
+## 文件与代码
+- 精确路径、重要原因、关键改动或片段
+
+## 错误与修复
+- 错误、解决方式，以及相关用户反馈
+
+## 待办任务
+- 用户明确要求但尚未完成的工作
+
+## 当前工作
+- 检查点时正在进行的具体工作
+
+## 下一步
+- 与最近请求直接一致的唯一下一动作；没有则写“(none)”
+
+## 关键上下文
+- 决策及理由、约束、用户偏好、未决问题、继续工作需要的数据
+
+规则：使用简洁英文工程表达；保留精确路径、命令、错误字符串、标识符、数值、签名与语法片段。忠实记录用户纠正和明确指令。不要提及本次摘要请求或上下文被压缩。只输出检查点，不调用工具。如果旧对话已有 compacted-summary，合并仍有效事实、删除过时事实，不要逐字复制旧检查点。</div>
+          <p><strong>为什么是 8 个固定章节：</strong>它把“用户真正要什么”“技术事实”“当前进度”“下一动作”拆开，减少恢复模型只记住代码细节却忘记目标的概率。固定空章节还让检查点格式稳定、易测试。</p>
+        </div></details>
+
+        <h4>自动压力与真实溢出的不同策略</h4>
+        <div class="table-wrap"><table>
+          <thead><tr><th>情况</th><th>处理</th><th>失败后</th></tr></thead>
+          <tbody>
+            <tr><td>Step 前估算达到阈值</td><td>先 prune，重算；仍高则保留近期 R，摘要旧区间；默认最多 2 次摘要尝试</td><td>记录 warning 并继续当前 Turn；后续厂商仍可能报告真实溢出</td></tr>
+            <tr><td>Provider 返回 CONTEXT_WINDOW_EXCEEDED</td><td>无视普通阈值，先 prune；<code>retainTokens=0</code>，尽量压缩全部可压缩历史</td><td>默认最多恢复重试 1 次；若 prune 已产生耐久进展，即使摘要失败也用新 Surface 重试</td></tr>
+            <tr><td>摘要输出达到 maxTokens</td><td>认为检查点不完整，失败关闭事务</td><td>不提交半截摘要</td></tr>
+            <tr><td>摘要期间 Surface 变化</td><td>稳定性检查失败</td><td>自动压缩放弃；手动压缩报告 changed</td></tr>
+            <tr><td>摘要不比原区间小</td><td>拒绝替换</td><td>避免“压缩后更大”</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>7.4 第四层：Image Offload</h3>
+        <div class="case">
+          <div class="case-title">例子：模型路由拒绝 6 张历史图片，要求 offload 3 张</div>
+          <div class="case-grid">
+            <div class="key">触发</div><div>Adapter 返回 <code>IMAGE_OFFLOAD_REQUIRED</code> 并给出 <code>offloadImages=3</code>。</div>
+            <div class="key">处理</div><div>从当前 Surface 请求顺序选择最旧的 3 个尚未 offload 的输入图片；写 <code>image/offload</code> 事件。</div>
+            <div class="key">模型看到</div><div>原位置变成说明附件与只读路径的文本占位符；其余图片仍发送。</div>
+            <div class="key">重试</div><div>这是 Surface 修复，不消耗普通 provider retry 预算；随后重新发起请求。</div>
+            <div class="key">代价</div><div>从第一张改变的图片起缓存失效；offload 标记永久保留，即使后来切到更大模型也不会自动恢复。</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="cache">
+        <h2>8. KV Cache 利用率怎样被设计出来</h2>
+        <h3>8.1 关键不是“少改内容”，而是“不要改前缀”</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 16　稳定前缀策略</div>
+          <div class="flow">
+            <div class="node"><strong>System Prompt</strong><small>确定顺序，变化少</small></div>
+            <div class="node"><strong>Tool Schemas</strong><small>模式切换尽量不删工具</small></div>
+            <div class="node"><strong>旧对话历史</strong><small>只追加，不重写</small></div>
+            <div class="node"><strong>动态快照</strong><small>变化时才追加</small></div>
+            <div class="node"><strong>当前用户输入</strong><small>本轮新增</small></div>
+            <div class="node"><strong>工具结果</strong><small>下一 Step 新增</small></div>
+            <div class="node"><strong>模型输出</strong><small>继续扩展缓存</small></div>
+          </div>
+        </div>
+
+        <div class="table-wrap"><table>
+          <thead><tr><th>设计</th><th>具体做法</th><th>Cache 收益</th><th>何时仍会失效</th></tr></thead>
+          <tbody>
+            <tr><td>确定性 Prompt</td><td>section 按 order + name 排序；工具 schema 使用稳定顺序</td><td>相同配置生成字节稳定前缀</td><td>Persona、工具定义或变量值真的改变</td></tr>
+            <tr><td>动态事实后置</td><td>权限、AGENTS 更新、Skill 目录以历史消息追加</td><td>前面的 System Prompt 和旧历史保持不变</td><td>需要 Surface replace 时</td></tr>
+            <tr><td>in-history Prompt 更新</td><td>支持的 route 将新版 Prompt 放在旧历史之后</td><td>旧请求完整成为新请求前缀</td><td>新 series、工具变化、压缩或 route 不支持</td></tr>
+            <tr><td>Plan 模式工具不变</td><td>保留写工具 schema，但由 Prompt 禁止使用</td><td>切换模式不会因工具目录变化清空缓存</td><td>真实插件装卸导致 schema 改变</td></tr>
+            <tr><td>Fork 子 Agent</td><td>继承父 provider/model 和历史，不在继承前缀前插 child-only schema</td><td>父历史可直接作为子请求缓存前缀</td><td>子 Agent 后续追加专属上下文后</td></tr>
+            <tr><td>摘要调用</td><td>重放原 system、tools 和待压缩消息，把摘要指令放最后</td><td>辅助摘要请求复用主会话的热前缀</td><td>摘要落地替换旧区间后，主请求从替换点重新缓存</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>8.2 TokenUsage 的字段不能混算</h3>
+        <div class="formula">inputTokens       = 未缓存输入 token
+cacheReadTokens   = 从 KV Cache 读取的输入 token
+cacheWriteTokens  = 新写入 Cache 的输入 token
+outputTokens      = 模型输出 token
+
+一次调用的 prompt traffic = input + cacheRead + cacheWrite
+完整 total = prompt traffic + output</div>
+        <div class="case">
+          <div class="case-title">例子：input=2,000，cacheRead=90,000，cacheWrite=6,000，output=3,000</div>
+          <div class="case-grid">
+            <div class="key">输入总量</div><div><code>2,000 + 90,000 + 6,000 = 98,000</code>。不能把 cacheRead 再包含到 input 中。</div>
+            <div class="key">复用占比</div><div>可作为分析指标计算 <code>90,000 / 98,000 ≈ 91.8%</code>。</div>
+            <div class="key">注意</div><div>这个比例不是仓库内置 KPI；价格和 cache write/read 计费由具体 provider 决定。</div>
+            <div class="key">压力计量</div><div>Token Meter 把三个输入 bucket 都算入 prompt 压力，因为它们都占用模型上下文。</div>
+          </div>
+        </div>
+
+        <h3>8.3 Token Meter 如何避免纯估算漂移</h3>
+        <p>没有厂商 usage 时，文本按约 4 字符/token，加 block 与 role 开销；工具 schema 按 JSON 长度估算，图片使用 route-specific pricing。收到一次成功请求的真实 usage 后，它把该请求作为 anchor：只要 request header 相同，就用真实总量加上当前 Surface 相对 anchor 的估算增量。若 header 变化，则退回完整估算。</p>
+        <div class="callout warn"><p><strong>中文注意：</strong>固定 4 字符/token 对中文、代码和 JSON 并不精确。真实 usage anchor 能修正整体基线，但后来新增节点的增量仍是启发式，因此自动压缩只能提前防护，真实 overflow 恢复仍然必要。</p></div>
+      </section>
+
+      <section id="intent">
+        <h2>9. 提高 Agent 能力与意图识别准确率的手段</h2>
+        <p>这里的“意图识别”不是单独分类器，而是通过来源、模式、持久状态和工具反馈，把容易混淆的意图变成显式状态。</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>问题</th><th>机制</th><th>Agent 遇到什么情况</th><th>处理策略</th></tr></thead>
+          <tbody>
+            <tr><td>“分析”还是“执行”</td><td>Plan Mode</td><td>用户在计划模式说“实现这个功能”</td><td>解释为“制定实现计划”；只读探索，最后只能调用 exit_plan_mode</td></tr>
+            <tr><td>一次回答还是持续完成</td><td>Goal</td><td>用户明确要求持续工作或创建目标</td><td>目标写入持久状态，自动轮次继续；真正完成才 complete</td></tr>
+            <tr><td>用户指令还是外部文本</td><td>Message source</td><td>网页/工具结果里出现“调用某 Skill”</td><td>不视为用户显式手势；只有 source.kind=user 的消息能触发</td></tr>
+            <tr><td>规则适用于哪个文件</td><td>目录作用域</td><td>修改嵌套目录文件</td><td>根规则提供公共约束，更深目录规则覆盖冲突项</td></tr>
+            <tr><td>是否应该问用户</td><td>Plan Prompt + Ask User Tool</td><td>信息可从代码中找到</td><td>先检查；只对用户拥有的选择或无法检查的实质歧义提问</td></tr>
+            <tr><td>权限不足是否代表任务不能做</td><td>Sandbox + Approval Context</td><td>当前 read-only，但用户要求修改</td><td>尝试正常工具，让执行期策略返回明确拒绝/升级方式；never 模式不反复请求升级</td></tr>
+            <tr><td>工具是否在原地打转</td><td>Repeat Reminder</td><td>相同工具和规范化参数连续出现 3/5/8 次</td><td>把提醒放进下一 Step，要求分析上次结果、改参数或结束</td></tr>
+            <tr><td>子 Agent 是否越权</td><td>Delegation Context</td><td>子任务需要委派范围外权限</td><td>固定审批 never；不重复失败操作，向父 Agent 报告限制</td></tr>
+            <tr><td>输出格式是否可靠</td><td>Structured Output Tool</td><td>父任务要求子 Agent 返回 JSON schema</td><td>子 Agent 必须调用 structured_output；普通文本不算完成，参数不符在同 Turn 重试</td></tr>
+            <tr><td>时间表达是否歧义</td><td>Time Context</td><td>用户说“今天”“十分钟后”或长任务跨时段</td><td>按浏览器时区/回退时区注入采样时间和经过时长；默认 10 分钟内不重复</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>一次“识别—行动—纠偏”闭环</h3>
+        <div class="diagram">
+          <div class="diagram-title">图 17　意图准确性不是一次分类，而是循环收敛</div>
+          <div class="flow">
+            <div class="node"><strong>保留用户原话</strong><small>目标、限制、纠正</small></div>
+            <div class="node"><strong>叠加模式状态</strong><small>plan / goal / permission</small></div>
+            <div class="node"><strong>按需取证</strong><small>read / grep / skill</small></div>
+            <div class="node"><strong>执行工具</strong><small>Schema 限制参数</small></div>
+            <div class="node"><strong>观察真实结果</strong><small>错误、版本、权限拒绝</small></div>
+            <div class="node"><strong>注入纠偏</strong><small>提醒、规则更新、用户反馈</small></div>
+            <div class="node"><strong>下一 Step 重判</strong><small>历史与新事实一起进入</small></div>
+          </div>
+        </div>
+        <p>这套设计把 LLM 最容易忘记的内容——权限、模式、用户纠正、当前进度、工具失败——都变成可记录的消息或事件，而不是依赖模型“自己记住”。</p>
+      </section>
+
+      <section id="cases">
+        <h2>10. 六个场景推演</h2>
+        <div class="case">
+          <div class="case-title">场景 A：用户说“先分析，不要改”</div>
+          <div class="case-grid"><div class="key">判断</div><div>直接用户指令高于普通工具建议；若已在 Plan Mode，模式规则进一步禁止写操作。</div><div class="key">策略</div><div>只用 read/grep/glob/静态检查；需要决策时才提问；产出可执行计划而非改动。</div><div class="key">防错</div><div>即使 write/edit 仍在工具目录，也不得使用；工具保留只是为了 Cache 稳定。</div></div>
+        </div>
+        <div class="case">
+          <div class="case-title">场景 B：用户修改了前一轮需求</div>
+          <div class="case-grid"><div class="key">判断</div><div>新用户消息位于历史尾部，权威高于旧用户目标的摘要表述。</div><div class="key">策略</div><div>下一 Step 同时看到旧背景与最新纠正；若之后压缩，摘要提示明确要求忠实保留用户 feedback/corrections。</div><div class="key">风险</div><div>若摘要模型仍错误概括，系统没有第二个语义校验器；最近尾部保真是主要缓冲。</div></div>
+        </div>
+        <div class="case">
+          <div class="case-title">场景 C：工具输出巨大，但其中间可能有用</div>
+          <div class="case-grid"><div class="key">第一反应</div><div>Spill 完整落盘，inline 只留头尾与路径。</div><div class="key">后续行动</div><div>模型根据错误关键字对 spill 文件使用 grep，再用 read offset/limit 读取局部。</div><div class="key">再压缩</div><div>若历史仍膨胀，pruner 可能进一步裁剪 inline 结果；完整 spill 文件仍可读取，直到清理策略回收。</div></div>
+        </div>
+        <div class="case">
+          <div class="case-title">场景 D：模型重复同一失败命令</div>
+          <div class="case-grid"><div class="key">检测</div><div>工具名 + 深度排序后的完整 JSON 参数构成 key；对象属性顺序不同也视为相同。</div><div class="key">策略</div><div>第 3 次后温和提醒；第 5、8 次给出工具、计数和截断参数。守卫只建议，不直接 veto。</div><div class="key">重置</div><div>真实用户插话说明情境已变，重复链删除；被 exclude 的工具既不计数也不重置。</div></div>
+        </div>
+        <div class="case">
+          <div class="case-title">场景 E：上下文估算未超阈值，但 Provider 仍报溢出</div>
+          <div class="case-grid"><div class="key">原因</div><div>4 字符/token 启发式、中文/JSON 密度、图片计价或 provider 规则与本地估算不一致。</div><div class="key">策略</div><div>进入 context-overflow 恢复：prune → retain=0 选择最大旧区间 → 摘要 → 新 series 重试。</div><div class="key">边界</div><div>默认只恢复 1 次；没有可压缩区间或仍失败时保留原始错误，不无限循环。</div></div>
+        </div>
+        <div class="case">
+          <div class="case-title">场景 F：压缩时用户又发送了新消息</div>
+          <div class="case-grid"><div class="key">并发问题</div><div>摘要模型调用是异步的，期间 Surface 可能改变。</div><div class="key">策略</div><div><code>compaction/start</code> 建立耐久锁；摘要返回后重新比较节点及计价。自动压缩要求 whole-surface 稳定。</div><div class="key">结果</div><div>变化则拒绝提交旧摘要，防止用过期快照覆盖新消息；失败通过 compaction/end 记录。</div></div>
+        </div>
+      </section>
+
+      <section id="limits">
+        <h2>11. 当前设计边界与学习建议</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>边界</th><th>影响</th><th>如果继续演进</th></tr></thead>
+          <tbody>
+            <tr><td>没有语义相关性排序</td><td>很早但很关键的细节只能依赖摘要保留</td><td>可增加可引用事实/决策记忆，但必须保持来源、失效与日志重建语义</td></tr>
+            <tr><td>摘要由 LLM 生成</td><td>可能遗漏、合并错误或保留过时结论</td><td>对文件路径、待办、用户纠正做结构校验；加入摘要回归 eval</td></tr>
+            <tr><td>4 chars/token 启发式</td><td>中文、代码、JSON 的预估误差较大</td><td>按 route 接入 tokenizer，或用历史 usage 校准分内容类型的增量</td></tr>
+            <tr><td>Tool pruner 不理解语义</td><td>关键中间行可能被裁掉</td><td>优先依赖 spill 的可恢复路径；避免把 pruner 当信息检索机制</td></tr>
+            <tr><td>工作区规则刷新依赖结构化文件工具</td><td>外部编辑或 shell 修改不会立即自动发现</td><td>提供可靠文件事件源后再增加监听，避免解析 shell 行为</td></tr>
+            <tr><td>Skill 正文没有统一总 token 上限</td><td>单个超大 Skill 可能显著占用上下文</td><td>在 Skill authoring 与 loader 两侧增加可观测预算，而不是静默截断关键步骤</td></tr>
+            <tr><td>Cache 命中不是 Harness 能保证的</td><td>Provider 可能按自身粒度、TTL、账户策略处理缓存</td><td>使用 cacheRead/cacheWrite 的真实 usage 做 route 级监控</td></tr>
+          </tbody>
+        </table></div>
+        <div class="callout green">
+          <p><strong>推荐阅读顺序：</strong>先看 Agent Loop 的 preStep/step/buildRequest，再看 Session Surface；之后读 System Prompt Registry、Agent Instructions 和 Skill；最后沿着 Token Meter → Tool Result Pruner → Basic Compaction → Image Offload 阅读。这样能先理解“请求如何形成”，再理解“它如何被缩短”。</p>
+        </div>
+      </section>
+
+      <section id="sources">
+        <h2>12. 源码索引</h2>
+        <p>以下链接都是本仓库当前文件。正文结论以这些实现和随包 README 为依据。</p>
+        <ul class="source-list">
+          <li><a href="../docs/architecture.md">docs/architecture.md</a> — 总体架构</li>
+          <li><a href="../packages/core/agent-loop/src/agent.ts">agent-loop/src/agent.ts</a> — Turn / Step / Request</li>
+          <li><a href="../packages/core/agent-loop/src/runtime-context.ts">agent-loop/runtime-context.ts</a> — Prompt 与动态快照投影</li>
+          <li><a href="../packages/core/agent-loop/src/inbox.ts">agent-loop/inbox.ts</a> — next-turn / next-step</li>
+          <li><a href="../packages/core/system-prompt/src/index.ts">system-prompt/src/index.ts</a> — 分区、顺序、作用域、变量</li>
+          <li><a href="../packages/core/session/src/surface.ts">session/src/surface.ts</a> — Surface fold 与 replace</li>
+          <li><a href="../packages/context/agent-instructions/README.md">agent-instructions/README.md</a> — 工作区规则语义</li>
+          <li><a href="../packages/context/agent-instructions/src/render.ts">agent-instructions/render.ts</a> — 预算与渲染</li>
+          <li><a href="../packages/context/agent-instructions/src/files.ts">agent-instructions/files.ts</a> — 路径发现</li>
+          <li><a href="../packages/core/tools/src/index.ts">core/tools/src/index.ts</a> — 工具注册、作用域、schema 投影与执行</li>
+          <li><a href="../packages/core/tools/src/ts-types.ts">core/tools/src/ts-types.ts</a> — PTC SDK 与 run_code 的模型提示</li>
+          <li><a href="../packages/llm/llm/src/types.ts">llm/src/types.ts</a> — ToolSchema、调用块与动态工具更新类型</li>
+          <li><a href="../packages/llm/llm/src/content.ts">llm/src/content.ts</a> — tool addition/removal 的 route 投影</li>
+          <li><a href="../packages/skill/skill/src/index.ts">skill/src/index.ts</a> — Skill 注册表与正文统一格式</li>
+          <li><a href="../packages/skill/tool-skill/src/index.ts">tool-skill/src/index.ts</a> — Skill 目录与按需加载</li>
+          <li><a href="../packages/mcp/mcp-client/src/tools.ts">mcp-client/tools.ts</a> — MCP Tool 命名、schema 桥接与结果投影</li>
+          <li><a href="../packages/mcp/mcp-client/src/server-context.ts">mcp-client/server-context.ts</a> — 服务器说明与资源作用域</li>
+          <li><a href="../packages/mcp/mcp-resources/src/index.ts">mcp-resources/src/index.ts</a> — 资源服务器目录与作用域</li>
+          <li><a href="../packages/mcp/mcp-resources/src/tools.ts">mcp-resources/src/tools.ts</a> — list/read 三个共享资源工具</li>
+          <li><a href="../packages/subagent/tool-subagent/src/index.ts">tool-subagent/src/index.ts</a> — 委派 schema、措辞、后台策略与结果</li>
+          <li><a href="../packages/subagent/subagent/src/child-agent.ts">subagent/child-agent.ts</a> — 子级组合、权限、血缘与委派上下文</li>
+          <li><a href="../packages/subagent/subagent-spawn-in-process/src/index.ts">subagent-spawn-in-process</a> — 全新子上下文</li>
+          <li><a href="../packages/subagent/subagent-fork-in-process/src/index.ts">subagent-fork-in-process</a> — 已完成父历史种子</li>
+          <li><a href="../packages/subagent/subagent-in-process-driver/src/structured.ts">subagent structured.ts</a> — 结构化输出提示与终态保护</li>
+          <li><a href="../packages/goal/tool-goal/src/index.ts">tool-goal/src/index.ts</a> — 目标意图与状态限制</li>
+          <li><a href="../packages/guard/repeat-tool-reminder/src/index.ts">repeat-tool-reminder/src/index.ts</a> — 重复调用纠偏</li>
+          <li><a href="../packages/sandbox/sandbox-policy/src/index.ts">sandbox-policy/src/index.ts</a> — 沙箱快照</li>
+          <li><a href="../packages/interaction/user-approval/src/index.ts">user-approval/src/index.ts</a> — 审批快照</li>
+          <li><a href="../packages/llm/token-meter/src/index.ts">token-meter/src/index.ts</a> — 压力计量</li>
+          <li><a href="../packages/llm/token-meter/src/estimate.ts">token-meter/estimate.ts</a> — 估算公式</li>
+          <li><a href="../packages/llm/token-meter/src/usage-projection.ts">token-meter/usage-projection.ts</a> — Cache bucket</li>
+          <li><a href="../packages/spill/spill-policy/README.md">spill-policy/README.md</a> — 可恢复工具输出</li>
+          <li><a href="../packages/compaction/compaction-tool-result-pruner/src/index.ts">tool-result-pruner/src/index.ts</a> — 确定性裁剪</li>
+          <li><a href="../packages/compaction/compaction-basic/src/config.ts">compaction-basic/config.ts</a> — 阈值与预算</li>
+          <li><a href="../packages/compaction/compaction-basic/src/region.ts">compaction-basic/region.ts</a> — 区间与事务</li>
+          <li><a href="../packages/compaction/compaction-basic/src/summarizer.ts">compaction-basic/summarizer.ts</a> — 摘要 Prompt</li>
+          <li><a href="../packages/compaction/compaction-image-offload/README.md">image-offload/README.md</a> — 图片减压</li>
+          <li><a href="../packages/llm/llm-deepseek/src/serialize.ts">llm-deepseek/serialize.ts</a> — DeepSeek 请求序列化</li>
+          <li><a href="../packages/bundle/web-app/presets/standard.patch.yml">web standard.patch.yml</a> — Standard 组合</li>
+          <li><a href="../packages/bundle/base/cordis.patch.yml">base/cordis.patch.yml</a> — Base 组合与默认值</li>
+        </ul>
+      </section>
+
+      <footer>这是一份面向学习的源码解读，不是仓库正式 API 规范。涉及精确行为时，以链接的源码、类型和包 README 为准。</footer>
+    </article>
+  </div>
+  <script>
+    const links = [...document.querySelectorAll('nav a[href^="#"]')]
+    const targets = links.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean)
+    const update = () => {
+      let current = targets[0]
+      for (const target of targets) if (target.getBoundingClientRect().top <= 90) current = target
+      for (const link of links) link.classList.toggle('active', link.getAttribute('href') === `#${current?.id}`)
+    }
+    document.addEventListener('scroll', update, { passive: true })
+    update()
+  </script>
+</body>
+</html>
